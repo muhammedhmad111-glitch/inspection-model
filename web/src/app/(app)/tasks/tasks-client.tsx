@@ -27,6 +27,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
+import { DailyReportButton } from "@/components/daily-report-button";
 import {
   CATEGORY_LABELS_AR,
   CONDITION_BADGE_CLASS,
@@ -161,11 +162,14 @@ export function TasksClient({
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-bold">مهام الفحص</h1>
-        <p className="text-sm text-muted-foreground">
-          قائمة أعمال المفتشين — بدء وتنفيذ الفحوصات
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">مهام الفحص</h1>
+          <p className="text-sm text-muted-foreground">
+            قائمة أعمال المفتشين — بدء وتنفيذ الفحوصات
+          </p>
+        </div>
+        <DailyReportButton senderName={profileById.get(currentUserId) ?? ""} />
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>

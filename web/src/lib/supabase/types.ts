@@ -884,6 +884,15 @@ export type Database = {
         Returns: number
       }
       get_dashboard_data: { Args: never; Returns: Json }
+      get_report_recipients: {
+        Args: never
+        Returns: {
+          id: string
+          full_name: string
+          role: Database["public"]["Enums"]["app_user_role"]
+          email: string
+        }[]
+      }
       has_maintenance_write: { Args: never; Returns: boolean }
       has_master_data_write: { Args: never; Returns: boolean }
       has_permission: { Args: { p_key: string }; Returns: boolean }
