@@ -4,11 +4,14 @@ import {
   CalendarClock,
   CheckCircle2,
   Clock,
+  ShieldCheck,
+  Wrench,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/types";
+import { cn } from "@/lib/utils";
 import {
   CATEGORY_LABELS_AR,
   CONDITION_BADGE_CLASS,
@@ -44,6 +47,14 @@ type TaskLite = {
   } | null;
 };
 
+type ActionLite = {
+  action_id: string;
+  action_title: string;
+  status: Enums<"action_status">;
+  target_date: string | null;
+  created_at: string;
+};
+
 type FindingLite = {
   finding_id: string;
   finding_code: string;
@@ -51,12 +62,16 @@ type FindingLite = {
   severity: Enums<"priority_level">;
   status: Enums<"finding_status">;
   created_at: string;
-  maintenance_actions: {
-    action_id: string;
-    action_title: string;
-    status: Enums<"action_status">;
-    target_date: string | null;
-  }[];
+  maintenance_actions: ActionLite[];
+};
+
+type HistoryItem = {
+  key: string;
+  date: string;
+  kind: "inspection" | "finding" | "action";
+  title: string;
+  subtitle: string;
+  badge: { label: string; className: string } | null;
 };
 
 export async function Equipment360({ equipmentId }: { equipmentId: string }) {
@@ -75,7 +90,7 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
       .from("inspection_findings")
       .select(
         `finding_id, finding_code, finding_title, severity, status, created_at,
-         maintenance_actions ( action_id, action_title, status, target_date )`
+         maintenance_actions ( action_id, action_title, status, target_date, created_at )`
       )
       .eq("equipment_id", equipmentId)
       .order("created_at", { ascending: false }),
@@ -102,24 +117,122 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
     (a.completion_date ?? "").localeCompare(b.completion_date ?? "")
   );
   const lastInspection = completedSorted[completedSorted.length - 1];
+  const lastCondition = lastInspection?.condition_rating ?? null;
 
   const conditionTrend = completedSorted
     .filter((t) => t.condition_rating)
     .slice(-10);
 
+  const allActions = findings.flatMap((f) => f.maintenance_actions ?? []);
   const openFindings = findings.filter((f) => f.status !== "Closed");
-  const openActions = findings
-    .flatMap((f) => f.maintenance_actions ?? [])
-    .filter((a) => !["Completed", "Verified", "Cancelled"].includes(a.status));
+  const openActions = allActions.filter(
+    (a) => !["Completed", "Verified", "Cancelled"].includes(a.status)
+  );
 
-  const timeline = [...tasks]
-    .filter((t) => t.completion_date || t.status === "In Progress")
-    .sort((a, b) =>
-      (b.completion_date ?? b.scheduled_date).localeCompare(
-        a.completion_date ?? a.scheduled_date
-      )
-    )
-    .slice(0, 8);
+  // ---- health verdict: is the equipment normal, or does it still have a problem? ----
+  const criticalFindings = openFindings.filter((f) => f.severity === "Critical");
+  const poorCondition = lastCondition === "Poor" || lastCondition === "Critical";
+
+  const reasons: string[] = [];
+  if (openFindings.length) reasons.push(`${openFindings.length} ملاحظة مفتوحة`);
+  if (overdue) reasons.push(`${overdue} فحص متأخر`);
+  if (openActions.length) reasons.push(`${openActions.length} إجراء صيانة قيد التنفيذ`);
+  if (poorCondition && lastCondition)
+    reasons.push(`آخر حالة: ${CONDITION_LABELS_AR[lastCondition]}`);
+
+  const health: "healthy" | "warning" | "critical" =
+    criticalFindings.length || lastCondition === "Critical"
+      ? "critical"
+      : openFindings.length || overdue || openActions.length || poorCondition
+        ? "warning"
+        : "healthy";
+
+  const healthConfig = {
+    healthy: {
+      icon: ShieldCheck,
+      title: "المعدة سليمة — لا توجد مشاكل نشطة",
+      note: completed.length
+        ? "كل الفحوصات مطابقة ولا توجد ملاحظات أو إجراءات صيانة مفتوحة"
+        : "لا توجد ملاحظات مفتوحة (لم يُسجَّل فحص مكتمل بعد)",
+      wrap: "bg-emerald-50 dark:bg-emerald-950/30",
+      iconWrap: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300",
+      titleColor: "text-emerald-700 dark:text-emerald-300",
+    },
+    warning: {
+      icon: AlertTriangle,
+      title: "بها ملاحظات تحتاج متابعة",
+      note: "يوجد بند أو أكثر مفتوح على هذه المعدة — راجع التفاصيل بالأسفل",
+      wrap: "bg-amber-50 dark:bg-amber-950/30",
+      iconWrap: "bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-300",
+      titleColor: "text-amber-700 dark:text-amber-300",
+    },
+    critical: {
+      icon: AlertTriangle,
+      title: "بها مشكلة حرجة تحتاج تدخّل عاجل",
+      note: "توجد ملاحظة حرجة أو حالة حرجة على هذه المعدة",
+      wrap: "bg-red-50 dark:bg-red-950/30",
+      iconWrap: "bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-300",
+      titleColor: "text-red-700 dark:text-red-300",
+    },
+  }[health];
+
+  const HealthIcon = healthConfig.icon;
+
+  // ---- unified history: inspections + findings + maintenance actions ----
+  const history: HistoryItem[] = [
+    ...completed
+      .filter((t) => t.completion_date)
+      .map<HistoryItem>((t) => ({
+        key: `t-${t.inspection_task_id}`,
+        date: t.completion_date!,
+        kind: "inspection",
+        title: t.inspection_activities?.activity_name ?? "فحص",
+        subtitle: t.inspection_activities
+          ? CATEGORY_LABELS_AR[t.inspection_activities.inspection_category]
+          : "فحص",
+        badge: t.condition_rating
+          ? {
+              label: CONDITION_LABELS_AR[t.condition_rating],
+              className: CONDITION_BADGE_CLASS[t.condition_rating],
+            }
+          : null,
+      })),
+    ...findings.map<HistoryItem>((f) => ({
+      key: `f-${f.finding_id}`,
+      date: f.created_at,
+      kind: "finding",
+      title: f.finding_title,
+      subtitle: `ملاحظة · ${f.finding_code}`,
+      badge: {
+        label: PRIORITY_LABELS_AR[f.severity],
+        className: PRIORITY_BADGE_CLASS[f.severity],
+      },
+    })),
+    ...allActions.map<HistoryItem>((a) => ({
+      key: `a-${a.action_id}`,
+      date: a.created_at,
+      kind: "action",
+      title: a.action_title,
+      subtitle: "إجراء صيانة",
+      badge: {
+        label: ACTION_STATUS_LABELS_AR[a.status],
+        className: ACTION_STATUS_BADGE_CLASS[a.status],
+      },
+    })),
+  ]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 12);
+
+  const historyIcon = {
+    inspection: CheckCircle2,
+    finding: AlertTriangle,
+    action: Wrench,
+  };
+  const historyIconWrap = {
+    inspection: "bg-primary/10 text-primary",
+    finding: "bg-brand-pink/15 text-brand-pink",
+    action: "bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300",
+  };
 
   const summary = [
     { label: "قادمة", value: upcoming, icon: CalendarClock, tone: "purple" },
@@ -137,7 +250,29 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <h2 className="text-lg font-bold">نظرة 360° على الفحص</h2>
+      <h2 className="text-lg font-bold">الحالة الحالية وسجل المعدة</h2>
+
+      {/* health verdict banner */}
+      <Card className={cn("rounded-3xl border-0 shadow-sm", healthConfig.wrap)}>
+        <CardContent className="flex flex-wrap items-center gap-4 py-5">
+          <div
+            className={cn(
+              "flex size-14 shrink-0 items-center justify-center rounded-2xl",
+              healthConfig.iconWrap
+            )}
+          >
+            <HealthIcon className="size-7" />
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className={cn("text-lg font-bold", healthConfig.titleColor)}>
+              {healthConfig.title}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {reasons.length ? reasons.join(" · ") : healthConfig.note}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {summary.map((s) => (
@@ -214,40 +349,46 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
           </CardContent>
         </Card>
 
-        {/* timeline */}
+        {/* unified history */}
         <Card className="rounded-3xl border-0 shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">آخر أحداث الفحص</CardTitle>
+            <CardTitle className="text-base">سجل المعدة</CardTitle>
           </CardHeader>
           <CardContent>
-            {timeline.length ? (
+            {history.length ? (
               <ol className="flex flex-col gap-3">
-                {timeline.map((t) => (
-                  <li key={t.inspection_task_id} className="flex items-start gap-3">
-                    <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
-                    <div className="flex flex-1 flex-col">
-                      <span className="text-sm font-medium">
-                        {t.inspection_activities?.activity_name ?? "فحص"}
+                {history.map((h) => {
+                  const HIcon = historyIcon[h.kind];
+                  return (
+                    <li key={h.key} className="flex items-start gap-3">
+                      <span
+                        className={cn(
+                          "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg",
+                          historyIconWrap[h.kind]
+                        )}
+                      >
+                        <HIcon className="size-4" />
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        {t.inspection_activities
-                          ? CATEGORY_LABELS_AR[t.inspection_activities.inspection_category]
-                          : ""}
-                        {" · "}
-                        <span className="font-mono" dir="ltr">
-                          {(t.completion_date ?? t.scheduled_date).slice(0, 10)}
+                      <div className="flex flex-1 flex-col">
+                        <span className="text-sm font-medium">{h.title}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {h.subtitle}
+                          {" · "}
+                          <span className="font-mono" dir="ltr">
+                            {h.date.slice(0, 10)}
+                          </span>
                         </span>
-                      </span>
-                    </div>
-                    <Badge className={TASK_STATUS_BADGE_CLASS[t.status]}>
-                      {TASK_STATUS_LABELS_AR[t.status]}
-                    </Badge>
-                  </li>
-                ))}
+                      </div>
+                      {h.badge ? (
+                        <Badge className={h.badge.className}>{h.badge.label}</Badge>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ol>
             ) : (
               <p className="py-6 text-center text-sm text-muted-foreground">
-                لا توجد أحداث فحص بعد
+                لا يوجد سجل بعد
               </p>
             )}
           </CardContent>
