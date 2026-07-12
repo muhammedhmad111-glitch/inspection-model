@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Copy, Loader2, Mail, Send } from "lucide-react";
+import { Copy, FileDown, Loader2, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,12 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/types";
-import {
-  ACTION_STATUS_LABELS_AR,
-  CONDITION_LABELS_AR,
-  PRIORITY_LABELS_AR,
-  ROLE_LABELS_AR,
-} from "@/lib/constants";
+import type { ReportData } from "@/lib/report-pdf";
+import { ROLE_LABELS_AR } from "@/lib/constants";
 
 type Recipient = {
   id: string;
@@ -53,6 +49,7 @@ const PLACEHOLDER_DOMAIN = "@cimpor-amreyah.local";
 export function DailyReportButton({ senderName }: { senderName: string }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [manual, setManual] = useState("");
@@ -86,13 +83,13 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
         .select(`finding_code, finding_title, severity, equipment ( equipment_name )`)
         .neq("status", "Closed")
         .order("created_at", { ascending: false })
-        .limit(40),
+        .limit(60),
       supabase
         .from("maintenance_actions")
         .select(`action_title, status, target_date`)
         .not("status", "in", "(Completed,Verified,Cancelled)")
         .order("created_at", { ascending: false })
-        .limit(40),
+        .limit(60),
     ]);
 
     const recs = (rec.data ?? []) as Recipient[];
@@ -112,71 +109,96 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     setLoading(false);
   }
 
-  const subject = `تقرير التفتيش اليومي — ${todayISO}`;
+  const subject = `Daily Inspection Report — ${todayISO}`;
 
+  // English report data used for both the PDF and the email body
+  const reportData: ReportData | null = useMemo(() => {
+    if (!data) return null;
+    return {
+      date: todayISO,
+      preparedBy: senderName,
+      note: note.trim() || undefined,
+      completed: data.completed.map((t) => ({
+        equipment: t.equipment?.equipment_name ?? "Equipment",
+        location: t.equipment?.functional_location ?? null,
+        activity: t.inspection_activities?.activity_name ?? "Inspection",
+        condition: t.condition_rating ?? null,
+      })),
+      findings: data.findings.map((f) => ({
+        severity: f.severity,
+        equipment: f.equipment?.equipment_name ?? null,
+        title: f.finding_title,
+        code: f.finding_code,
+      })),
+      actions: data.actions.map((a) => ({
+        title: a.action_title,
+        status: a.status,
+        target: a.target_date,
+      })),
+    };
+  }, [data, note, senderName, todayISO]);
+
+  // English plain-text body for the email
   const body = useMemo(() => {
-    if (!data) return "";
+    if (!reportData) return "";
     const L: string[] = [];
     L.push(subject);
-    L.push(`المُعِدّ: ${senderName || "—"}`);
-    if (note.trim()) {
+    L.push(`Prepared by: ${reportData.preparedBy || "-"}`);
+    if (reportData.note) {
       L.push("");
-      L.push(`ملاحظة عامة: ${note.trim()}`);
+      L.push(`Note: ${reportData.note}`);
     }
 
     L.push("");
-    L.push(`■ التاسكات المنفّذة اليوم (${data.completed.length}):`);
-    if (data.completed.length) {
-      data.completed.slice(0, 25).forEach((t) => {
-        const eq = t.equipment
-          ? t.equipment.functional_location
-            ? `${t.equipment.equipment_name} (${t.equipment.functional_location})`
-            : t.equipment.equipment_name
-          : "معدة";
-        const cond = t.condition_rating
-          ? ` — الحالة: ${CONDITION_LABELS_AR[t.condition_rating]}`
-          : "";
-        L.push(`• ${eq}: ${t.inspection_activities?.activity_name ?? "فحص"}${cond}`);
+    L.push(`Completed Inspections Today (${reportData.completed.length}):`);
+    if (reportData.completed.length) {
+      reportData.completed.slice(0, 25).forEach((t) => {
+        const loc = t.location ? ` (${t.location})` : "";
+        const cond = t.condition ? ` — Condition: ${t.condition}` : "";
+        L.push(`- ${t.equipment}${loc}: ${t.activity}${cond}`);
       });
-      if (data.completed.length > 25) L.push(`… و${data.completed.length - 25} أخرى`);
+      if (reportData.completed.length > 25)
+        L.push(`... and ${reportData.completed.length - 25} more`);
     } else {
-      L.push("• لا يوجد");
+      L.push("- None");
     }
 
     L.push("");
-    L.push(`■ الملاحظات / المشاكل المفتوحة (${data.findings.length}):`);
-    if (data.findings.length) {
-      data.findings.slice(0, 25).forEach((f) => {
-        const eq = f.equipment?.equipment_name ? `${f.equipment.equipment_name}: ` : "";
-        L.push(`• [${PRIORITY_LABELS_AR[f.severity]}] ${eq}${f.finding_title} (${f.finding_code})`);
+    L.push(`Open Findings / Issues (${reportData.findings.length}):`);
+    if (reportData.findings.length) {
+      reportData.findings.slice(0, 25).forEach((f) => {
+        const eq = f.equipment ? `${f.equipment}: ` : "";
+        L.push(`- [${f.severity}] ${eq}${f.title} (${f.code})`);
       });
-      if (data.findings.length > 25) L.push(`… و${data.findings.length - 25} أخرى`);
+      if (reportData.findings.length > 25)
+        L.push(`... and ${reportData.findings.length - 25} more`);
     } else {
-      L.push("• لا يوجد");
+      L.push("- None");
     }
 
     L.push("");
-    L.push(`■ إجراءات الصيانة المفتوحة (${data.actions.length}):`);
-    if (data.actions.length) {
-      data.actions.slice(0, 25).forEach((a) => {
-        const target = a.target_date ? ` (مستهدف: ${a.target_date})` : "";
-        L.push(`• ${a.action_title} — ${ACTION_STATUS_LABELS_AR[a.status]}${target}`);
+    L.push(`Open Maintenance Actions (${reportData.actions.length}):`);
+    if (reportData.actions.length) {
+      reportData.actions.slice(0, 25).forEach((a) => {
+        const target = a.target ? ` (Target: ${a.target})` : "";
+        L.push(`- ${a.title} — ${a.status}${target}`);
       });
-      if (data.actions.length > 25) L.push(`… و${data.actions.length - 25} أخرى`);
+      if (reportData.actions.length > 25)
+        L.push(`... and ${reportData.actions.length - 25} more`);
     } else {
-      L.push("• لا يوجد");
+      L.push("- None");
     }
 
     L.push("");
-    L.push("— أُرسل من نظام CPIIS لإدارة التفتيش");
+    L.push("The detailed PDF report is attached.");
+    L.push("— Sent from CPIIS Inspection Management System");
     return L.join("\r\n");
-  }, [data, note, senderName, subject]);
+  }, [reportData, subject]);
 
   const manualEmails = manual
     .split(/[\s,;]+/)
     .map((e) => e.trim())
     .filter((e) => e.includes("@"));
-
   const allEmails = [...new Set([...selected, ...manualEmails])];
 
   function toggle(email: string) {
@@ -188,24 +210,49 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     });
   }
 
-  function send() {
+  async function downloadPdf(): Promise<boolean> {
+    if (!reportData) return false;
+    setGenerating(true);
+    try {
+      const { buildReportPdf } = await import("@/lib/report-pdf");
+      const doc = buildReportPdf(reportData);
+      doc.save(`Daily-Inspection-Report-${todayISO}.pdf`);
+      return true;
+    } catch {
+      toast.error("Failed to generate PDF");
+      return false;
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  async function onlyPdf() {
+    const ok = await downloadPdf();
+    if (ok) toast.success("PDF report downloaded");
+  }
+
+  async function sendEmail() {
     if (allEmails.length === 0) {
       toast.error("اختر مستلمًا واحدًا على الأقل أو أضف إيميل");
       return;
     }
+    const ok = await downloadPdf();
     const url = `mailto:${allEmails.join(",")}?subject=${encodeURIComponent(
       subject
     )}&body=${encodeURIComponent(body)}`;
     window.location.href = url;
-    toast.success("تم فتح بريدك بالتقرير جاهزًا");
+    if (ok)
+      toast.success("تم تنزيل الـ PDF — أرفقه بالإيميل واضغط إرسال", {
+        duration: 6000,
+      });
   }
 
   async function copyReport() {
     try {
       await navigator.clipboard.writeText(body);
-      toast.success("تم نسخ التقرير");
+      toast.success("Report copied");
     } catch {
-      toast.error("تعذّر النسخ");
+      toast.error("Copy failed");
     }
   }
 
@@ -225,7 +272,7 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>تقرير التفتيش اليومي</DialogTitle>
+          <DialogTitle>تقرير التفتيش اليومي (PDF إنجليزي)</DialogTitle>
         </DialogHeader>
 
         {loading ? (
@@ -287,37 +334,53 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="note">ملاحظة عامة (اختياري)</Label>
+              <Label htmlFor="note">Note (English, optional)</Label>
               <Textarea
                 id="note"
+                dir="ltr"
                 rows={2}
-                placeholder="أي ملاحظة تحب تضيفها لأول التقرير..."
+                placeholder="Any note to add at the top of the report..."
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>معاينة التقرير</Label>
+              <Label>Email preview</Label>
               <Textarea
                 readOnly
+                dir="ltr"
                 rows={8}
                 value={body}
                 className="font-mono text-xs leading-relaxed"
-                dir="rtl"
               />
             </div>
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:gap-2">
+        <DialogFooter className="flex-wrap gap-2 sm:gap-2">
           <Button variant="ghost" onClick={copyReport} disabled={loading || !data}>
             <Copy className="size-4" />
             نسخ
           </Button>
-          <Button onClick={send} disabled={loading || !data || allEmails.length === 0}>
+          <Button
+            variant="outline"
+            onClick={onlyPdf}
+            disabled={loading || !data || generating}
+          >
+            {generating ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <FileDown className="size-4" />
+            )}
+            تنزيل PDF
+          </Button>
+          <Button
+            onClick={sendEmail}
+            disabled={loading || !data || generating || allEmails.length === 0}
+          >
             <Send className="size-4" />
-            فتح البريد ({allEmails.length})
+            إرسال بالإيميل ({allEmails.length})
           </Button>
         </DialogFooter>
       </DialogContent>
