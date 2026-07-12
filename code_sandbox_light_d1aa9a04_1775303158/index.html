@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIMPOR AMREYAH – Maintenance Inspection ERP</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-industry"></i></div>
+      <div class="logo-text">
+        <span class="logo-main">CIMPOR</span>
+        <span class="logo-sub">AMREYAH PLANT</span>
+      </div>
+    </div>
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+  </div>
+
+  <div class="sidebar-menu">
+    <div class="menu-section">
+      <span class="menu-label">الرئيسية</span>
+      <a href="#" class="menu-item active" data-page="dashboard">
+        <i class="fas fa-tachometer-alt"></i><span>لوحة التحكم</span>
+      </a>
+    </div>
+    <div class="menu-section">
+      <span class="menu-label">المعدات</span>
+      <a href="#" class="menu-item" data-page="equipment">
+        <i class="fas fa-cogs"></i><span>المعدات</span>
+      </a>
+      <a href="#" class="menu-item" data-page="equipment-detail" style="display:none" id="nav-equip-detail">
+        <i class="fas fa-info-circle"></i><span>تفاصيل المعدة</span>
+      </a>
+    </div>
+    <div class="menu-section">
+      <span class="menu-label">الفحص</span>
+      <a href="#" class="menu-item" data-page="inspections">
+        <i class="fas fa-clipboard-check"></i><span>الفحوصات اليومية</span>
+      </a>
+      <a href="#" class="menu-item" data-page="new-inspection">
+        <i class="fas fa-plus-circle"></i><span>فحص جديد</span>
+      </a>
+      <a href="#" class="menu-item" data-page="checklist">
+        <i class="fas fa-tasks"></i><span>تنفيذ الشيك ليست</span>
+      </a>
+    </div>
+    <div class="menu-section">
+      <span class="menu-label">التقارير</span>
+      <a href="#" class="menu-item" data-page="history">
+        <i class="fas fa-history"></i><span>السجل التاريخي</span>
+      </a>
+      <a href="#" class="menu-item" data-page="reports">
+        <i class="fas fa-chart-bar"></i><span>التقارير والتحليل</span>
+      </a>
+    </div>
+    <div class="menu-section">
+      <span class="menu-label">النظام</span>
+      <a href="#" class="menu-item" data-page="alerts">
+        <i class="fas fa-bell"></i><span>التنبيهات</span>
+        <span class="badge-menu" id="alertBadge">0</span>
+      </a>
+      <a href="#" class="menu-item" data-page="admin">
+        <i class="fas fa-user-shield"></i><span>الإدارة</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="live-indicator">
+      <span class="pulse-dot"></span>
+      <span>Live Monitoring</span>
+    </div>
+    <div class="current-time" id="sidebarTime">--:--:--</div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main-wrapper" id="mainWrapper">
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
+      <div class="breadcrumb" id="breadcrumb">
+        <span>الرئيسية</span> <i class="fas fa-chevron-left"></i> <span id="pageName">لوحة التحكم</span>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <div class="date-display" id="topbarDate">--</div>
+    </div>
+    <div class="topbar-right">
+      <div class="shift-selector">
+        <i class="fas fa-clock"></i>
+        <select id="shiftSelect">
+          <option value="Morning">Morning</option>
+          <option value="Afternoon">Afternoon</option>
+          <option value="Night">Night</option>
+        </select>
+      </div>
+      <div class="topbar-alerts" id="topbarAlerts">
+        <i class="fas fa-bell"></i>
+        <span class="alert-count" id="alertCount">0</span>
+      </div>
+      <div class="inspector-badge">
+        <i class="fas fa-user-hard-hat"></i>
+        <input type="text" id="inspectorName" placeholder="اسم المفتش" value="المفتش">
+      </div>
+    </div>
+  </header>
+
+  <!-- Pages Container -->
+  <main class="content" id="mainContent">
+
+    <!-- ===== DASHBOARD PAGE ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1><i class="fas fa-tachometer-alt"></i> لوحة التحكم الرئيسية</h1>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="navigateTo('new-inspection')">
+            <i class="fas fa-plus"></i> فحص جديد
+          </button>
+          <button class="btn btn-outline" onclick="refreshDashboard()">
+            <i class="fas fa-sync-alt"></i> تحديث
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi-card kpi-total">
+          <div class="kpi-icon"><i class="fas fa-cogs"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="kpi-equipment">6</div>
+            <div class="kpi-label">إجمالي المعدات</div>
+          </div>
+          <div class="kpi-trend up"><i class="fas fa-check-circle"></i></div>
+        </div>
+        <div class="kpi-card kpi-good">
+          <div class="kpi-icon"><i class="fas fa-check-double"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="kpi-today">0</div>
+            <div class="kpi-label">فحوصات اليوم</div>
+          </div>
+          <div class="kpi-trend" id="kpi-today-trend"></div>
+        </div>
+        <div class="kpi-card kpi-warning">
+          <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="kpi-overdue">0</div>
+            <div class="kpi-label">فحوصات متأخرة</div>
+          </div>
+          <div class="kpi-trend down"><i class="fas fa-arrow-up"></i></div>
+        </div>
+        <div class="kpi-card kpi-critical">
+          <div class="kpi-icon"><i class="fas fa-bell"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="kpi-alerts">0</div>
+            <div class="kpi-label">تنبيهات نشطة</div>
+          </div>
+          <div class="kpi-trend" id="kpi-alerts-trend"></div>
+        </div>
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-icon"><i class="fas fa-percentage"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="kpi-compliance">0%</div>
+            <div class="kpi-label">معدل الامتثال</div>
+          </div>
+          <div class="kpi-trend" id="kpi-compliance-trend"></div>
+        </div>
+        <div class="kpi-card kpi-purple">
+          <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
+          <div class="kpi-info">
+            <div class="kpi-value" id="kpi-plans">29</div>
+            <div class="kpi-label">خطط الفحص</div>
+          </div>
+          <div class="kpi-trend up"><i class="fas fa-arrow-up"></i></div>
+        </div>
+      </div>
+
+      <!-- Equipment Status Live Grid -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2><i class="fas fa-heartbeat"></i> حالة المعدات – مباشر</h2>
+          <span class="live-badge"><span class="pulse-dot sm"></span> LIVE</span>
+        </div>
+        <div class="equipment-status-grid" id="equipStatusGrid">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title"><i class="fas fa-chart-doughnut"></i> توزيع حالات المعدات</div>
+          <div style="height:260px;position:relative">
+            <canvas id="equipStatusChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><i class="fas fa-chart-bar"></i> فحوصات آخر 7 أيام</div>
+          <div style="height:260px;position:relative">
+            <canvas id="weeklyInspChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><i class="fas fa-chart-line"></i> معدل الامتثال الشهري</div>
+          <div style="height:260px;position:relative">
+            <canvas id="complianceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Schedule -->
+      <div class="two-col-grid">
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fas fa-calendar-day"></i> جدول الفحوصات اليوم</h2>
+            <span class="date-badge" id="todayBadge"></span>
+          </div>
+          <div id="todaySchedule"></div>
+        </div>
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fas fa-bell"></i> آخر التنبيهات</h2>
+          </div>
+          <div id="recentAlerts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EQUIPMENT LIST PAGE ===== -->
+    <div class="page" id="page-equipment">
+      <div class="page-header">
+        <h1><i class="fas fa-cogs"></i> إدارة المعدات</h1>
+        <div class="page-actions">
+          <input type="text" class="search-input" id="equipSearch" placeholder="بحث عن معدة..." oninput="filterEquipment()">
+          <select class="filter-select" id="statusFilter" onchange="filterEquipment()">
+            <option value="">كل الحالات</option>
+            <option value="operational">تشغيل</option>
+            <option value="warning">تحذير</option>
+            <option value="critical">حرج</option>
+            <option value="offline">إيقاف</option>
+          </select>
+        </div>
+      </div>
+      <div class="equipment-cards-grid" id="equipmentCardsGrid"></div>
+    </div>
+
+    <!-- ===== EQUIPMENT DETAIL PAGE ===== -->
+    <div class="page" id="page-equipment-detail">
+      <div class="page-header">
+        <h1 id="equipDetailTitle"><i class="fas fa-cog"></i> تفاصيل المعدة</h1>
+        <div class="page-actions">
+          <button class="btn btn-primary" id="startInspBtn" onclick="startInspectionFromEquip()">
+            <i class="fas fa-play-circle"></i> بدء الفحص
+          </button>
+          <button class="btn btn-outline" onclick="navigateTo('equipment')">
+            <i class="fas fa-arrow-right"></i> رجوع
+          </button>
+        </div>
+      </div>
+      <div id="equipDetailContent"></div>
+    </div>
+
+    <!-- ===== INSPECTIONS LIST PAGE ===== -->
+    <div class="page" id="page-inspections">
+      <div class="page-header">
+        <h1><i class="fas fa-clipboard-check"></i> الفحوصات اليومية</h1>
+        <div class="page-actions">
+          <input type="date" class="date-input" id="inspDateFilter" onchange="loadInspections()">
+          <select class="filter-select" id="inspEquipFilter" onchange="loadInspections()">
+            <option value="">كل المعدات</option>
+          </select>
+          <button class="btn btn-primary" onclick="navigateTo('new-inspection')">
+            <i class="fas fa-plus"></i> فحص جديد
+          </button>
+        </div>
+      </div>
+      <div class="section-card">
+        <table class="data-table" id="inspectionsTable">
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>المعدة</th>
+              <th>خطة الفحص</th>
+              <th>المفتش</th>
+              <th>الوردية</th>
+              <th>الإنجاز</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="inspectionsBody"></tbody>
+        </table>
+        <div class="empty-state" id="inspEmpty" style="display:none">
+          <i class="fas fa-clipboard"></i>
+          <p>لا توجد فحوصات مسجلة</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NEW INSPECTION PAGE ===== -->
+    <div class="page" id="page-new-inspection">
+      <div class="page-header">
+        <h1><i class="fas fa-plus-circle"></i> إنشاء فحص جديد</h1>
+        <div class="page-actions">
+          <button class="btn btn-outline" onclick="navigateTo('inspections')">
+            <i class="fas fa-arrow-right"></i> إلغاء
+          </button>
+        </div>
+      </div>
+      <div class="form-card" id="newInspectionForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-cog"></i> المعدة</label>
+            <select id="ni-equipment" onchange="loadPlansForEquipment()" required>
+              <option value="">اختر المعدة...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-list-check"></i> خطة الفحص</label>
+            <select id="ni-plan" required>
+              <option value="">اختر خطة الفحص...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-calendar"></i> تاريخ الفحص</label>
+            <input type="date" id="ni-date" required>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-clock"></i> الوردية</label>
+            <select id="ni-shift">
+              <option value="Morning">Morning – صباحي</option>
+              <option value="Afternoon">Afternoon – مسائي</option>
+              <option value="Night">Night – ليلي</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-user-hard-hat"></i> اسم المفتش</label>
+            <input type="text" id="ni-inspector" placeholder="أدخل اسم المفتش" required>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-sticky-note"></i> ملاحظات أولية</label>
+            <textarea id="ni-notes" rows="3" placeholder="ملاحظات إضافية..."></textarea>
+          </div>
+        </div>
+        <!-- Plan Preview -->
+        <div id="planPreview" style="display:none" class="plan-preview-box">
+          <div class="plan-preview-header">
+            <i class="fas fa-info-circle"></i> معلومات خطة الفحص
+          </div>
+          <div id="planPreviewContent"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg" onclick="createAndStartInspection()">
+            <i class="fas fa-play-circle"></i> إنشاء وبدء الفحص
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CHECKLIST EXECUTION PAGE ===== -->
+    <div class="page" id="page-checklist">
+      <div class="page-header">
+        <h1><i class="fas fa-tasks"></i> تنفيذ الشيك ليست</h1>
+        <div class="page-actions">
+          <div class="progress-mini" id="checklistProgressMini">
+            <div class="progress-bar-mini" id="checklistProgressBar"></div>
+            <span id="checklistProgressText">0%</span>
+          </div>
+          <button class="btn btn-success" onclick="saveInspection()" id="saveInspBtn">
+            <i class="fas fa-save"></i> حفظ النتائج
+          </button>
+          <button class="btn btn-primary" onclick="completeInspection()" id="completeInspBtn">
+            <i class="fas fa-check-double"></i> إنهاء الفحص
+          </button>
+        </div>
+      </div>
+
+      <!-- Inspection Info Bar -->
+      <div class="insp-info-bar" id="checklistInfoBar"></div>
+
+      <!-- Photo Upload -->
+      <div class="section-card photo-upload-section">
+        <div class="section-header">
+          <h3><i class="fas fa-camera"></i> رفع صور الفحص</h3>
+          <span class="photo-count" id="photoCountBadge">0 صور</span>
+        </div>
+        <div class="photo-upload-zone" id="photoUploadZone" onclick="document.getElementById('photoInput').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>اضغط لرفع صور أو اسحب وأفلت</p>
+          <span>JPG, PNG, WEBP حتى 10MB</span>
+        </div>
+        <input type="file" id="photoInput" multiple accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+        <div class="photos-preview-grid" id="photosPreviewGrid"></div>
+      </div>
+
+      <!-- Checklist Items -->
+      <div id="checklistContent"></div>
+    </div>
+
+    <!-- ===== HISTORY PAGE ===== -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <h1><i class="fas fa-history"></i> السجل التاريخي</h1>
+        <div class="page-actions">
+          <input type="date" class="date-input" id="histStartDate">
+          <span style="padding:0 8px;color:var(--text-muted)">إلى</span>
+          <input type="date" class="date-input" id="histEndDate">
+          <select class="filter-select" id="histEquipFilter">
+            <option value="">كل المعدات</option>
+          </select>
+          <button class="btn btn-primary" onclick="loadHistory()">
+            <i class="fas fa-search"></i> بحث
+          </button>
+        </div>
+      </div>
+      <div class="charts-row" style="margin-bottom:24px">
+        <div class="chart-card">
+          <div class="chart-title"><i class="fas fa-chart-bar"></i> فحوصات حسب المعدة</div>
+          <div style="height:220px"><canvas id="histEquipChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><i class="fas fa-chart-pie"></i> نتائج الفحوصات</div>
+          <div style="height:220px"><canvas id="histResultChart"></canvas></div>
+        </div>
+      </div>
+      <div class="section-card">
+        <table class="data-table" id="historyTable">
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>المعدة</th>
+              <th>خطة الفحص</th>
+              <th>المفتش</th>
+              <th>الوردية</th>
+              <th>الإنجاز</th>
+              <th>الحالة الكلية</th>
+              <th>تفاصيل</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+        <div class="empty-state" id="histEmpty" style="display:none">
+          <i class="fas fa-folder-open"></i>
+          <p>لا يوجد سجل بهذه المعايير</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REPORTS PAGE ===== -->
+    <div class="page" id="page-reports">
+      <div class="page-header">
+        <h1><i class="fas fa-chart-bar"></i> التقارير والتحليل</h1>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card large">
+          <div class="chart-title"><i class="fas fa-chart-line"></i> اتجاه الفحوصات الشهري</div>
+          <div style="height:300px"><canvas id="monthlyTrendChart"></canvas></div>
+        </div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title"><i class="fas fa-chart-bar"></i> إنجاز الفحص لكل معدة</div>
+          <div style="height:280px"><canvas id="equipCompChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title"><i class="fas fa-chart-radar"></i> امتثال خطط الفحص</div>
+          <div style="height:280px"><canvas id="planComplianceChart"></canvas></div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><h2><i class="fas fa-table"></i> ملخص أداء المعدات</h2></div>
+        <table class="data-table" id="equipPerfTable">
+          <thead>
+            <tr>
+              <th>المعدة</th>
+              <th>الكود</th>
+              <th>إجمالي الفحوصات</th>
+              <th>ناجحة</th>
+              <th>تحذيرات</th>
+              <th>حرجة</th>
+              <th>معدل الامتثال</th>
+              <th>آخر فحص</th>
+            </tr>
+          </thead>
+          <tbody id="equipPerfBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ALERTS PAGE ===== -->
+    <div class="page" id="page-alerts">
+      <div class="page-header">
+        <h1><i class="fas fa-bell"></i> التنبيهات والإشعارات</h1>
+        <div class="page-actions">
+          <button class="btn btn-outline" onclick="resolveAllAlerts()">
+            <i class="fas fa-check-double"></i> تحديد الكل كمعالج
+          </button>
+        </div>
+      </div>
+      <div class="alerts-grid" id="alertsGrid"></div>
+      <div class="empty-state" id="alertsEmpty" style="display:none">
+        <i class="fas fa-bell-slash"></i>
+        <p>لا توجد تنبيهات نشطة</p>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN PAGE ===== -->
+    <div class="page" id="page-admin">
+      <div class="page-header">
+        <h1><i class="fas fa-user-shield"></i> لوحة الإدارة</h1>
+      </div>
+      <div class="admin-grid">
+        <!-- Equipment Management -->
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fas fa-cogs"></i> إدارة المعدات</h2>
+            <button class="btn btn-sm btn-primary" onclick="showAddEquipModal()">
+              <i class="fas fa-plus"></i> إضافة
+            </button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>الكود</th><th>الاسم</th><th>النوع</th><th>الحالة</th><th>إجراءات</th></tr>
+            </thead>
+            <tbody id="adminEquipTable"></tbody>
+          </table>
+        </div>
+        <!-- Inspection Plans -->
+        <div class="section-card">
+          <div class="section-header">
+            <h2><i class="fas fa-list-check"></i> خطط الفحص</h2>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>الكود</th><th>المعدة</th><th>التكرار</th><th>البنود</th><th>نشط</th></tr>
+            </thead>
+            <tbody id="adminPlansTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Inspection Detail Modal -->
+<div class="modal-overlay" id="inspDetailModal" onclick="closeModal('inspDetailModal')">
+  <div class="modal-box large" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="inspDetailTitle">تفاصيل الفحص</h3>
+      <button class="modal-close" onclick="closeModal('inspDetailModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="inspDetailBody"></div>
+  </div>
+</div>
+
+<!-- Status Change Modal -->
+<div class="modal-overlay" id="statusModal" onclick="closeModal('statusModal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>تحديث حالة المعدة</h3>
+      <button class="modal-close" onclick="closeModal('statusModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>الحالة الجديدة</label>
+        <select id="newStatus">
+          <option value="operational">تشغيل طبيعي</option>
+          <option value="warning">تحذير</option>
+          <option value="critical">حرج</option>
+          <option value="offline">إيقاف</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ملاحظة</label>
+        <textarea id="statusNote" rows="3" placeholder="سبب تغيير الحالة..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="confirmStatusChange()">تحديث</button>
+      <button class="btn btn-outline" onclick="closeModal('statusModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/equipment.js"></script>
+<script src="js/inspection.js"></script>
+<script src="js/checklist.js"></script>
+<script src="js/history.js"></script>
+<script src="js/alerts.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

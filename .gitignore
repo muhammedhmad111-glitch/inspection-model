@@ -1,0 +1,39 @@
+# === Local working / context files (do NOT publish) ===
+PROJECT_CONTEXT.md
+.claude/
+
+# === Secrets / env ===
+.env
+.env.*
+*.local
+!*.example
+
+# === Node / Next.js ===
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+
+# === OS / editor ===
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+.idea/
+.vscode/
+
+# === Logs ===
+*.log
+npm-debug.log*

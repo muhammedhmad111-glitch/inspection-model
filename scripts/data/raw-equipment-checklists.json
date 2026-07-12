@@ -1,0 +1,5038 @@
+[
+  {
+    "num": 1,
+    "raw_name": "BRIDGE RECLAIMER",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Safety  & Environment"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Safety"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of access, guardrails, housings, ladders, emergency stops"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check lighting"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check earthing cables and connectors"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check general condition of emergency stops"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check protections for nips and moving parts"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Environment"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Cleaning of the equipement and around."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Condition of dust emission."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Unit."
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Hyd-Coupling between Motor and Gear Box."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the oil leakage."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the cover fixation."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Main Gear Box."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check oil level and temperature."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the temperature at high speed group."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the temperature at low speed group."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the abnormal sounds."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the gearbox cleaning from the clinker dust."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check complete the condition of gaerbox base(losness,fixation,vibration)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chain scraper"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Buckets"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the buckets deformation."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check if any abnormal noise."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of bolts fixation ( missed,Head worn-out)."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of bucket losseness."
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Chain"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition of chain."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check if there is any abnorml noise."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check visual the condition of inner links"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition of outer links."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition of Bush(wear,broken)."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition of clamping ring.(missed,crack)."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Rollers"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check if any abnormal noise."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual if any roller Bearing dameaged."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition of worn-out."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition of roller Fixation."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition of roller Axel."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the roller for smooth running."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition of Roller shap."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Guide rail"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition of worn-out."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check Visual the condition Fixation."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Sprocket"
+      },
+      {
+        "col": 3,
+        "bold": true,
+        "text": "Drive sprocket"
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the bearing temprature DE & NDE."
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 3,
+        "bold": true,
+        "text": "Driven sprocket"
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the bearing temprature DE & NDE."
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Travelling drive."
+      },
+      {
+        "col": 3,
+        "bold": true,
+        "text": "Drive unit."
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the oil leakage."
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check complete the condition of drive unit(losness,fixation,vibration)"
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Rails"
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the condition of the rails (worn out - fixation)"
+      },
+      {
+        "col": 3,
+        "bold": false,
+        "text": "Check the graphite bars for lubrication."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Discharge chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of outlet chute worn-out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing , corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the clinker leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the gate condition of two way chute."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Face raker."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Rake"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the rails of the rake worn out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the lubrication (graphite bar) for the rails"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check of the raker body crack & wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check of the beams fastening."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the U section forks."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the lower raks(forks) fixation & wear."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Face raker drive."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Chain"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check Visual the condition of chain."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check if there is any abnorml noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check Visual the condition of links."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check Visual the condition of Bush(wear,broken)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check Visual the condition of sprockets (wear,broken)."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive unit."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the oil leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check complete the condition of drive unit(losness,fixation,vibration)."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Four &two wheel bogie."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wheels alignment with the rails."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the graphite bars for lubrication."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wire of the bracing device."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check all the saftey guard Fixation."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the beam Fixation."
+      }
+    ]
+  },
+  {
+    "num": 2,
+    "raw_name": "BELT CONVEYOR D1101",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive UnitF63:F91H10F63:F9F63:G91"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Gear Box."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level and temperature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check seal tightness"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Hydraulic Coupling"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Ckeck the oil leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the protection cover."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Feeding Point"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Feed falling on the centre of the belt."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Belt conveyor running centrally & straight."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Belt, scrapers and Rollers"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Belt"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check whether running centrally & straight."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Cuts."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Marks."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of belt and joint."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the belt tension."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Scrapers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the proper contact."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Blad wear, and scraper fixation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Rollers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the upper carrier roller steel and impact (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Lowe return rollers steel and rubber (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cleaning rollers (noise, missing, blockage)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Drum"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Driven drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at drive side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at driven side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chute"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      }
+    ]
+  },
+  {
+    "num": 3,
+    "raw_name": "BELT CONVEYOR D1119",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive UnitF63:F91H10F63:F9F63:G91"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Gear Box."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level and temperature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check seal tightness"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Hydraulic Coupling"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Ckeck the oil leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the protection cover."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Feeding Point"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Feed falling on the centre of the belt."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Belt conveyor running centrally & straight."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Belt, scrapers and Rollers"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Belt"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check whether running centrally & straight."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Cuts."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Marks."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of belt and joint."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the belt tension."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Scrapers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the proper contact."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Blad wear, and scraper fixation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Rollers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the upper carrier roller steel and impact (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Lowe return rollers steel and rubber (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cleaning rollers (noise, missing, blockage)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Drum"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Driven drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at drive side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at driven side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chute"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      }
+    ]
+  },
+  {
+    "num": 4,
+    "raw_name": "D12.06 Belt conveyor",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive UnitF63:F91H10F63:F9F63:G91"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Gear Box."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level and temperature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check seal tightness"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Hydraulic Coupling"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Ckeck the oil leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the protection cover."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Feeding Point"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Feed falling on the centre of the belt."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Belt conveyor running centrally & straight."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Belt, scrapers and Rollers"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Belt"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check whether running centrally & straight."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Cuts."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Marks."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of belt and joint."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the belt tension."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Scrapers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the proper contact."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Blad wear, and scraper fixation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Rollers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the upper carrier roller steel and impact (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Lowe return rollers steel and rubber (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cleaning rollers (noise, missing, blockage)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Drum"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Driven drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at drive side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at driven side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chute"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      }
+    ]
+  },
+  {
+    "num": 5,
+    "raw_name": "D12.11 Belt conveyor reversible",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive UnitF63:F91H10F63:F9F63:G91"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Gear Box."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level and temperature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check seal tightness"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Hydraulic Coupling"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Ckeck the oil leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the protection cover."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Feeding Point"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Feed falling on the centre of the belt."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Belt conveyor running centrally & straight."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Belt, scrapers and Rollers"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Belt"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check whether running centrally & straight."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Cuts."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Marks."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of belt and joint."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the belt tension."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Scrapers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the proper contact."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Blad wear, and scraper fixation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Rollers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the upper carrier roller steel and impact (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Lowe return rollers steel and rubber (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cleaning rollers (noise, missing, blockage)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Drum"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Driven drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at drive side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at driven side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chute"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      }
+    ]
+  },
+  {
+    "num": 6,
+    "raw_name": "Apron anveyor",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Unit"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Gear Box.(Geard Motor)."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check oil level and temperature."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the abnormal sounds."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check seal tightness."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Feeding Point"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the Feed condition that with out any sticking material ."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the air pulsation from air cannon."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Apron"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Pans"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the conditions of pans fastening."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the conditions of pans worn-out and corrosions."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the conditions of material sticking on the pans."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check material leakage between the pans."
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Chain"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of elengation."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the abnormal sounds or noise."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check visual the conditions of wear."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the conditions of nuts fastening."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the conditions of railways , wear and fastening."
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Rollers"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the conditions of roller rotations."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the rollers blockage or bearing defect."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Sprocket"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive sprocket"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Driven sprocket"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chute"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      }
+    ]
+  },
+  {
+    "num": 7,
+    "raw_name": "E11.12 Belt conveyor collective",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive UnitF63:F91H10F63:F9F63:G91"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Gear Box."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level and temperature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check seal tightness"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Hydraulic Coupling"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Ckeck the oil leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the protection cover."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Feeding Point"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Feed falling on the centre of the belt."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Belt conveyor running centrally & straight."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Belt, scrapers and Rollers"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Belt"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check whether running centrally & straight."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Cuts."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Marks."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of belt and joint."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the belt tension."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Scrapers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the proper contact."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Blad wear, and scraper fixation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Rollers"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the upper carrier roller steel and impact (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Lowe return rollers steel and rubber (noise, missing, blockage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cleaning rollers (noise, missing, blockage)."
+      }
+    ]
+  },
+  {
+    "num": 8,
+    "raw_name": "",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Drum"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Driven drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at drive side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Snub drum at driven side"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of the coating"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chute"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      }
+    ]
+  },
+  {
+    "num": 9,
+    "raw_name": "Rotary Valve",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Unit"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Gear Box."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check seal tightness."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Review the coupling cover fixation between Motor and gear Box."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Rotary"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Rotary Casing."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of casing worn-out, cracks , false air entry."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the material leakge."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of hot gas ducts of rotary feeder , Leakage, corrosion."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Rotay Bearing. DE"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Rotay Bearing. NDE"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chute"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of hot gas ducts of rotary feeder , Leakage, corrosion."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      }
+    ]
+  },
+  {
+    "num": 10,
+    "raw_name": "ROLLER MILL",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Roller MillF65:G91H10F65F65:G91"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Mill Casing."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check visual the casing sheet metal thickness."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check casing condition (holes, deformation , wear , cracks…)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check Mill doors (seal, tightness, tightening, source of falls air)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check overall condition corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the lining bolts tightening."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check for material leakage."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Roller pair (A,B) --- north side."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Roller jacket A&B (wear, crack, integrity).Aux-Drive Recommend."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the oil level of each Roller."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation bolts of the jacket Torque 5000 N.M."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation of guide pin."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of guide pin worn-out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check visual the distance between the wear plate and guide pin.(15 mm max)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the hook of the roller pair fixation and check the fixation bolt."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Run the confinning fan in test condition and check the air chamber seal leakage."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Roller pair (C,D) --- south side.."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Roller jacket A&B (wear, crack, integrity).Aux-Drive Recommend."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the oil level of each Roller."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation bolts of the jacket Torque 5000 N.M."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation of guide pin."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of guide pin worn-out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check visual the distance between the wear plate and guide pin.(15 mm max)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the hook of the roller pair fixation and check the fixation bolt."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Run the confinning fan in test condition and check the air chamber seal leakage."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Table."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the table liner's integrity."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check Visual the table liner's (crack, wear) Aux-Drive Recommend.."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check Visual the dam ring height 80 mm."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the 6 bolts for table fixation(Broken-missed)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of wear ring (wear, missed,broken, welding broken)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the discharge device worn-out(Scrapper)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the distance between the discharge device and Vertical lining."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the vertical lining and horizontal lining (wear, deformation, missed bolts)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the discharge cone that under the table (wear,deformation)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the Dam ring (Fixation, wear, missed)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of protective tube at ( W.M , D.M , W.E , D.E )"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Roller Mill."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of wear plate and guide bracket bolts M36,M48 (lossness or broken) at D.M side."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of wear plate and guide bracket bolts M36,M48 (lossness or broken) at W.M side."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of wear plate and guide bracket bolts M36,M48 (lossness or broken) at W.E side."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of wear plate and guide bracket bolts M36,M48 (lossness or broken) at D.E side."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the bolts of nozzel ring supporting (lossness, broken)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the nozzel rinng fixation from (no.01 to no.08)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check Visual the condition of nozzel ring adjusting device."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the feeding chute material leakage or lining bolts missing."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of feeding chute (worn-out and beam fixation)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the Rubber sealing of the mill door."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of Mill door deflector (worn-out, broken, missed)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the sealing between the protective tube and tie rod seals."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check Visual the condition of all wear plates worn-out."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of tie rod's at ( W.M , D.M , W.E , D.E )"
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of tie rod seals at ( W.M , D.M , W.E , D.E )"
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of protective tube at ( W.M , D.M , W.E , D.E )."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check if there is material leakage between main gear box and table."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the table seal Fixation bolts."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check overall condition of housing surface cracks."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Hot gas duct."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check casing condition (holes, deformation , wear , cracks…)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check overall condition corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of isolation."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of falls air."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Confinning air system."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Fan casing."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check abnormal noise by run in test condition to check the air leakge."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of intake filter (blockage, cut, tear)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of worn-out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of fastening."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Confinning air pipes."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of falls air by run the fan in the test."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the manual valve opend approx ( 50%)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of worn-out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of suspension."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of Flex joint (cut,tear, falls air)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of plan bearing (grease, bearing blockage)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Unit."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Aux-Gear Box"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the internal gears through Inspection door."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check seal tightness."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Review the coupling cover fixation between Motor and gearbox."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Clutch coupling (UZWN)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Review the coupling cover fixation."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the tooth cleaning and greased."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Axial smooth motion at Mill starting."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Penumatic Cylinder."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the air leakage."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the condition of water trapped work."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the cylinder integrity."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the weight Fixation."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Coupling between Main Motor and Sec gearbox"
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check for abnormal noise when Aux-drive run."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the cover fixation."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Sec Gear Box"
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check oil level."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the abnormal sounds when Aux-drive run."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check seal tightness."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the internal gears through Inspection door."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Lubrication circuit of sec gearbox."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check oil leakage from all circuit components(connections, flex-hose,pipes)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check lubrication pump (seals/loose bolts)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check lubrication pump (flow/pressure)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check filters (differential pressure)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check oil cooler (inlet and outlet temperature)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the oil temperature in the tank."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Coupling between Sec gearbox and Main Gearbox."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check for abnormal noise when Aux-drive run."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the cover fixation."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Main Gearbox."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the internal gears and take a photos through Inspection door."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check oil level."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check for abnormal noise when Aux-drive run."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Lubrication circuit of Main gearbox."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check oil leakage from all circuit components(connections, flex-hose,pipes)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the high pressure pumps (seals/loose bolts)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the high pressure pumps (flow/pressure)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the segment pressure From (Segment 01 to segment 12)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the low pressure pumps (seals/loose bolts)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the low pressure pumps (flow/pressure)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the circulation pump (seals/loose bolts)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check the heater pump (seals/loose bolts)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check filters (differential pressure)."
+      },
+      {
+        "col": 0,
+        "bold": false,
+        "text": "Check oil cooler (inlet and outlet temperature)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Hydraulic system of Roller Mill."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the pressure of N2 in Accumulators at (W.M , D.M , W.E , D.E)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check if there is any oil leakage of the flex-hoses or connection."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation plate of magnetic switch at (W.M & W.E)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the Hyd-valves at(W.M,D.M,W.E,D.E)(Fixation, oil leakage)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check all the oil filters of Hydraulic unit."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation of air filter."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the oil level in the tank."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cleanning of the valves that over the tank."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Water injection."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check if there is any water leakage of the pipes."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Ckeck the corrosion or worn-out of the pipes and elbow."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the worn-out pipes network inside the roller Mill."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition platform and side rail."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of handrail."
+      }
+    ]
+  },
+  {
+    "num": 11,
+    "raw_name": "ROLLER MILL DYNAMIC SEPARATOR",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Unit.F62:G95F62:X9F62:G96"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Coupling."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check for abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cover fixation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Gear Box"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level and temperature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check seal tightness."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Lubrication circuit of gearbox."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil leakage from all circuit components (connections, flex-hose,pipes)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check lubrication pump (seals/loose bolts)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check lubrication pump (flow/pressure)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check filters (differential pressure)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil cooler (inlet and outlet temperature)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the oil temperature in the tank."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Cardan Shaft"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check for any abnormal noise, vibration,behavior,& grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check visual condtion of flange bolts (missed, loss)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the running is smooth."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Dynamic Separator(SEPOL)."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Casing & Roof"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check casing condition (holes, deformation , wear , cracks…)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check separator doors (seal, tightness, tightening, falls air)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check overall condition corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the lining bolts tightening."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check for material leakage."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Outlet Hot gas duct."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check casing condition (holes, deformation , wear , cracks…)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check overall condition corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of isolation."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of falls air."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Flex-joint outlet."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the flex-joint (cut-tear- vibration affected)"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check if the Flex-joint blockage with the material."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check if there is material lekage or falls air."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition platform and side rail."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of handrail."
+      }
+    ]
+  },
+  {
+    "num": 12,
+    "raw_name": "CHAIN BUCKET ELEVATOR",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Unit"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Aux-Gear box"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the internal gears through Inspection door."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Hydraulic Coupling"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Ckeck the oil leakage and oil level."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the protection cover fixation."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Main Gear Box."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the internal gears through Inspection door."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearings and conditions of back stop system."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Gear Coupling"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Ckeck the grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the protection cover Fixation."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Feeding Point"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of wear of the inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner bolt or lining missing."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of permanent magnetic (Foundation, metal part sticking)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of cylinderical chute ( wear, corrosion)"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Flex-Joint"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of flex-joint (cut, tear, sleeve)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "ElevatorF92:G128"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Casing"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check casing condition (holes, deformation , wear , cracks…)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check inspection doors (seal, tightness, tightening)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check overall corrosion condition."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cover bolts tightening."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check for material leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check internally the HUMIDITY of the material."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the gland seal packing.(stuffing box) at drive drum side."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of isolation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Chain"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the chain links corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the chain elengation"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Review the distance between the buckets and discrage plate (25-30 mm)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the deflecting plate in the levetor discharge ( wear, corrosion, missed)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation of plate for the elengation switch."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the counter weight integrity."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check visual the chain wear and loose pins."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check visual the snap-ring missed of the links."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Buckets"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of bucket deformation."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of bucket corrosion or worn-out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of bolts fixation ( missed, corrosion, worn-out)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of bucket losseness."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Sprocket"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive sprocket"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing lubrication."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage ."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the sprocket integrity."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the conditions of sprocket wear or tooth crack or broken."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Driven sprocket"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing lubrication."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage ."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the sprocket integrity."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the conditions of sprocket wear or tooth crack or broken."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Discharge Point"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Discharge chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of wear inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing , corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the material leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the gate condition of two way chute."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation of discharge pipe that feed material out of the Mill."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Recirculation Chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the liner missing , corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the material leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cylindrical chute after recirculation chute ( wear,material leakage)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the beam Fixation."
+      }
+    ]
+  },
+  {
+    "num": 13,
+    "raw_name": "Mill Fan (Exaust fan)",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Coupling.+F60:G90"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Review the coupling cover fixation between Motor and fan."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Fan casing"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the casing and impeller through the inspection door."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check internally condition of suction chamber."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of corrosion, worn-out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of fastening, and housing structure."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of isolation."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Fan Bearing"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Fixed Bearing - DE"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing lubrication."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the oil level in bearing housing."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and oil leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise or sound."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Fixed Bearing - NDE"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing lubrication."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the oil level in bearing housing."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and oil leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise or sound."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Ducts"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet duct"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of worn-out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of isolation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet duct"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of worn-out."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condtion of corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of isolation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Flex-Joint"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of Flex-joint (cut , tear)"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the material blockage in the joint."
+      }
+    ]
+  },
+  {
+    "num": 14,
+    "raw_name": "Chain Conveyor (Drag Chain).",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Unit"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Gear Box.(Geard Motor)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check oil level."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal sounds."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check seal tightness."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the gear box temperature."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chain Conveyor (Drag Chain)."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Casing."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check casing condition (holes, deformation , wear , cracks…)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check inspection doors (seal, tightness, tightening)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check overall condition corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cover bolts tightening."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check for material leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the gland seal packing.(stuffing box)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of isolation."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Chain"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of the links through the inspection door ( wear, deformation."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the wear of sliding guide through the inspection door."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Sprocket"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive sprocket 1 (big)"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive sprocket 2 .Aux-(small)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Driven sprocket"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chute"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of corrosion."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Outlet chute"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of corrosion."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition side rail."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of drag chain foundation."
+      }
+    ]
+  },
+  {
+    "num": 15,
+    "raw_name": "SCREW CONVEYOR",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Unit"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Gear Box."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check oil level."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the internal gears through Inspection door."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the bearings and conditions of back stop system."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check seal tightness."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Coupling"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Ckeck the alignment between motor and Gear Box."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the oil level of the Hyd-coupling."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of coupling cover."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the rubber element of the coupling."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Screw conveyor"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Casing."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check casing condition (holes, deformation , wear , cracks…)."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check inspection doors (seal, tightness, tightening)."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check overall condition of corrosion."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the cover bolts tightening."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check for any points to cause material leakage."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the conditions of isolation."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the gland seal packing.(stuffing box)."
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Screw"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of hollow shaft."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of intermediate bearing ( journal bearing)."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of flange connections (bolts broken , missing, crack)."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of plates(Spiral) worn-out."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the beams of journal bearing Fixation (bolts broken , missing, crack)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Chute"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of corrosion."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check condition of wear."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      }
+    ]
+  },
+  {
+    "num": 16,
+    "raw_name": "Belt BUCKET ELEVATOR",
+    "rows": [
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drive Unit"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Aux-Gear box"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check oil level."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of gear box breather."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check seal tightness."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check gear box condition and mounting."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Hydraulic Coupling"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Ckeck the oil leakage."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the protection cover fixation."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Main Gear Box."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check oil level and temperature."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the abnormal sounds"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check condition of gear box breather"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check colour and visual aspect of oil"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check seal tightness"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check gear box condition and mounting"
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Flexacier - Coupling"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Ckeck the grease leakage."
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the protection cover  fixation."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Feeding Point"
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Inlet chute"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of wear of inlet chute"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of casing corrosion of inlet chute"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of inlet chute Fixation."
+      },
+      {
+        "col": 2,
+        "bold": true,
+        "text": "Flex-Joint"
+      },
+      {
+        "col": 2,
+        "bold": false,
+        "text": "Check the condition of flex-joint (cut, tear, material blockage in the joint)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Elevator"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Casing"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check casing condition (holes, deformation , wear , cracks…)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check inspection doors (seal, tightness, tightening)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check overall corrosion condition."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the cover bolts tightening."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check for material leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the gland seal packing.(stuffing box) at drive drum side."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Belt"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the belt elengation"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation of plate for the elengation switch."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the counter weight integrity."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Drum"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Drive Drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Driven Drum"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing temprature."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the grease leakage"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the bearing housing seals and grease leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the abnormal noise."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Discharge Point"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Discharge chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of wear outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of corrosion outlet chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the material leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the fixation of discharge chute that feed air slide to distributer."
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Recirculation Chute"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of wear."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of recirculation dossing gate (wear,drive fixation)."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the material leakage."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of flex-joint (cut, tear, material blockage in the joint)."
+      },
+      {
+        "col": 0,
+        "bold": true,
+        "text": "Structure"
+      },
+      {
+        "col": 1,
+        "bold": true,
+        "text": "Structre"
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition of the walkways."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition beams."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the condition side rail."
+      },
+      {
+        "col": 1,
+        "bold": false,
+        "text": "Check the beam Fixation."
+      }
+    ]
+  }
+]
