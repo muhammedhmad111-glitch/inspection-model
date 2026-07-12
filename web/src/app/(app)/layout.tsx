@@ -54,7 +54,7 @@ export default async function AppLayout({
       <Sidebar isSuperAdmin={profile.isSuperAdmin} canViewAudit={profile.canViewAudit} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar profile={profile} unreadCount={unreadCount ?? 0} />
-        <main className="flex-1 px-6 pb-6">{children}</main>
+        <main className="flex-1 px-4 pb-6 md:px-6">{children}</main>
       </div>
     </div>
   );
