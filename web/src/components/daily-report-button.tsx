@@ -20,6 +20,48 @@ import type { Enums } from "@/lib/supabase/types";
 import type { ReportData } from "@/lib/report-pdf";
 import { ROLE_LABELS_AR } from "@/lib/constants";
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function buildEmailHtml(d: ReportData): string {
+  const chip = (label: string, val: number) =>
+    `<td style="padding:12px;background:#f3f0fa;border-radius:8px;text-align:center">
+       <div style="font-size:22px;font-weight:bold;color:#631cbe">${val}</div>
+       <div style="font-size:11px;color:#666">${label}</div></td>`;
+  return `
+  <div style="font-family:Arial,Helvetica,sans-serif;color:#222;max-width:600px;margin:auto">
+    <div style="background:#631cbe;color:#fff;padding:18px 22px;border-radius:12px 12px 0 0">
+      <div style="font-size:12px;opacity:.8;letter-spacing:.5px">CIMPOR AMREYAH</div>
+      <div style="font-size:22px;font-weight:bold">Daily Inspection Report</div>
+      <div style="font-size:12px;opacity:.85;margin-top:2px">${escapeHtml(d.date)}</div>
+    </div>
+    <div style="border:1px solid #eee;border-top:0;padding:22px;border-radius:0 0 12px 12px">
+      <p style="margin:0 0 14px">Prepared by: <b>${escapeHtml(d.preparedBy || "-")}</b></p>
+      ${
+        d.note
+          ? `<p style="background:#fff9e6;padding:10px 12px;border-radius:8px;font-size:13px;margin:0 0 14px">${escapeHtml(
+              d.note
+            )}</p>`
+          : ""
+      }
+      <table style="width:100%;border-spacing:8px;margin:0 -8px 14px"><tr>
+        ${chip("Completed", d.completed.length)}
+        ${chip("Open Findings", d.findings.length)}
+        ${chip("Open Maintenance", d.actions.length)}
+      </tr></table>
+      <p style="font-size:14px">Please find the detailed inspection report attached as a PDF.</p>
+      <p style="color:#999;font-size:12px;margin-top:18px;border-top:1px solid #eee;padding-top:12px">
+        Sent automatically from CPIIS — Inspection Management System
+      </p>
+    </div>
+  </div>`;
+}
+
 type Recipient = {
   id: string;
   full_name: string;
@@ -50,6 +92,7 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [sending, setSending] = useState(false);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [manual, setManual] = useState("");
@@ -231,20 +274,53 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     if (ok) toast.success("PDF report downloaded");
   }
 
-  async function sendEmail() {
+  async function sendAuto() {
+    if (!reportData) return;
     if (allEmails.length === 0) {
       toast.error("اختر مستلمًا واحدًا على الأقل أو أضف إيميل");
       return;
     }
-    const ok = await downloadPdf();
-    const url = `mailto:${allEmails.join(",")}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`;
-    window.location.href = url;
-    if (ok)
-      toast.success("تم تنزيل الـ PDF — أرفقه بالإيميل واضغط إرسال", {
-        duration: 6000,
+    setSending(true);
+    try {
+      const { buildReportPdf } = await import("@/lib/report-pdf");
+      const doc = buildReportPdf(reportData);
+      const pdfBase64 = doc.output("datauristring").split("base64,")[1];
+      const supabase = createClient();
+      const { data: res, error } = await supabase.functions.invoke("send-report", {
+        body: {
+          to: allEmails,
+          subject,
+          text: body,
+          html: buildEmailHtml(reportData),
+          filename: `Daily-Inspection-Report-${todayISO}.pdf`,
+          pdfBase64,
+        },
       });
+      if (error) {
+        let msg = "تعذّر إرسال الإيميل";
+        try {
+          const ctx = (error as { context?: Response }).context;
+          if (ctx && typeof ctx.json === "function") {
+            const b = await ctx.json();
+            if (b?.error) msg = b.error;
+          }
+        } catch {
+          // keep generic message
+        }
+        toast.error(msg);
+        return;
+      }
+      if (res && (res as { error?: string }).error) {
+        toast.error((res as { error?: string }).error as string);
+        return;
+      }
+      toast.success(`تم إرسال التقرير إلى ${allEmails.length} مستلم ✅`);
+      setOpen(false);
+    } catch {
+      toast.error("تعذّر توليد أو إرسال التقرير");
+    } finally {
+      setSending(false);
+    }
   }
 
   async function copyReport() {
@@ -376,11 +452,15 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
             تنزيل PDF
           </Button>
           <Button
-            onClick={sendEmail}
-            disabled={loading || !data || generating || allEmails.length === 0}
+            onClick={sendAuto}
+            disabled={loading || !data || sending || allEmails.length === 0}
           >
-            <Send className="size-4" />
-            إرسال بالإيميل ({allEmails.length})
+            {sending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Send className="size-4" />
+            )}
+            إرسال تلقائي ({allEmails.length})
           </Button>
         </DialogFooter>
       </DialogContent>
