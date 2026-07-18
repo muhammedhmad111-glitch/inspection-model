@@ -40,118 +40,109 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  /* Amreyah accent (kept under the old brand-* names so existing utilities re-skin) */
+  /* Amreyah brand — kept under the old brand-* names so existing utilities re-skin */
   --color-brand-purple: var(--brand-purple);
   --color-brand-purple-strong: var(--brand-purple-strong);
   --color-brand-pink: var(--brand-pink);
   --color-brand-pink-foreground: var(--brand-pink-foreground);
-  --color-brand-red: var(--brand-red);
-  --color-brand-red-dark: var(--brand-red-dark);
-  --color-brand-red-tint: var(--brand-red-tint);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-deep: var(--brand-navy-deep);
+  --color-brand-indigo: var(--brand-indigo);
   --color-ink: var(--ink);
-  --color-steel: var(--steel);
-  --color-concrete: var(--concrete);
-  --color-dust: var(--dust);
-  /* Square shape language — radius 0–4px everywhere */
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius-lg: 2px;
-  --radius-xl: 2px;
-  --radius-2xl: 2px;
-  --radius-3xl: 2px;
-  --radius-4xl: 3px;
+  /* Rounded, modern shape language */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.35);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.3);
+  --radius-4xl: calc(var(--radius) * 2.8);
 }
 
 :root {
-  /* Cement neutrals */
-  --ink: #1a1d21;
-  --ink-soft: #3d4349;
-  --steel: #6b7280;
-  --concrete: #c9ccd1;
-  --dust: #eff1f3;
+  /* Amreyah navy / indigo brand */
+  --brand-navy: #252a5e; /* the logo navy */
+  --brand-navy-deep: #191d45; /* deep navy for dark panels */
+  --brand-indigo: #4f46e5; /* vivid indigo accent (interactive) */
+  --ink: #1a1b2e;
 
-  /* Amreyah red accent */
-  --brand-red: #c8102e;
-  --brand-red-dark: #9e0c24;
-  --brand-red-tint: #fbeaec;
-
-  --background: #eff1f3;
-  --foreground: #1a1d21;
+  --background: #f4f4fb;
+  --foreground: #1a1b2e;
   --card: #ffffff;
-  --card-foreground: #1a1d21;
+  --card-foreground: #1a1b2e;
   --popover: #ffffff;
-  --popover-foreground: #1a1d21;
-  --primary: #1a1d21;
+  --popover-foreground: #1a1b2e;
+  --primary: #4f46e5;
   --primary-foreground: #ffffff;
-  --secondary: #eff1f3;
-  --secondary-foreground: #1a1d21;
-  --muted: #eff1f3;
-  --muted-foreground: #6b7280;
-  --accent: #e9ebee;
-  --accent-foreground: #1a1d21;
-  --destructive: #c8102e;
-  --border: #d5d8dd;
-  --input: #c9ccd1;
-  --ring: #1a1d21;
-  --chart-1: #1a1d21;
-  --chart-2: #6b7280;
-  --chart-3: #c8102e;
-  --chart-4: #1f5c99;
-  --chart-5: #9aa0a6;
-  --radius: 2px;
+  --secondary: #edecfb;
+  --secondary-foreground: #2a2e58;
+  --muted: #f1f1f9;
+  --muted-foreground: #6b6f8c;
+  --accent: #ecebfb;
+  --accent-foreground: #4338ca;
+  --destructive: #e5484d;
+  --border: #e7e7f2;
+  --input: #e2e2ef;
+  --ring: #4f46e5;
+  --chart-1: #4f46e5;
+  --chart-2: #8b87f5;
+  --chart-3: #c4c1fa;
+  --chart-4: #fb7185;
+  --chart-5: #34d399;
+  --radius: 0.85rem;
 
-  /* Dark chrome (sidebar / nav) */
-  --sidebar: #1a1d21;
-  --sidebar-foreground: #e7e8ea;
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #1a1d21;
-  --sidebar-accent: #2a2e33;
+  /* Dark chrome — deep navy (sidebar / floating panels) */
+  --sidebar: #1e2142;
+  --sidebar-foreground: #e8e9f5;
+  --sidebar-primary: #4f46e5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2b2f56;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #c8102e;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #6366f1;
 
-  /* Legacy brand-* names now resolve to Amreyah ink/red so old classes re-skin */
-  --brand-purple: #1a1d21;
-  --brand-purple-strong: #0e1013;
-  --brand-pink: #c8102e;
+  /* Legacy brand-* now resolve to navy/indigo so old classes re-skin */
+  --brand-purple: #232752;
+  --brand-purple-strong: #171a3c;
+  --brand-pink: #6366f1;
   --brand-pink-foreground: #ffffff;
 }
 
 .dark {
-  --background: #121417;
-  --foreground: #f2f3f5;
-  --card: #1a1d21;
-  --card-foreground: #f2f3f5;
-  --popover: #1a1d21;
-  --popover-foreground: #f2f3f5;
-  --primary: #f2f3f5;
-  --primary-foreground: #1a1d21;
-  --secondary: #23272c;
-  --secondary-foreground: #f2f3f5;
-  --muted: #23272c;
-  --muted-foreground: #9aa0a6;
-  --accent: #23272c;
-  --accent-foreground: #f2f3f5;
-  --destructive: #e5384f;
-  --border: rgba(255, 255, 255, 0.12);
-  --input: rgba(255, 255, 255, 0.16);
-  --ring: #f2f3f5;
-  --chart-1: #f2f3f5;
-  --chart-2: #9aa0a6;
-  --chart-3: #e5384f;
-  --chart-4: #4b8bd6;
-  --chart-5: #6b7280;
-  --sidebar: #0e1013;
-  --sidebar-foreground: #e7e8ea;
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #1a1d21;
-  --sidebar-accent: #23272c;
+  --background: #14152b;
+  --foreground: #f1f1f7;
+  --card: #1c1e3a;
+  --card-foreground: #f1f1f7;
+  --popover: #1c1e3a;
+  --popover-foreground: #f1f1f7;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #262a4e;
+  --secondary-foreground: #f1f1f7;
+  --muted: #262a4e;
+  --muted-foreground: #9a9ec2;
+  --accent: #2b2f56;
+  --accent-foreground: #c7d2fe;
+  --destructive: #f0575c;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: #6366f1;
+  --chart-1: #818cf8;
+  --chart-2: #6366f1;
+  --chart-3: #a5b4fc;
+  --chart-4: #fb7185;
+  --chart-5: #34d399;
+  --sidebar: #171a3c;
+  --sidebar-foreground: #e8e9f5;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #262a4e;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #c8102e;
-  --brand-purple: #1a1d21;
-  --brand-purple-strong: #0e1013;
-  --brand-pink: #e5384f;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #6366f1;
+  --brand-purple: #232752;
+  --brand-purple-strong: #171a3c;
+  --brand-pink: #6366f1;
   --brand-pink-foreground: #ffffff;
 }
 
@@ -165,25 +156,9 @@
   html {
     @apply font-sans;
   }
-  ::selection {
-    background: var(--brand-red);
-    color: #fff;
-  }
-  /* Tabular figures for all data/numbers */
   .font-mono,
   table {
     font-variant-numeric: tabular-nums;
-  }
-}
-
-@layer utilities {
-  /* Signature Amreyah header: small red UPPERCASE eyebrow */
-  .eyebrow {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--brand-red);
   }
 }
 
