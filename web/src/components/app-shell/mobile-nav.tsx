@@ -44,10 +44,10 @@ export function MobileNav({
         href={item.href}
         onClick={() => setOpen(false)}
         className={cn(
-          "flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-semibold transition-colors",
+          "flex items-center gap-3 px-3.5 py-2.5 text-sm font-semibold transition-colors",
           active
-            ? "bg-white text-primary shadow-sm"
-            : "text-white/75 hover:bg-white/10 hover:text-white"
+            ? "bg-white text-brand-red shadow-sm"
+            : "text-white/70 hover:bg-white/10 hover:text-white"
         )}
       >
         <Icon className="size-4.5" />
@@ -73,17 +73,17 @@ export function MobileNav({
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <aside className="absolute inset-y-0 right-0 flex w-72 max-w-[85%] flex-col bg-gradient-to-b from-brand-purple to-brand-purple-strong p-4 text-white shadow-2xl">
-            <div className="flex h-14 items-center justify-between px-2">
+          <aside className="absolute inset-y-0 right-0 flex w-72 max-w-[85%] flex-col border-l border-white/10 bg-ink p-4 text-white shadow-2xl">
+            <div className="flex h-14 items-center justify-between px-1">
               <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-2xl bg-white/15 text-base font-extrabold text-white backdrop-blur">
-                  C
+                <div className="flex size-10 items-center justify-center bg-brand-red text-sm font-extrabold tracking-tight text-white">
+                  AC
                 </div>
                 <div>
-                  <div className="text-sm font-extrabold text-white">
-                    CIMPOR AMREYAH
+                  <div className="text-sm font-bold uppercase tracking-wide text-white">
+                    Amreyah Cement
                   </div>
-                  <div className="text-[11px] text-white/60">نظام فحص المصنع</div>
+                  <div className="text-[11px] text-white/55">نظام فحص المصنع</div>
                 </div>
               </div>
               <button

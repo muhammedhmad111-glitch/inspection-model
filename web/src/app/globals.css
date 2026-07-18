@@ -10,6 +10,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --font-display: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,94 +40,119 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Amreyah accent (kept under the old brand-* names so existing utilities re-skin) */
   --color-brand-purple: var(--brand-purple);
   --color-brand-purple-strong: var(--brand-purple-strong);
   --color-brand-pink: var(--brand-pink);
   --color-brand-pink-foreground: var(--brand-pink-foreground);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-dark: var(--brand-red-dark);
+  --color-brand-red-tint: var(--brand-red-tint);
+  --color-ink: var(--ink);
+  --color-steel: var(--steel);
+  --color-concrete: var(--concrete);
+  --color-dust: var(--dust);
+  /* Square shape language — radius 0–4px everywhere */
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 2px;
+  --radius-3xl: 2px;
+  --radius-4xl: 3px;
 }
 
 :root {
-  --background: oklch(0.945 0.013 286);
-  --foreground: oklch(0.30 0.035 286);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.30 0.035 286);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.30 0.035 286);
-  --primary: oklch(0.53 0.185 286);
-  --primary-foreground: oklch(0.99 0.003 286);
-  --secondary: oklch(0.965 0.012 286);
-  --secondary-foreground: oklch(0.36 0.05 286);
-  --muted: oklch(0.965 0.010 286);
-  --muted-foreground: oklch(0.56 0.03 286);
-  --accent: oklch(0.93 0.035 340);
-  --accent-foreground: oklch(0.45 0.13 356);
-  --destructive: oklch(0.62 0.22 18);
-  --border: oklch(0.905 0.014 286);
-  --input: oklch(0.905 0.014 286);
-  --ring: oklch(0.53 0.185 286);
-  --chart-1: oklch(0.53 0.185 286);
-  --chart-2: oklch(0.70 0.16 352);
-  --chart-3: oklch(0.65 0.14 300);
-  --chart-4: oklch(0.75 0.12 330);
-  --chart-5: oklch(0.45 0.15 280);
-  --radius: 1rem;
-  --sidebar: oklch(0.53 0.185 286);
-  --sidebar-foreground: oklch(0.985 0.005 286);
-  --sidebar-primary: oklch(1 0 0);
-  --sidebar-primary-foreground: oklch(0.53 0.185 286);
-  --sidebar-accent: oklch(0.60 0.17 286);
-  --sidebar-accent-foreground: oklch(0.99 0 0);
-  --sidebar-border: oklch(0.60 0.15 286);
-  --sidebar-ring: oklch(0.75 0.12 286);
-  --brand-purple: oklch(0.53 0.185 286);
-  --brand-purple-strong: oklch(0.46 0.19 285);
-  --brand-pink: oklch(0.70 0.16 352);
-  --brand-pink-foreground: oklch(0.99 0.01 352);
+  /* Cement neutrals */
+  --ink: #1a1d21;
+  --ink-soft: #3d4349;
+  --steel: #6b7280;
+  --concrete: #c9ccd1;
+  --dust: #eff1f3;
+
+  /* Amreyah red accent */
+  --brand-red: #c8102e;
+  --brand-red-dark: #9e0c24;
+  --brand-red-tint: #fbeaec;
+
+  --background: #eff1f3;
+  --foreground: #1a1d21;
+  --card: #ffffff;
+  --card-foreground: #1a1d21;
+  --popover: #ffffff;
+  --popover-foreground: #1a1d21;
+  --primary: #1a1d21;
+  --primary-foreground: #ffffff;
+  --secondary: #eff1f3;
+  --secondary-foreground: #1a1d21;
+  --muted: #eff1f3;
+  --muted-foreground: #6b7280;
+  --accent: #e9ebee;
+  --accent-foreground: #1a1d21;
+  --destructive: #c8102e;
+  --border: #d5d8dd;
+  --input: #c9ccd1;
+  --ring: #1a1d21;
+  --chart-1: #1a1d21;
+  --chart-2: #6b7280;
+  --chart-3: #c8102e;
+  --chart-4: #1f5c99;
+  --chart-5: #9aa0a6;
+  --radius: 2px;
+
+  /* Dark chrome (sidebar / nav) */
+  --sidebar: #1a1d21;
+  --sidebar-foreground: #e7e8ea;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #1a1d21;
+  --sidebar-accent: #2a2e33;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #c8102e;
+
+  /* Legacy brand-* names now resolve to Amreyah ink/red so old classes re-skin */
+  --brand-purple: #1a1d21;
+  --brand-purple-strong: #0e1013;
+  --brand-pink: #c8102e;
+  --brand-pink-foreground: #ffffff;
 }
 
 .dark {
-  --background: oklch(0.20 0.03 286);
-  --foreground: oklch(0.97 0.01 286);
-  --card: oklch(0.25 0.035 286);
-  --card-foreground: oklch(0.97 0.01 286);
-  --popover: oklch(0.25 0.035 286);
-  --popover-foreground: oklch(0.97 0.01 286);
-  --primary: oklch(0.68 0.17 286);
-  --primary-foreground: oklch(0.18 0.03 286);
-  --secondary: oklch(0.30 0.03 286);
-  --secondary-foreground: oklch(0.97 0.01 286);
-  --muted: oklch(0.30 0.03 286);
-  --muted-foreground: oklch(0.72 0.03 286);
-  --accent: oklch(0.35 0.06 340);
-  --accent-foreground: oklch(0.95 0.03 350);
-  --destructive: oklch(0.70 0.19 18);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.68 0.17 286);
-  --chart-1: oklch(0.68 0.17 286);
-  --chart-2: oklch(0.72 0.16 352);
-  --chart-3: oklch(0.70 0.14 300);
-  --chart-4: oklch(0.75 0.12 330);
-  --chart-5: oklch(0.60 0.15 280);
-  --sidebar: oklch(0.24 0.04 286);
-  --sidebar-foreground: oklch(0.97 0.01 286);
-  --sidebar-primary: oklch(0.68 0.17 286);
-  --sidebar-primary-foreground: oklch(0.15 0.03 286);
-  --sidebar-accent: oklch(0.32 0.05 286);
-  --sidebar-accent-foreground: oklch(0.97 0.01 286);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.68 0.17 286);
-  --brand-purple: oklch(0.68 0.17 286);
-  --brand-purple-strong: oklch(0.58 0.18 285);
-  --brand-pink: oklch(0.72 0.16 352);
-  --brand-pink-foreground: oklch(0.15 0.02 352);
+  --background: #121417;
+  --foreground: #f2f3f5;
+  --card: #1a1d21;
+  --card-foreground: #f2f3f5;
+  --popover: #1a1d21;
+  --popover-foreground: #f2f3f5;
+  --primary: #f2f3f5;
+  --primary-foreground: #1a1d21;
+  --secondary: #23272c;
+  --secondary-foreground: #f2f3f5;
+  --muted: #23272c;
+  --muted-foreground: #9aa0a6;
+  --accent: #23272c;
+  --accent-foreground: #f2f3f5;
+  --destructive: #e5384f;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.16);
+  --ring: #f2f3f5;
+  --chart-1: #f2f3f5;
+  --chart-2: #9aa0a6;
+  --chart-3: #e5384f;
+  --chart-4: #4b8bd6;
+  --chart-5: #6b7280;
+  --sidebar: #0e1013;
+  --sidebar-foreground: #e7e8ea;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #1a1d21;
+  --sidebar-accent: #23272c;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #c8102e;
+  --brand-purple: #1a1d21;
+  --brand-purple-strong: #0e1013;
+  --brand-pink: #e5384f;
+  --brand-pink-foreground: #ffffff;
 }
 
 @layer base {
@@ -138,5 +164,35 @@
   }
   html {
     @apply font-sans;
+  }
+  ::selection {
+    background: var(--brand-red);
+    color: #fff;
+  }
+  /* Tabular figures for all data/numbers */
+  .font-mono,
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  /* Signature Amreyah header: small red UPPERCASE eyebrow */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--brand-red);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
