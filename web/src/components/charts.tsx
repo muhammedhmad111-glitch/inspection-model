@@ -134,6 +134,110 @@ export function HBars({
   );
 }
 
+export function Sparkline({
+  data,
+  color = "var(--primary)",
+  height = 40,
+  width = 120,
+}: {
+  data: number[];
+  color?: string;
+  height?: number;
+  width?: number;
+}) {
+  if (data.length < 2) return null;
+  const max = Math.max(1, ...data);
+  const min = Math.min(0, ...data);
+  const range = max - min || 1;
+  const step = width / (data.length - 1);
+  const pts = data
+    .map((v, i) => `${i * step},${height - ((v - min) / range) * height}`)
+    .join(" ");
+  return (
+    <svg width={width} height={height} className="overflow-visible">
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function TrendLines({
+  labels,
+  series,
+  height = 170,
+}: {
+  labels: string[];
+  series: { name: string; color: string; data: number[] }[];
+  height?: number;
+}) {
+  const max = Math.max(1, ...series.flatMap((s) => s.data));
+  const n = labels.length;
+  const step = n > 1 ? 100 / (n - 1) : 0;
+  const y = (v: number) => 100 - (v / max) * 96 - 2;
+  return (
+    <div className="flex flex-col gap-3">
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="w-full"
+        style={{ height }}
+      >
+        {[25, 50, 75].map((g) => (
+          <line
+            key={g}
+            x1="0"
+            y1={g}
+            x2="100"
+            y2={g}
+            stroke="var(--border)"
+            strokeWidth={0.5}
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+        {series.map((s) => (
+          <polyline
+            key={s.name}
+            points={s.data.map((v, i) => `${i * step},${y(v)}`).join(" ")}
+            fill="none"
+            stroke={s.color}
+            strokeWidth={2}
+            vectorEffect="non-scaling-stroke"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+        ))}
+      </svg>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <div className="flex gap-4">
+          {series.map((s) => (
+            <span
+              key={s.name}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground"
+            >
+              <span
+                className="size-2.5 rounded-full"
+                style={{ background: s.color }}
+              />
+              {s.name}
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-3 text-[10px] text-muted-foreground">
+          {labels.map((l, i) => (
+            <span key={`${l}-${i}`}>{l}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function VBars({
   data,
   height = 160,

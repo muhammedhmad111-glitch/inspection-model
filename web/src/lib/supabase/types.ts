@@ -884,6 +884,7 @@ export type Database = {
         Returns: number
       }
       get_dashboard_data: { Args: never; Returns: Json }
+      get_analytics_data: { Args: never; Returns: Json }
       get_report_recipients: {
         Args: never
         Returns: {
