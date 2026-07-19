@@ -31,12 +31,12 @@ function escapeHtml(s: string): string {
 function buildEmailHtml(d: ReportData): string {
   const chip = (label: string, val: number) =>
     `<td style="padding:12px;background:#f3f0fa;border-radius:8px;text-align:center">
-       <div style="font-size:22px;font-weight:bold;color:#631cbe">${val}</div>
+       <div style="font-size:22px;font-weight:bold;color:#252a5e">${val}</div>
        <div style="font-size:11px;color:#666">${label}</div></td>`;
   return `
   <div style="font-family:Arial,Helvetica,sans-serif;color:#222;max-width:600px;margin:auto">
-    <div style="background:#631cbe;color:#fff;padding:18px 22px;border-radius:12px 12px 0 0">
-      <div style="font-size:12px;opacity:.8;letter-spacing:.5px">CIMPOR AMREYAH</div>
+    <div style="background:#252a5e;color:#fff;padding:18px 22px;border-radius:12px 12px 0 0">
+      <div style="font-size:12px;opacity:.8;letter-spacing:.5px">AMREYAH CEMENT</div>
       <div style="font-size:22px;font-weight:bold">Daily Inspection Report</div>
       <div style="font-size:12px;opacity:.85;margin-top:2px">${escapeHtml(d.date)}</div>
     </div>

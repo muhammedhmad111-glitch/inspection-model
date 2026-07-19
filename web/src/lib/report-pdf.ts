@@ -20,8 +20,10 @@ export type ReportData = {
   actions: { title: string; status: string; target: string | null }[];
 };
 
-const PURPLE: [number, number, number] = [99, 40, 190];
-const LIGHT: [number, number, number] = [243, 240, 250];
+// Amreyah Cement identity
+const NAVY: [number, number, number] = [37, 42, 94]; // #252A5E — brand navy
+const INDIGO: [number, number, number] = [79, 70, 229]; // #4F46E5 — accent
+const LIGHT: [number, number, number] = [237, 236, 251]; // #EDECFB — tint
 
 /** Build a professional English PDF for the daily inspection report. */
 export function buildReportPdf(d: ReportData): jsPDF {
@@ -39,14 +41,22 @@ export function buildReportPdf(d: ReportData): jsPDF {
   };
 
   // ---- header bar ----
-  doc.setFillColor(...PURPLE);
+  doc.setFillColor(...NAVY);
   doc.rect(0, 0, pageW, 92, "F");
+  // AC logo tile (white rounded square with navy "AC")
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(M, 28, 36, 36, 6, 6, "F");
+  doc.setTextColor(...NAVY);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(15);
+  doc.text("AC", M + 18, 51, { align: "center" });
+  // wordmark + title
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.text("CIMPOR AMREYAH", M, 34);
-  doc.setFontSize(21);
-  doc.text("Daily Inspection Report", M, 64);
+  doc.text("AMREYAH CEMENT", M + 48, 40);
+  doc.setFontSize(20);
+  doc.text("Daily Inspection Report", M + 48, 66);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.text(`Date: ${d.date}`, pageW - M, 32, { align: "right" });
@@ -68,7 +78,7 @@ export function buildReportPdf(d: ReportData): jsPDF {
     const x = M + i * (chipW + 10);
     doc.setFillColor(...LIGHT);
     doc.roundedRect(x, y, chipW, 48, 6, 6, "F");
-    doc.setTextColor(...PURPLE);
+    doc.setTextColor(...NAVY);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(19);
     doc.text(c[1], x + 12, y + 30);
@@ -98,7 +108,7 @@ export function buildReportPdf(d: ReportData): jsPDF {
 
   const section = (title: string) => {
     ensure(48);
-    doc.setTextColor(...PURPLE);
+    doc.setTextColor(...NAVY);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(title, M, y);
@@ -119,7 +129,7 @@ export function buildReportPdf(d: ReportData): jsPDF {
     body: d.completed.length
       ? d.completed.map((c) => [c.equipment, c.location ?? "-", c.activity, c.condition ?? "-"])
       : [["No completed inspections today.", "", "", ""]],
-    headStyles: { fillColor: PURPLE, textColor: 255, fontSize: 9 },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
     bodyStyles: { fontSize: 8, textColor: 40 },
     alternateRowStyles: { fillColor: LIGHT },
     styles: { cellPadding: 5, overflow: "linebreak" },
@@ -136,7 +146,7 @@ export function buildReportPdf(d: ReportData): jsPDF {
     body: d.findings.length
       ? d.findings.map((f) => [f.severity, f.equipment ?? "-", f.title, f.code])
       : [["", "No open findings.", "", ""]],
-    headStyles: { fillColor: PURPLE, textColor: 255, fontSize: 9 },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
     bodyStyles: { fontSize: 8, textColor: 40 },
     alternateRowStyles: { fillColor: LIGHT },
     styles: { cellPadding: 5, overflow: "linebreak" },
@@ -161,7 +171,7 @@ export function buildReportPdf(d: ReportData): jsPDF {
     body: d.actions.length
       ? d.actions.map((a) => [a.title, a.status, a.target ?? "-"])
       : [["No open maintenance actions.", "", ""]],
-    headStyles: { fillColor: PURPLE, textColor: 255, fontSize: 9 },
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
     bodyStyles: { fontSize: 8, textColor: 40 },
     alternateRowStyles: { fillColor: LIGHT },
     styles: { cellPadding: 5, overflow: "linebreak" },
