@@ -22,6 +22,7 @@ import type { Enums, Tables } from "@/lib/supabase/types";
 import { Constants } from "@/lib/supabase/types";
 import { Attachments } from "@/components/attachments";
 import { cn } from "@/lib/utils";
+import { inferMeasurement, rangeHint, verdictFor } from "@/lib/measurement";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -131,21 +132,33 @@ export function ExecutionClient({
     }
   }
 
-  async function saveItemField(
-    item: Item,
-    field: "measured_value" | "notes",
-    value: string
-  ) {
-    const payload =
-      field === "measured_value"
-        ? { measured_value: value === "" ? null : Number(value) }
-        : { notes: value || null };
+  async function saveNotes(item: Item, value: string) {
     const supabase = createClient();
     const { error } = await supabase
       .from("inspection_task_checklist_items")
-      .update(payload)
+      .update({ notes: value || null })
       .eq("id", item.id);
     if (error) toast.error("فشل الحفظ");
+  }
+
+  // Save a measurement + auto-apply the healthy/attention/out-of-range verdict.
+  async function saveMeasured(item: Item, value: string) {
+    const num = value === "" ? null : Number(value);
+    const spec = inferMeasurement(item.label);
+    const verdict = num == null ? null : verdictFor(num, spec);
+    setItems((cur) =>
+      cur.map((i) =>
+        i.id === item.id
+          ? { ...i, measured_value: num, ...(verdict ? { result: verdict } : {}) }
+          : i
+      )
+    );
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("inspection_task_checklist_items")
+      .update({ measured_value: num, ...(verdict ? { result: verdict } : {}) })
+      .eq("id", item.id);
+    if (error) toast.error("فشل حفظ القراءة");
   }
 
   async function complete() {
@@ -286,46 +299,15 @@ export function ExecutionClient({
       {items.length > 0 ? (
         <div className="flex flex-col gap-3">
           {items.map((item, idx) => (
-            <Card key={item.id} className="rounded-3xl border-0 shadow-sm">
-              <CardContent className="flex flex-col gap-3 pt-5">
-                <p className="font-medium" dir="ltr">
-                  <span className="text-muted-foreground">{idx + 1}.</span> {item.label}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {RESULT_OPTIONS.map((r) => (
-                    <Button
-                      key={r}
-                      variant="outline"
-                      size="sm"
-                      disabled={isClosed}
-                      className={cn(
-                        "min-h-9 rounded-xl",
-                        item.result === r && CHECKLIST_RESULT_ACTIVE_CLASS[r]
-                      )}
-                      onClick={() => setResult(item, r)}
-                    >
-                      {CHECKLIST_RESULT_LABELS_AR[r]}
-                    </Button>
-                  ))}
-                </div>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <Input
-                    type="number"
-                    dir="ltr"
-                    placeholder="قراءة (اختياري)"
-                    defaultValue={item.measured_value ?? ""}
-                    disabled={isClosed}
-                    onBlur={(e) => saveItemField(item, "measured_value", e.target.value)}
-                  />
-                  <Input
-                    placeholder="ملاحظات (اختياري)"
-                    defaultValue={item.notes ?? ""}
-                    disabled={isClosed}
-                    onBlur={(e) => saveItemField(item, "notes", e.target.value)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <ItemCard
+              key={item.id}
+              item={item}
+              idx={idx}
+              isClosed={isClosed}
+              onSetResult={setResult}
+              onSaveMeasured={saveMeasured}
+              onSaveNotes={saveNotes}
+            />
           ))}
 
           {!isClosed ? (
@@ -407,6 +389,111 @@ export function ExecutionClient({
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function ItemCard({
+  item,
+  idx,
+  isClosed,
+  onSetResult,
+  onSaveMeasured,
+  onSaveNotes,
+}: {
+  item: Item;
+  idx: number;
+  isClosed: boolean;
+  onSetResult: (item: Item, r: Enums<"checklist_result">) => void;
+  onSaveMeasured: (item: Item, value: string) => void;
+  onSaveNotes: (item: Item, value: string) => void;
+}) {
+  const spec = useMemo(() => inferMeasurement(item.label), [item.label]);
+  const [measured, setMeasured] = useState(
+    item.measured_value != null ? String(item.measured_value) : ""
+  );
+  const liveVerdict =
+    spec.kind === "numeric" && measured !== "" && !Number.isNaN(Number(measured))
+      ? verdictFor(Number(measured), spec)
+      : null;
+  const hint = rangeHint(spec);
+
+  return (
+    <Card className="rounded-3xl border-0 shadow-sm">
+      <CardContent className="flex flex-col gap-3 pt-5">
+        <p className="font-medium" dir="ltr">
+          <span className="text-muted-foreground">{idx + 1}.</span> {item.label}
+        </p>
+
+        {spec.kind === "numeric" ? (
+          <div className="flex flex-col gap-2 rounded-2xl bg-muted/60 p-3">
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <Label className="text-sm">
+                {spec.nameAr ?? "القياس"}{" "}
+                {spec.unit ? (
+                  <span className="text-muted-foreground">({spec.unit})</span>
+                ) : null}
+              </Label>
+              {hint ? (
+                <span className="text-xs text-muted-foreground">{hint}</span>
+              ) : null}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  dir="ltr"
+                  placeholder="أدخل القراءة"
+                  value={measured}
+                  disabled={isClosed}
+                  onChange={(e) => setMeasured(e.target.value)}
+                  onBlur={(e) => onSaveMeasured(item, e.target.value)}
+                  className={spec.unit ? "pr-12" : undefined}
+                />
+                {spec.unit ? (
+                  <span
+                    className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-semibold text-muted-foreground"
+                    dir="ltr"
+                  >
+                    {spec.unit}
+                  </span>
+                ) : null}
+              </div>
+              {liveVerdict ? (
+                <Badge className={CHECKLIST_RESULT_ACTIVE_CLASS[liveVerdict]}>
+                  {CHECKLIST_RESULT_LABELS_AR[liveVerdict]}
+                </Badge>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap gap-2">
+          {RESULT_OPTIONS.map((r) => (
+            <Button
+              key={r}
+              variant="outline"
+              size="sm"
+              disabled={isClosed}
+              className={cn(
+                "min-h-9 rounded-xl",
+                item.result === r && CHECKLIST_RESULT_ACTIVE_CLASS[r]
+              )}
+              onClick={() => onSetResult(item, r)}
+            >
+              {CHECKLIST_RESULT_LABELS_AR[r]}
+            </Button>
+          ))}
+        </div>
+
+        <Input
+          placeholder="ملاحظات (اختياري)"
+          defaultValue={item.notes ?? ""}
+          disabled={isClosed}
+          onBlur={(e) => onSaveNotes(item, e.target.value)}
+        />
+      </CardContent>
+    </Card>
   );
 }
 
