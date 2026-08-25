@@ -19,6 +19,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/types";
 import type { ReportData } from "@/lib/report-pdf";
 import { ROLE_LABELS_AR } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 function escapeHtml(s: string): string {
   return s
@@ -67,6 +68,7 @@ type Recipient = {
   full_name: string;
   role: Enums<"app_user_role">;
   email: string;
+  is_manager: boolean;
 };
 type CompletedRow = {
   completion_date: string | null;
@@ -137,10 +139,11 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
 
     const recs = (rec.data ?? []) as Recipient[];
     setRecipients(recs);
+    // default to managers with a real address; "الكل" adds everyone else
     setSelected(
       new Set(
         recs
-          .filter((r) => r.email && !r.email.endsWith(PLACEHOLDER_DOMAIN))
+          .filter((r) => r.is_manager && r.email && !r.email.endsWith(PLACEHOLDER_DOMAIN))
           .map((r) => r.email)
       )
     );
@@ -243,6 +246,8 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     .map((e) => e.trim())
     .filter((e) => e.includes("@"));
   const allEmails = [...new Set([...selected, ...manualEmails])];
+  // users whose address can actually receive mail (placeholder domain can't)
+  const reachable = recipients.filter((r) => !r.email.endsWith(PLACEHOLDER_DOMAIN));
 
   function toggle(email: string) {
     setSelected((cur) => {
@@ -358,35 +363,81 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
         ) : (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <Label>المستلمون (مديرون)</Label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Label>المستلمون ({selected.size} من {reachable.length})</Label>
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 rounded-lg px-2 text-xs"
+                    onClick={() => setSelected(new Set(reachable.map((r) => r.email)))}
+                  >
+                    الكل
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-7 rounded-lg px-2 text-xs"
+                    onClick={() =>
+                      setSelected(
+                        new Set(reachable.filter((r) => r.is_manager).map((r) => r.email))
+                      )
+                    }
+                  >
+                    المديرون فقط
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 rounded-lg px-2 text-xs"
+                    onClick={() => setSelected(new Set())}
+                  >
+                    إلغاء
+                  </Button>
+                </div>
+              </div>
               {recipients.length ? (
-                <div className="flex max-h-40 flex-col gap-1 overflow-y-auto rounded-xl border p-2">
+                <div className="flex max-h-52 flex-col gap-1 overflow-y-auto rounded-xl border p-2">
                   {recipients.map((r) => {
                     const isPlaceholder = r.email.endsWith(PLACEHOLDER_DOMAIN);
                     return (
                       <label
                         key={r.id}
-                        className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-muted"
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-2 py-1.5",
+                          isPlaceholder
+                            ? "cursor-not-allowed opacity-50"
+                            : "cursor-pointer hover:bg-muted"
+                        )}
                       >
                         <input
                           type="checkbox"
                           className="size-4 accent-primary"
                           checked={selected.has(r.email)}
+                          disabled={isPlaceholder}
                           onChange={() => toggle(r.email)}
                         />
                         <div className="flex min-w-0 flex-1 flex-col">
-                          <span className="truncate text-sm font-medium">
-                            {r.full_name}{" "}
+                          <span className="flex items-center gap-1.5 truncate text-sm font-medium">
+                            {r.full_name}
                             <span className="text-xs font-normal text-muted-foreground">
                               · {ROLE_LABELS_AR[r.role]}
                             </span>
+                            {r.is_manager ? (
+                              <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+                                إدارة
+                              </span>
+                            ) : null}
                           </span>
                           <span
                             className="truncate font-mono text-xs text-muted-foreground"
                             dir="ltr"
                           >
                             {r.email}
-                            {isPlaceholder ? " (غير حقيقي)" : ""}
+                            {isPlaceholder ? " — إيميل غير حقيقي" : ""}
                           </span>
                         </div>
                       </label>
@@ -394,7 +445,7 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">لا يوجد مديرون مسجّلون بعد</p>
+                <p className="text-sm text-muted-foreground">لا يوجد مستخدمون نشطون بعد</p>
               )}
             </div>
 

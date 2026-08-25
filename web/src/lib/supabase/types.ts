@@ -961,6 +961,7 @@ export type Database = {
           full_name: string
           role: Database["public"]["Enums"]["app_user_role"]
           email: string
+          is_manager: boolean
         }[]
       }
       has_maintenance_write: { Args: never; Returns: boolean }
