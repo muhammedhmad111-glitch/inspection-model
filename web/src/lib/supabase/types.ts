@@ -136,6 +136,75 @@ export type Database = {
         }
         Relationships: []
       }
+      kb_documents: {
+        Row: {
+          chunk_count: number
+          created_at: string
+          doc_type: string
+          document_id: string
+          equipment_type: string | null
+          error_message: string | null
+          source_name: string | null
+          status: string
+          storage_path: string | null
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          chunk_count?: number
+          created_at?: string
+          doc_type?: string
+          document_id?: string
+          equipment_type?: string | null
+          error_message?: string | null
+          source_name?: string | null
+          status?: string
+          storage_path?: string | null
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          chunk_count?: number
+          created_at?: string
+          doc_type?: string
+          document_id?: string
+          equipment_type?: string | null
+          error_message?: string | null
+          source_name?: string | null
+          status?: string
+          storage_path?: string | null
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      assistant_conversations: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string
+          created_at?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       areas: {
         Row: {
           active: boolean
