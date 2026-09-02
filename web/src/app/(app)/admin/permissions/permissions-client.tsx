@@ -80,7 +80,7 @@ export function PermissionsClient({
       </div>
 
       <Card className="rounded-3xl border-0 shadow-sm">
-        <CardContent className="overflow-x-auto p-3 sm:p-5">
+        <CardContent className="scroll-x p-3 sm:p-5">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr>

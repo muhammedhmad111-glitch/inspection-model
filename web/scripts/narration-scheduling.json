@@ -1,0 +1,50 @@
+{
+  "_comment": "Voice-over script for the Scheduling composition. `budget` is the scene's designed length in seconds; build-narration.mjs stretches a scene if its line needs longer, so overruns are safe. Each line is generated as its own clip, so no splitting is involved.",
+  "lines": [
+    {
+      "scene": "hook",
+      "budget": 6.0,
+      "text": "744 recurring inspections. None of them land on a weekend."
+    },
+    {
+      "scene": "naive",
+      "budget": 9.0,
+      "text": "Add N days, repeat. But the work week runs Sunday to Thursday, so two inspections in seven land on a weekend."
+    },
+    {
+      "scene": "pileup",
+      "budget": 9.0,
+      "text": "So push it to Sunday. Now Sunday carries 381 tasks. The problem moved. It did not go away."
+    },
+    {
+      "scene": "hash",
+      "budget": 10.0,
+      "text": "Instead, every activity gets a permanent weekday, from a hash of its id. Deterministic, so 381 activities spread themselves evenly across the five working days."
+    },
+    {
+      "scene": "snap",
+      "budget": 10.0,
+      "text": "Cadences of a week or more snap to that weekday, up to three days either way. The nearest one, never the next one."
+    },
+    {
+      "scene": "drift",
+      "budget": 11.0,
+      "text": "Here is the trap. Measure the next cycle from the corrected date, and every correction carries forward. Four cycles in, a monthly inspection is six days late."
+    },
+    {
+      "scene": "result",
+      "budget": 9.0,
+      "text": "The result: 744 tasks, between 131 and 165 on every working day, and zero on a weekend."
+    },
+    {
+      "scene": "screen",
+      "budget": 8.0,
+      "text": "It runs as a Postgres function, so the rules live next to the data, not in a job server that can quietly stop."
+    },
+    {
+      "scene": "outro",
+      "budget": 6.0,
+      "text": "A scheduler is not a loop over dates. It is a set of decisions about the week people actually work."
+    }
+  ]
+}

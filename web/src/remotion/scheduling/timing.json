@@ -1,0 +1,14 @@
+{
+  "_comment": "Scene lengths in frames, written by scripts/build-narration.mjs so every scene is at least as long as the line spoken over it. Empty means the designed lengths in scenes.tsx are used as-is.",
+  "scenes": {
+    "hook": 184,
+    "naive": 296,
+    "pileup": 303,
+    "hash": 445,
+    "snap": 301,
+    "drift": 383,
+    "result": 381,
+    "screen": 264,
+    "outro": 249
+  }
+}

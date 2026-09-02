@@ -1,0 +1,89 @@
+{
+  "_comment": "Voice-over script for the SystemOverview composition. `at` is the scene start in seconds at 30fps; `budget` is how long that scene runs. Keep each line comfortably under its budget at ~2.5 words/second.",
+  "lines": [
+    {
+      "scene": "hook",
+      "at": 0.0,
+      "budget": 5.0,
+      "text": "A cement plant runs on 133 machines. Every one needs inspecting."
+    },
+    {
+      "scene": "title",
+      "at": 5.0,
+      "budget": 5.0,
+      "text": "This is CPIIS, the system I built to make that happen."
+    },
+    {
+      "scene": "problem",
+      "at": 10.0,
+      "budget": 6.0,
+      "text": "Most plants still run inspections on paper. The data gets collected, then thrown away."
+    },
+    {
+      "scene": "hierarchy",
+      "at": 16.0,
+      "budget": 8.0,
+      "text": "It starts with the plant itself. Areas, sections, equipment, and the individual parts an inspector actually touches."
+    },
+    {
+      "scene": "library",
+      "at": 24.0,
+      "budget": 8.5,
+      "text": "You write a checklist once. The system turns it into recurring tasks, spread evenly across the Sunday to Thursday work week."
+    },
+    {
+      "scene": "execution",
+      "at": 32.5,
+      "budget": 8.5,
+      "text": "The engineer works from a phone on the plant floor. Forty two checkpoints, condition, notes, and photo evidence."
+    },
+    {
+      "scene": "findings",
+      "at": 41.0,
+      "budget": 8.0,
+      "text": "Anything wrong becomes a finding, and every finding becomes a maintenance action with a severity, an owner and a due date."
+    },
+    {
+      "scene": "dashboards",
+      "at": 49.0,
+      "budget": 9.0,
+      "text": "Managers get four dashboards. Schedule compliance, inspection coverage, mean time to repair, backlog aging, and risk weighted by criticality."
+    },
+    {
+      "scene": "reports",
+      "at": 58.0,
+      "budget": 7.5,
+      "text": "Plus a daily report that builds its own PDF and emails itself to the right people."
+    },
+    {
+      "scene": "rbac",
+      "at": 65.5,
+      "budget": 8.0,
+      "text": "Access is a live matrix. Eleven roles, eight permissions, enforced inside the database, not just hidden in the interface."
+    },
+    {
+      "scene": "journey",
+      "at": 73.5,
+      "budget": 10.0,
+      "text": "So the whole loop closes. Sign up, get approved, inspect, raise a finding, close the action, and watch the numbers move."
+    },
+    {
+      "scene": "numbers",
+      "at": 83.5,
+      "budget": 6.5,
+      "text": "133 machines. 381 activities. 744 tasks."
+    },
+    {
+      "scene": "stack",
+      "at": 90.0,
+      "budget": 5.5,
+      "text": "Built on Next.js, React and Supabase, with row level security in Postgres."
+    },
+    {
+      "scene": "outro",
+      "at": 95.5,
+      "budget": 6.0,
+      "text": "CPIIS. Inspection, findings, maintenance and reporting, end to end."
+    }
+  ]
+}

@@ -162,6 +162,31 @@
   }
 }
 
+/* Horizontal scroll container with a scrollbar that actually stays visible.
+   Browsers default to overlay scrollbars that fade out, which leaves wide
+   tables with no hint that they scroll sideways. */
+.scroll-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 45%, transparent)
+    color-mix(in oklab, var(--muted-foreground) 12%, transparent);
+}
+.scroll-x::-webkit-scrollbar {
+  height: 10px;
+}
+.scroll-x::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--muted-foreground) 12%, transparent);
+}
+.scroll-x::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
+}
+.scroll-x::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

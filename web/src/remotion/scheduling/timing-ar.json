@@ -1,0 +1,4 @@
+{
+  "_comment": "Scene lengths in frames, written by scripts/build-narration.mjs so every scene is at least as long as the line spoken over it. Empty means the designed lengths in scenes-ar.tsx are used as-is.",
+  "scenes": {}
+}

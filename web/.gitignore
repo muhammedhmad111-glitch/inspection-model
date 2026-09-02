@@ -24,6 +24,12 @@
 .DS_Store
 *.pem
 
+# App screenshots captured for the explainer video. They hold real plant data
+# (equipment names, functional locations, task codes) and everything under
+# public/ is served publicly once deployed — so keep them local. Regenerate with
+# scripts/capture-screens.mjs before rendering the SystemOverview composition.
+/public/video/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -39,3 +45,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*
+
+# Voice-over / music assets — licensed audio, kept out of the repo
+/public/audio/

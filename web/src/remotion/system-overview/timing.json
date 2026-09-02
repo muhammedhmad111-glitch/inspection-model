@@ -1,0 +1,19 @@
+{
+  "_comment": "Scene lengths in frames, written by scripts/build-narration.mjs so every scene is at least as long as the line spoken over it. Empty means the designed lengths in scenes.tsx are used as-is.",
+  "scenes": {
+    "hook": 186,
+    "title": 150,
+    "problem": 180,
+    "hierarchy": 297,
+    "library": 264,
+    "execution": 255,
+    "findings": 249,
+    "dashboards": 327,
+    "reports": 225,
+    "rbac": 303,
+    "journey": 300,
+    "numbers": 223,
+    "stack": 193,
+    "outro": 180
+  }
+}
