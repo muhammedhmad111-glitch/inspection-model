@@ -47,16 +47,20 @@ const colOf = (dow: number) => (dow + 1) % 7;
 
 export function CalendarClient({
   profiles,
+  initialDay,
 }: {
   profiles: { id: string; full_name: string }[];
+  initialDay: string | null;
 }) {
   const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
+  // Coming back from a task returns with ?day=…, so open on that day's month.
+  const initial = initialDay ? new Date(`${initialDay}T00:00:00`) : today;
+  const [year, setYear] = useState(initial.getFullYear());
+  const [month, setMonth] = useState(initial.getMonth());
   const [inspector, setInspector] = useState(ALL);
   const [tasks, setTasks] = useState<TaskLite[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string | null>(initialDay);
 
   useEffect(() => {
     let active = true;
@@ -114,8 +118,14 @@ export function CalendarClient({
 
   const todayStr = ymd(today.getFullYear(), today.getMonth(), today.getDate());
 
+  // Keep the open day in the URL so a task can send the user straight back to it.
+  function selectDay(day: string | null) {
+    setSelectedDay(day);
+    window.history.replaceState(null, "", day ? `/calendar?day=${day}` : "/calendar");
+  }
+
   function shift(delta: number) {
-    setSelectedDay(null);
+    selectDay(null);
     const m = month + delta;
     if (m < 0) {
       setMonth(11);
@@ -187,7 +197,7 @@ export function CalendarClient({
               return (
                 <button
                   key={i}
-                  onClick={() => setSelectedDay(items.length ? ds : null)}
+                  onClick={() => selectDay(items.length ? ds : null)}
                   className={cn(
                     "flex min-h-16 flex-col items-center gap-1 rounded-2xl border p-1.5 text-sm transition-colors sm:min-h-20",
                     items.length ? "hover:border-primary" : "cursor-default",
@@ -224,7 +234,9 @@ export function CalendarClient({
             {selectedTasks.map((t) => (
               <Link
                 key={t.inspection_task_id}
-                href={`/tasks/${t.inspection_task_id}`}
+                href={`/tasks/${t.inspection_task_id}?from=${encodeURIComponent(
+                  `/calendar?day=${selectedDay}`
+                )}`}
                 className="flex items-center justify-between gap-2 rounded-2xl bg-muted/50 px-4 py-2.5 text-sm hover:bg-muted"
               >
                 <div className="flex flex-col">

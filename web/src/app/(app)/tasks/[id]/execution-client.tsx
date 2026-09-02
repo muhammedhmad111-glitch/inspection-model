@@ -3,7 +3,14 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, ArrowRight, CheckCircle2, Loader2, Play } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  Loader2,
+  MessageCircle,
+  Play,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +28,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { Constants } from "@/lib/supabase/types";
 import { Attachments } from "@/components/attachments";
+import { WhatsappShare, type ShareFinding } from "@/components/whatsapp-share";
 import { cn } from "@/lib/utils";
 import { inferMeasurement, rangeHint, verdictFor } from "@/lib/measurement";
 import { Label } from "@/components/ui/label";
@@ -71,11 +79,18 @@ const RESULT_OPTIONS = Constants.public.Enums.checklist_result;
 export function ExecutionClient({
   task,
   initialItems,
+  findings,
+  inspectorName,
+  backHref,
 }: {
   task: Task;
   initialItems: Item[];
+  findings: ShareFinding[];
+  inspectorName: string | null;
+  backHref: string;
 }) {
   const router = useRouter();
+  const cameFromCalendar = backHref.startsWith("/calendar");
   const [items, setItems] = useState<Item[]>(initialItems);
   const [starting, setStarting] = useState(false);
   const [completing, setCompleting] = useState(false);
@@ -83,6 +98,10 @@ export function ExecutionClient({
   const [condition, setCondition] = useState<Enums<"equipment_condition"> | null>(null);
   const [finalNotes, setFinalNotes] = useState("");
   const [findingOpen, setFindingOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  // Set when the share sheet was opened straight after completing, so closing
+  // it takes the inspector back to the list they came from.
+  const [returnOnShareClose, setReturnOnShareClose] = useState(false);
 
   const isClosed = ["Completed", "Cancelled", "Skipped"].includes(task.status);
   const isStarted = task.status === "In Progress" || items.length > 0;
@@ -182,16 +201,27 @@ export function ExecutionClient({
     setCompleteOpen(false);
     toast.success("تم إنهاء الفحص وتوليد الدورة التالية");
     router.refresh();
+    // Offer to send the report first; closing the sheet returns to the list.
+    setReturnOnShareClose(true);
+    setShareOpen(true);
+  }
+
+  function closeShare(next: boolean) {
+    setShareOpen(next);
+    if (!next && returnOnShareClose) {
+      setReturnOnShareClose(false);
+      router.push(backHref);
+    }
   }
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <Link
-        href="/tasks"
+        href={backHref}
         className="flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowRight className="size-4" />
-        عودة للمهام
+        {cameFromCalendar ? "عودة للتقويم" : "عودة للمهام"}
       </Link>
 
       {/* header card */}
@@ -281,6 +311,16 @@ export function ExecutionClient({
               تسجيل ملاحظة
             </Button>
           ) : null}
+
+          {task.status === "Completed" ? (
+            <Button
+              className="rounded-2xl bg-[#25D366] text-white hover:bg-[#1eb955]"
+              onClick={() => setShareOpen(true)}
+            >
+              <MessageCircle className="size-4" />
+              إرسال الفحص على واتساب
+            </Button>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -342,6 +382,27 @@ export function ExecutionClient({
         open={findingOpen}
         onOpenChange={setFindingOpen}
         task={task}
+      />
+
+      {/* whatsapp report sheet */}
+      <WhatsappShare
+        open={shareOpen}
+        onOpenChange={closeShare}
+        items={items}
+        findings={findings}
+        task={{
+          taskCode: task.task_code,
+          equipment: task.equipment?.equipment_name ?? "معدة",
+          equipmentCode: task.equipment?.equipment_code ?? null,
+          location: task.equipment?.functional_location ?? null,
+          part: task.equipment_parts?.part_name ?? null,
+          activity: task.inspection_activities?.activity_name ?? "فحص",
+          completionDate: task.completion_date,
+          dueDate: task.due_date,
+          condition: task.condition_rating,
+          notes: task.notes,
+          inspector: inspectorName,
+        }}
       />
 
       {/* completion dialog */}
@@ -468,6 +529,31 @@ function ItemCard({
           </div>
         ) : null}
 
+        {spec.kind === "scale" && spec.options ? (
+          <div className="flex flex-col gap-2 rounded-2xl bg-muted/60 p-3">
+            <Label className="text-sm">{spec.nameAr}</Label>
+            <div className="flex flex-wrap gap-2">
+              {spec.options.map((opt) => (
+                <Button
+                  key={opt.label}
+                  variant="outline"
+                  size="sm"
+                  disabled={isClosed}
+                  className={cn(
+                    "min-h-9 rounded-xl",
+                    item.result === opt.verdict &&
+                      CHECKLIST_RESULT_ACTIVE_CLASS[opt.verdict]
+                  )}
+                  onClick={() => onSetResult(item, opt.verdict)}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {/* generic result buttons — the fallback, and always available to override */}
         <div className="flex flex-wrap gap-2">
           {RESULT_OPTIONS.map((r) => (
             <Button
@@ -477,6 +563,7 @@ function ItemCard({
               disabled={isClosed}
               className={cn(
                 "min-h-9 rounded-xl",
+                spec.kind !== "visual" && "text-xs",
                 item.result === r && CHECKLIST_RESULT_ACTIVE_CLASS[r]
               )}
               onClick={() => onSetResult(item, r)}

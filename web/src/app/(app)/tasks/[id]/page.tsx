@@ -2,15 +2,26 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ExecutionClient } from "./execution-client";
 
+// Only same-origin app paths, so `?from=` can never bounce the user off-site.
+function safeBackHref(from: string | string[] | undefined) {
+  if (typeof from !== "string") return "/tasks";
+  if (!from.startsWith("/") || from.startsWith("//") || from.startsWith("/\\")) {
+    return "/tasks";
+  }
+  return from;
+}
+
 export default async function TaskExecutionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
-  const { id } = await params;
+  const [{ id }, { from }] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
 
-  const [{ data: task }, { data: items }] = await Promise.all([
+  const [{ data: task }, { data: items }, { data: findings }] = await Promise.all([
     supabase
       .from("inspection_tasks")
       .select(
@@ -29,9 +40,28 @@ export default async function TaskExecutionPage({
       .select("*")
       .eq("inspection_task_id", id)
       .order("sort_order"),
+    // Findings raised during this inspection — included in the WhatsApp report.
+    supabase
+      .from("inspection_findings")
+      .select("finding_code, finding_title, severity")
+      .eq("inspection_task_id", id)
+      .order("created_at"),
   ]);
 
   if (!task) notFound();
 
-  return <ExecutionClient task={task} initialItems={items ?? []} />;
+  const inspectorId = task.completed_by ?? task.assigned_user_id;
+  const { data: inspector } = inspectorId
+    ? await supabase.from("profiles").select("full_name").eq("id", inspectorId).single()
+    : { data: null };
+
+  return (
+    <ExecutionClient
+      task={task}
+      initialItems={items ?? []}
+      findings={findings ?? []}
+      inspectorName={inspector?.full_name ?? null}
+      backHref={safeBackHref(from)}
+    />
+  );
 }
