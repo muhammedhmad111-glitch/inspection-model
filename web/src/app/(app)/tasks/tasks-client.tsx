@@ -229,148 +229,153 @@ export function TasksClient({
       </div>
 
       <div className="overflow-hidden rounded-3xl border-0 bg-card shadow-sm">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
+        {/* Table brings its own .scroll-x container — no extra wrapper needed. */}
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>النشاط</TableHead>
+              <TableHead>المعدة / الجزء</TableHead>
+              <TableHead>التكرار</TableHead>
+              <TableHead>الاستحقاق</TableHead>
+              <TableHead>الأولوية</TableHead>
+              <TableHead>الحالة</TableHead>
+              <TableHead>{tab === "completed" ? "حالة المعدة" : "المفتش"}</TableHead>
+              <TableHead className="w-28" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 ? (
               <TableRow>
-                <TableHead>النشاط</TableHead>
-                <TableHead>المعدة / الجزء</TableHead>
-                <TableHead>التكرار</TableHead>
-                <TableHead>الاستحقاق</TableHead>
-                <TableHead>الأولوية</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead>{tab === "completed" ? "حالة المعدة" : "المفتش"}</TableHead>
-                <TableHead className="w-28" />
+                <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
+                  لا توجد مهام مطابقة
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
-                    لا توجد مهام مطابقة
+            ) : (
+              filtered.slice(0, 200).map((t) => (
+                <TableRow
+                  key={t.inspection_task_id}
+                  // The action button sits in the last column, which is off-screen
+                  // on narrow viewports — opening from anywhere on the row means
+                  // nobody has to scroll sideways to reach it.
+                  onClick={() => router.push(`/tasks/${t.inspection_task_id}`)}
+                  className={cn(
+                    "cursor-pointer",
+                    t.status === "Overdue" && "bg-red-50/60 dark:bg-red-950/20"
+                  )}
+                >
+                  <TableCell>
+                    <div className="font-medium">
+                      {t.inspection_activities?.activity_name ?? "—"}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {t.inspection_activities
+                        ? CATEGORY_LABELS_AR[t.inspection_activities.inspection_category]
+                        : ""}
+                      {" · "}
+                      <span className="font-mono" dir="ltr">
+                        {t.task_code}
+                      </span>
+                    </div>
                   </TableCell>
-                </TableRow>
-              ) : (
-                filtered.slice(0, 200).map((t) => (
-                  <TableRow
-                    key={t.inspection_task_id}
-                    className={cn(
-                      t.status === "Overdue" && "bg-red-50/60 dark:bg-red-950/20"
+                  <TableCell>
+                    <div className="text-sm">{t.equipment?.equipment_name ?? "—"}</div>
+                    {t.equipment?.functional_location ? (
+                      <div className="font-mono text-xs text-muted-foreground" dir="ltr">
+                        {t.equipment.functional_location}
+                      </div>
+                    ) : null}
+                  </TableCell>
+                  <TableCell>
+                    {t.inspection_activities ? (
+                      <Badge
+                        className={
+                          FREQUENCY_BADGE_CLASS[t.inspection_activities.frequency_type]
+                        }
+                      >
+                        {FREQUENCY_LABELS_AR[t.inspection_activities.frequency_type]}
+                      </Badge>
+                    ) : (
+                      "—"
                     )}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "font-mono text-sm",
+                      t.status === "Overdue" &&
+                        "font-bold text-red-600 dark:text-red-400"
+                    )}
+                    dir="ltr"
                   >
-                    <TableCell>
-                      <div className="font-medium">
-                        {t.inspection_activities?.activity_name ?? "—"}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {t.inspection_activities
-                          ? CATEGORY_LABELS_AR[t.inspection_activities.inspection_category]
-                          : ""}
-                        {" · "}
-                        <span className="font-mono" dir="ltr">
-                          {t.task_code}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">{t.equipment?.equipment_name ?? "—"}</div>
-                      {t.equipment?.functional_location ? (
-                        <div className="font-mono text-xs text-muted-foreground" dir="ltr">
-                          {t.equipment.functional_location}
-                        </div>
-                      ) : null}
-                    </TableCell>
-                    <TableCell>
-                      {t.inspection_activities ? (
-                        <Badge
-                          className={
-                            FREQUENCY_BADGE_CLASS[t.inspection_activities.frequency_type]
-                          }
-                        >
-                          {FREQUENCY_LABELS_AR[t.inspection_activities.frequency_type]}
+                    {t.due_date}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={PRIORITY_BADGE_CLASS[t.priority]}>
+                      {PRIORITY_LABELS_AR[t.priority]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={TASK_STATUS_BADGE_CLASS[t.status]}>
+                      {TASK_STATUS_LABELS_AR[t.status]}
+                    </Badge>
+                  </TableCell>
+                  {/* Assigning an inspector must not open the task. */}
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    {tab === "completed" ? (
+                      t.condition_rating ? (
+                        <Badge className={CONDITION_BADGE_CLASS[t.condition_rating]}>
+                          {CONDITION_LABELS_AR[t.condition_rating]}
                         </Badge>
                       ) : (
                         "—"
-                      )}
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        "font-mono text-sm",
-                        t.status === "Overdue" &&
-                          "font-bold text-red-600 dark:text-red-400"
-                      )}
-                      dir="ltr"
-                    >
-                      {t.due_date}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={PRIORITY_BADGE_CLASS[t.priority]}>
-                        {PRIORITY_LABELS_AR[t.priority]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={TASK_STATUS_BADGE_CLASS[t.status]}>
-                        {TASK_STATUS_LABELS_AR[t.status]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {tab === "completed" ? (
-                        t.condition_rating ? (
-                          <Badge className={CONDITION_BADGE_CLASS[t.condition_rating]}>
-                            {CONDITION_LABELS_AR[t.condition_rating]}
-                          </Badge>
-                        ) : (
-                          "—"
-                        )
-                      ) : canManage ? (
-                        <Select
-                          value={t.assigned_user_id ?? UNASSIGNED}
-                          onValueChange={(v) => assign(t.inspection_task_id, v)}
-                          disabled={assigning === t.inspection_task_id}
-                        >
-                          <SelectTrigger className="h-8 w-36 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={UNASSIGNED}>غير معيّن</SelectItem>
-                            {profiles.map((p) => (
-                              <SelectItem key={p.id} value={p.id}>
-                                {p.full_name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <UserRound className="size-3.5" />
-                          {t.assigned_user_id
-                            ? profileById.get(t.assigned_user_id) ?? "—"
-                            : "غير معيّن"}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {t.status !== "Completed" &&
-                      t.status !== "Cancelled" &&
-                      t.status !== "Skipped" ? (
-                        <Button asChild size="sm" className="rounded-xl">
-                          <Link href={`/tasks/${t.inspection_task_id}`}>
-                            <Play className="size-3.5" />
-                            {t.status === "In Progress" ? "متابعة" : "بدء الفحص"}
-                          </Link>
-                        </Button>
-                      ) : (
-                        <Button asChild size="sm" variant="ghost" className="rounded-xl">
-                          <Link href={`/tasks/${t.inspection_task_id}`}>عرض</Link>
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                      )
+                    ) : canManage ? (
+                      <Select
+                        value={t.assigned_user_id ?? UNASSIGNED}
+                        onValueChange={(v) => assign(t.inspection_task_id, v)}
+                        disabled={assigning === t.inspection_task_id}
+                      >
+                        <SelectTrigger className="h-8 w-36 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={UNASSIGNED}>غير معيّن</SelectItem>
+                          {profiles.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.full_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <UserRound className="size-3.5" />
+                        {t.assigned_user_id
+                          ? profileById.get(t.assigned_user_id) ?? "—"
+                          : "غير معيّن"}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {t.status !== "Completed" &&
+                    t.status !== "Cancelled" &&
+                    t.status !== "Skipped" ? (
+                      <Button asChild size="sm" className="rounded-xl">
+                        <Link href={`/tasks/${t.inspection_task_id}`}>
+                          <Play className="size-3.5" />
+                          {t.status === "In Progress" ? "متابعة" : "بدء الفحص"}
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button asChild size="sm" variant="ghost" className="rounded-xl">
+                        <Link href={`/tasks/${t.inspection_task_id}`}>عرض</Link>
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
