@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Paperclip, Search, Wrench } from "lucide-react";
+import { Paperclip, Plus, Search, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { Constants } from "@/lib/supabase/types";
 import { Attachments } from "@/components/attachments";
+import { EquipmentSelect, type EquipmentOption } from "@/components/equipment-select";
 import {
   ACTION_STATUS_LABELS_AR,
   ACTION_TYPE_LABELS_AR,
@@ -53,10 +54,12 @@ const ALL = "__all__";
 export function FindingsClient({
   initialFindings,
   profiles,
+  equipment,
   canManage,
 }: {
   initialFindings: Finding[];
   profiles: ProfileOption[];
+  equipment: EquipmentOption[];
   canManage: boolean;
 }) {
   const router = useRouter();
@@ -65,6 +68,7 @@ export function FindingsClient({
   const [statusFilter, setStatusFilter] = useState(ALL);
   const [typeFilter, setTypeFilter] = useState(ALL);
   const [actionFor, setActionFor] = useState<Finding | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -98,11 +102,19 @@ export function FindingsClient({
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-bold">ملاحظات الفحص</h1>
-        <p className="text-sm text-muted-foreground">
-          النتائج غير المطابقة المسجلة أثناء الفحوصات وقرارات التعامل معها
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">ملاحظات الفحص</h1>
+          <p className="text-sm text-muted-foreground">
+            النتائج غير المطابقة المسجلة أثناء الفحوصات وقرارات التعامل معها
+          </p>
+        </div>
+        {canManage ? (
+          <Button onClick={() => setCreating(true)}>
+            <Plus className="size-4" />
+            ملاحظة جديدة
+          </Button>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -161,7 +173,8 @@ export function FindingsClient({
         {filtered.length === 0 ? (
           <Card className="rounded-3xl border-0 shadow-sm">
             <CardContent className="py-10 text-center text-muted-foreground">
-              لا توجد ملاحظات — تُسجل الملاحظات من صفحة تنفيذ الفحص
+              لا توجد ملاحظات — سجّلها من صفحة تنفيذ الفحص، أو اضغط &quot;ملاحظة
+              جديدة&quot; لتسجيل ملاحظة على معدة مباشرة
             </CardContent>
           </Card>
         ) : (
@@ -269,7 +282,158 @@ export function FindingsClient({
         profiles={profiles}
         onClose={() => setActionFor(null)}
       />
+
+      <NewFindingDialog
+        open={creating}
+        equipment={equipment}
+        onClose={() => setCreating(false)}
+      />
     </div>
+  );
+}
+
+/** Raise a finding straight against a piece of equipment, with no inspection behind it. */
+function NewFindingDialog({
+  open,
+  equipment,
+  onClose,
+}: {
+  open: boolean;
+  equipment: EquipmentOption[];
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [equipmentId, setEquipmentId] = useState("");
+  const [partId, setPartId] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [findingType, setFindingType] = useState<Enums<"finding_type">>("Mechanical");
+  const [severity, setSeverity] = useState<Enums<"priority_level">>("Medium");
+  const [recommended, setRecommended] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  function reset() {
+    setEquipmentId("");
+    setPartId("");
+    setTitle("");
+    setDescription("");
+    setFindingType("Mechanical");
+    setSeverity("Medium");
+    setRecommended("");
+  }
+
+  async function submit() {
+    setSubmitting(true);
+    const supabase = createClient();
+    const { data: userData } = await supabase.auth.getUser();
+    const { error } = await supabase.from("inspection_findings").insert({
+      // No task: this was spotted outside a scheduled inspection.
+      inspection_task_id: null,
+      equipment_id: equipmentId,
+      equipment_part_id: partId,
+      finding_title: title.trim(),
+      finding_description: description.trim() || null,
+      finding_type: findingType,
+      severity,
+      recommended_action: recommended.trim() || null,
+      created_by: userData.user?.id ?? null,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast.error("فشل تسجيل الملاحظة: " + error.message);
+      return;
+    }
+    toast.success("تم تسجيل الملاحظة");
+    reset();
+    onClose();
+    router.refresh();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>تسجيل ملاحظة جديدة</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-4">
+          <EquipmentSelect
+            equipment={equipment}
+            equipmentId={equipmentId}
+            partId={partId}
+            onChange={(next) => {
+              setEquipmentId(next.equipmentId);
+              setPartId(next.partId);
+            }}
+          />
+          <div className="flex flex-col gap-2">
+            <Label>عنوان الملاحظة</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label>النوع</Label>
+              <Select
+                value={findingType}
+                onValueChange={(v) => setFindingType(v as Enums<"finding_type">)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Constants.public.Enums.finding_type.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {FINDING_TYPE_LABELS_AR[t]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>الخطورة</Label>
+              <Select
+                value={severity}
+                onValueChange={(v) => setSeverity(v as Enums<"priority_level">)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Constants.public.Enums.priority_level.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {PRIORITY_LABELS_AR[p]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>الوصف</Label>
+            <Textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>الإجراء الموصى به</Label>
+            <Textarea
+              rows={2}
+              value={recommended}
+              onChange={(e) => setRecommended(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={submit}
+              disabled={submitting || !title.trim() || !equipmentId || !partId}
+            >
+              تسجيل الملاحظة
+            </Button>
+          </DialogFooter>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

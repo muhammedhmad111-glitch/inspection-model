@@ -6,7 +6,7 @@ export default async function FindingsPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
 
-  const [{ data: findings }, { data: profiles }] = await Promise.all([
+  const [{ data: findings }, { data: profiles }, { data: equipment }] = await Promise.all([
     supabase
       .from("inspection_findings")
       .select(
@@ -19,12 +19,22 @@ export default async function FindingsPage() {
       .order("created_at", { ascending: false })
       .limit(400),
     supabase.from("profiles").select("id, full_name, role").eq("active", true),
+    // Raising a finding outside an inspection means naming the equipment yourself.
+    supabase
+      .from("equipment")
+      .select(
+        `equipment_id, equipment_name, functional_location,
+         equipment_parts ( equipment_part_id, part_name )`
+      )
+      .eq("active", true)
+      .order("equipment_name"),
   ]);
 
   return (
     <FindingsClient
       initialFindings={findings ?? []}
       profiles={profiles ?? []}
+      equipment={equipment ?? []}
       canManage={profile?.canManageFindings ?? false}
     />
   );

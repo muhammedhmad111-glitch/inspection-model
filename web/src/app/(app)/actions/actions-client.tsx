@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, CheckCircle2, Search } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,10 +28,12 @@ import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { Constants } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
+import { EquipmentSelect, type EquipmentOption } from "@/components/equipment-select";
 import {
   ACTION_STATUS_BADGE_CLASS,
   ACTION_STATUS_LABELS_AR,
   ACTION_TYPE_LABELS_AR,
+  DEPARTMENTS_AR,
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS_AR,
 } from "@/lib/constants";
@@ -44,11 +46,25 @@ type ActionRow = Tables<"maintenance_actions"> & {
     equipment: { equipment_name: string } | null;
     equipment_parts: { part_name: string } | null;
   } | null;
+  // Set instead of the finding when the action was raised straight on the equipment.
+  equipment: { equipment_name: string } | null;
+  equipment_parts: { part_name: string } | null;
   responsible: { full_name: string } | null;
   verifier: { full_name: string } | null;
 };
 
+type ProfileOption = { id: string; full_name: string; role: string };
+
+type FindingOption = {
+  finding_id: string;
+  finding_code: string;
+  finding_title: string;
+  severity: Enums<"priority_level">;
+  equipment: { equipment_name: string } | null;
+};
+
 const ALL = "__all__";
+const NO_FINDING = "__none__";
 
 // forward-only workflow transitions
 const NEXT_STATUS: Partial<Record<Enums<"action_status">, Enums<"action_status">[]>> = {
@@ -60,15 +76,22 @@ const NEXT_STATUS: Partial<Record<Enums<"action_status">, Enums<"action_status">
 
 export function ActionsClient({
   initialActions,
+  profiles,
+  equipment,
+  openFindings,
   canManage,
 }: {
   initialActions: ActionRow[];
+  profiles: ProfileOption[];
+  equipment: EquipmentOption[];
+  openFindings: FindingOption[];
   canManage: boolean;
 }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(ALL);
   const [completing, setCompleting] = useState<ActionRow | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const isOverdue = (a: ActionRow) =>
     a.target_date &&
@@ -126,11 +149,19 @@ export function ActionsClient({
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-bold">إجراءات الصيانة</h1>
-        <p className="text-sm text-muted-foreground">
-          الإجراءات المتولدة من ملاحظات الفحص ومتابعة تنفيذها حتى التحقق
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">إجراءات الصيانة</h1>
+          <p className="text-sm text-muted-foreground">
+            الإجراءات المتولدة من ملاحظات الفحص ومتابعة تنفيذها حتى التحقق
+          </p>
+        </div>
+        {canManage ? (
+          <Button onClick={() => setCreating(true)}>
+            <Plus className="size-4" />
+            إجراء جديد
+          </Button>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -163,7 +194,8 @@ export function ActionsClient({
         {filtered.length === 0 ? (
           <Card className="rounded-3xl border-0 shadow-sm">
             <CardContent className="py-10 text-center text-muted-foreground">
-              لا توجد إجراءات — تُنشأ الإجراءات من صفحة الملاحظات
+              لا توجد إجراءات — أنشئها من صفحة الملاحظات، أو اضغط &quot;إجراء
+              جديد&quot; لتسجيل إجراء على معدة مباشرة
             </CardContent>
           </Card>
         ) : (
@@ -180,13 +212,24 @@ export function ActionsClient({
                   <div>
                     <p className="font-semibold">{a.action_title}</p>
                     <p className="mt-0.5 text-sm text-muted-foreground">
-                      {a.inspection_findings?.equipment?.equipment_name}
-                      {" · "}
-                      {a.inspection_findings?.equipment_parts?.part_name}
-                      {" · من الملاحظة "}
-                      <span className="font-mono text-xs" dir="ltr">
-                        {a.inspection_findings?.finding_code}
-                      </span>
+                      {[
+                        a.inspection_findings?.equipment?.equipment_name ??
+                          a.equipment?.equipment_name,
+                        a.inspection_findings?.equipment_parts?.part_name ??
+                          a.equipment_parts?.part_name,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                      {a.inspection_findings ? (
+                        <>
+                          {" · من الملاحظة "}
+                          <span className="font-mono text-xs" dir="ltr">
+                            {a.inspection_findings.finding_code}
+                          </span>
+                        </>
+                      ) : (
+                        " · إجراء مباشر"
+                      )}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -269,7 +312,260 @@ export function ActionsClient({
         action={completing}
         onClose={() => setCompleting(null)}
       />
+
+      <NewActionDialog
+        open={creating}
+        profiles={profiles}
+        equipment={equipment}
+        openFindings={openFindings}
+        onClose={() => setCreating(false)}
+      />
     </div>
+  );
+}
+
+/**
+ * Raise a maintenance action without going through a finding first. Linking one is
+ * still offered — picking it fills in the equipment, since that is where the
+ * equipment came from before actions carried their own.
+ */
+function NewActionDialog({
+  open,
+  profiles,
+  equipment,
+  openFindings,
+  onClose,
+}: {
+  open: boolean;
+  profiles: ProfileOption[];
+  equipment: EquipmentOption[];
+  openFindings: FindingOption[];
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [findingId, setFindingId] = useState(NO_FINDING);
+  const [equipmentId, setEquipmentId] = useState("");
+  const [partId, setPartId] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [actionType, setActionType] = useState<Enums<"action_type">>("Corrective");
+  const [priority, setPriority] = useState<Enums<"priority_level">>("Medium");
+  const [department, setDepartment] = useState<string>(DEPARTMENTS_AR[0]);
+  const [person, setPerson] = useState("");
+  const [targetDate, setTargetDate] = useState("");
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const linked = findingId !== NO_FINDING;
+
+  function reset() {
+    setFindingId(NO_FINDING);
+    setEquipmentId("");
+    setPartId("");
+    setTitle("");
+    setDescription("");
+    setActionType("Corrective");
+    setPriority("Medium");
+    setDepartment(DEPARTMENTS_AR[0]);
+    setPerson("");
+    setTargetDate("");
+    setNeedsVerification(false);
+  }
+
+  async function submit() {
+    setSubmitting(true);
+    const supabase = createClient();
+    const { data: userData } = await supabase.auth.getUser();
+    const { error } = await supabase.from("maintenance_actions").insert({
+      finding_id: linked ? findingId : null,
+      // The finding already carries the equipment; only a standalone action needs it.
+      equipment_id: linked ? null : equipmentId,
+      equipment_part_id: linked ? null : partId,
+      action_title: title.trim(),
+      action_description: description.trim() || null,
+      action_type: actionType,
+      priority,
+      responsible_department: department,
+      responsible_person: person || null,
+      target_date: targetDate || null,
+      verification_required: needsVerification,
+      created_by: userData.user?.id ?? null,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast.error("فشل إنشاء الإجراء: " + error.message);
+      return;
+    }
+    toast.success("تم إنشاء إجراء الصيانة");
+    reset();
+    onClose();
+    router.refresh();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>إجراء صيانة جديد</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Label>مرتبط بملاحظة</Label>
+            <Select
+              value={findingId}
+              onValueChange={(v) => {
+                setFindingId(v);
+                if (v !== NO_FINDING) {
+                  setEquipmentId("");
+                  setPartId("");
+                  const f = openFindings.find((o) => o.finding_id === v);
+                  if (f) {
+                    setPriority(f.severity);
+                    if (!title.trim()) setTitle(f.finding_title);
+                  }
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_FINDING}>بدون ملاحظة — إجراء مباشر</SelectItem>
+                {openFindings.map((f) => (
+                  <SelectItem key={f.finding_id} value={f.finding_id}>
+                    {f.finding_code} · {f.finding_title}
+                    {f.equipment ? ` · ${f.equipment.equipment_name}` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {linked ? null : (
+            <EquipmentSelect
+              equipment={equipment}
+              equipmentId={equipmentId}
+              partId={partId}
+              onChange={(next) => {
+                setEquipmentId(next.equipmentId);
+                setPartId(next.partId);
+              }}
+            />
+          )}
+
+          <div className="flex flex-col gap-2">
+            <Label>عنوان الإجراء</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>الوصف</Label>
+            <Textarea
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label>نوع الإجراء</Label>
+              <Select
+                value={actionType}
+                onValueChange={(v) => setActionType(v as Enums<"action_type">)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Constants.public.Enums.action_type.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {ACTION_TYPE_LABELS_AR[t]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>الأولوية</Label>
+              <Select
+                value={priority}
+                onValueChange={(v) => setPriority(v as Enums<"priority_level">)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Constants.public.Enums.priority_level.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {PRIORITY_LABELS_AR[p]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label>القسم المسؤول</Label>
+              <Select value={department} onValueChange={setDepartment}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS_AR.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>الشخص المسؤول</Label>
+              <Select value={person} onValueChange={setPerson}>
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {profiles.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.full_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>التاريخ المستهدف</Label>
+            <Input
+              type="date"
+              dir="ltr"
+              value={targetDate}
+              onChange={(e) => setTargetDate(e.target.value)}
+            />
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={needsVerification}
+              onChange={(e) => setNeedsVerification(e.target.checked)}
+              className="size-4 accent-[var(--primary)]"
+            />
+            يتطلب تحقق بعد الإكمال
+          </label>
+          <DialogFooter>
+            <Button
+              onClick={submit}
+              disabled={
+                submitting || !title.trim() || (!linked && (!equipmentId || !partId))
+              }
+            >
+              إنشاء الإجراء
+            </Button>
+          </DialogFooter>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

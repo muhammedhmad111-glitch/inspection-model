@@ -660,7 +660,7 @@ export type Database = {
           finding_id: string
           finding_title: string
           finding_type: Database["public"]["Enums"]["finding_type"]
-          inspection_task_id: string
+          inspection_task_id: string | null
           recommended_action: string | null
           root_cause_note: string | null
           severity: Database["public"]["Enums"]["priority_level"]
@@ -677,7 +677,7 @@ export type Database = {
           finding_id?: string
           finding_title: string
           finding_type?: Database["public"]["Enums"]["finding_type"]
-          inspection_task_id: string
+          inspection_task_id?: string | null
           recommended_action?: string | null
           root_cause_note?: string | null
           severity?: Database["public"]["Enums"]["priority_level"]
@@ -694,7 +694,7 @@ export type Database = {
           finding_id?: string
           finding_title?: string
           finding_type?: Database["public"]["Enums"]["finding_type"]
-          inspection_task_id?: string
+          inspection_task_id?: string | null
           recommended_action?: string | null
           root_cause_note?: string | null
           severity?: Database["public"]["Enums"]["priority_level"]
@@ -743,7 +743,9 @@ export type Database = {
           completion_note: string | null
           created_at: string
           created_by: string | null
-          finding_id: string
+          equipment_id: string | null
+          equipment_part_id: string | null
+          finding_id: string | null
           priority: Database["public"]["Enums"]["priority_level"]
           responsible_department: string | null
           responsible_person: string | null
@@ -764,7 +766,9 @@ export type Database = {
           completion_note?: string | null
           created_at?: string
           created_by?: string | null
-          finding_id: string
+          equipment_id?: string | null
+          equipment_part_id?: string | null
+          finding_id?: string | null
           priority?: Database["public"]["Enums"]["priority_level"]
           responsible_department?: string | null
           responsible_person?: string | null
@@ -785,7 +789,9 @@ export type Database = {
           completion_note?: string | null
           created_at?: string
           created_by?: string | null
-          finding_id?: string
+          equipment_id?: string | null
+          equipment_part_id?: string | null
+          finding_id?: string | null
           priority?: Database["public"]["Enums"]["priority_level"]
           responsible_department?: string | null
           responsible_person?: string | null
@@ -803,6 +809,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "inspection_findings"
             referencedColumns: ["finding_id"]
+          },
+          {
+            foreignKeyName: "maintenance_actions_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["equipment_id"]
+          },
+          {
+            foreignKeyName: "maintenance_actions_equipment_part_id_fkey"
+            columns: ["equipment_part_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_parts"
+            referencedColumns: ["equipment_part_id"]
           },
           {
             foreignKeyName: "maintenance_actions_responsible_person_fkey"
