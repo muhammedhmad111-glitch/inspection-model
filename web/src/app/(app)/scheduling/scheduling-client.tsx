@@ -97,8 +97,11 @@ export function SchedulingClient({
   async function generate() {
     setGenerating(true);
     const supabase = createClient();
+    // A 30-day horizon left the calendar empty the moment a month went by
+    // without anyone pressing this. A year keeps the annual and semi-annual
+    // activities visible too, and the generator skips cycles already in the past.
     const { data, error } = await supabase.rpc("generate_inspection_tasks", {
-      p_horizon_days: 30,
+      p_horizon_days: 365,
     });
     setGenerating(false);
     if (error) {
@@ -133,7 +136,7 @@ export function SchedulingClient({
         <div>
           <h1 className="text-2xl font-bold">جدولة الفحوصات</h1>
           <p className="text-sm text-muted-foreground">
-            محرك التوليد التلقائي للمهام الدورية — أفق ٣٠ يوم
+            محرك التوليد التلقائي للمهام الدورية — أفق سنة كاملة
           </p>
         </div>
         {canGenerate ? (
