@@ -8,6 +8,14 @@ import {
   VIDEO_HEIGHT,
 } from "./daily-report";
 import {
+  WeeklyReportVideo,
+  WEEKLY_REPORT_DEFAULTS,
+  WEEKLY_REPORT_DURATION,
+  WEEKLY_FPS,
+  WEEKLY_WIDTH,
+  WEEKLY_HEIGHT,
+} from "./weekly-report";
+import {
   SystemOverview,
   SYSTEM_OVERVIEW_DEFAULTS,
   SYSTEM_OVERVIEW_DURATION,
@@ -32,6 +40,15 @@ export const RemotionRoot = () => {
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
         defaultProps={DAILY_REPORT_DEFAULTS}
+      />
+      <Composition
+        id="WeeklyReport"
+        component={WeeklyReportVideo}
+        durationInFrames={WEEKLY_REPORT_DURATION}
+        fps={WEEKLY_FPS}
+        width={WEEKLY_WIDTH}
+        height={WEEKLY_HEIGHT}
+        defaultProps={WEEKLY_REPORT_DEFAULTS}
       />
       <Composition
         id="SystemOverview"

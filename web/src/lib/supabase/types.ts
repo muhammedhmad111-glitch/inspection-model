@@ -984,6 +984,10 @@ export type Database = {
           is_manager: boolean
         }[]
       }
+      get_weekly_report_data: {
+        Args: { p_week_start?: string }
+        Returns: Json
+      }
       has_maintenance_write: { Args: never; Returns: boolean }
       has_master_data_write: { Args: never; Returns: boolean }
       has_permission: { Args: { p_key: string }; Returns: boolean }
