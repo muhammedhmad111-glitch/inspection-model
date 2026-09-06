@@ -749,6 +749,7 @@ export type Database = {
           priority: Database["public"]["Enums"]["priority_level"]
           responsible_department: string | null
           responsible_person: string | null
+          sap_work_order: string | null
           status: Database["public"]["Enums"]["action_status"]
           target_date: string | null
           updated_at: string
@@ -772,6 +773,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["priority_level"]
           responsible_department?: string | null
           responsible_person?: string | null
+          sap_work_order?: string | null
           status?: Database["public"]["Enums"]["action_status"]
           target_date?: string | null
           updated_at?: string
@@ -795,6 +797,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["priority_level"]
           responsible_department?: string | null
           responsible_person?: string | null
+          sap_work_order?: string | null
           status?: Database["public"]["Enums"]["action_status"]
           target_date?: string | null
           updated_at?: string

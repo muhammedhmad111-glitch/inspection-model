@@ -38,13 +38,19 @@ import {
   FINDING_TYPE_LABELS_AR,
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS_AR,
+  WORK_ORDER_PATTERN,
 } from "@/lib/constants";
 
 type Finding = Tables<"inspection_findings"> & {
   equipment: { equipment_name: string; functional_location: string | null } | null;
   equipment_parts: { part_name: string } | null;
   inspection_tasks: { task_code: string } | null;
-  maintenance_actions: { action_id: string; action_code: string; status: Enums<"action_status"> }[];
+  maintenance_actions: {
+    action_id: string;
+    action_code: string;
+    status: Enums<"action_status">;
+    sap_work_order: string | null;
+  }[];
 };
 
 type ProfileOption = { id: string; full_name: string; role: string };
@@ -228,6 +234,7 @@ export function FindingsClient({
                     {f.maintenance_actions.map((a) => (
                       <Badge key={a.action_id} variant="outline" className="font-mono" dir="ltr">
                         {a.action_code} · {ACTION_STATUS_LABELS_AR[a.status]}
+                        {a.sap_work_order ? ` · SAP ${a.sap_work_order}` : ""}
                       </Badge>
                     ))}
                   </div>
@@ -500,6 +507,7 @@ function ActionForm({
     responsible_department: string | null;
     responsible_person: string | null;
     target_date: string | null;
+    sap_work_order: string | null;
     verification_required: boolean;
   }) => Promise<void>;
 }) {
@@ -510,9 +518,12 @@ function ActionForm({
   const [department, setDepartment] = useState<string>(DEPARTMENTS_AR[0]);
   const [person, setPerson] = useState<string>("");
   const [targetDate, setTargetDate] = useState("");
+  const [workOrder, setWorkOrder] = useState("");
   const [needsVerification, setNeedsVerification] = useState(
     finding.severity === "Critical" || finding.severity === "High"
   );
+
+  const workOrderValid = !workOrder.trim() || WORK_ORDER_PATTERN.test(workOrder.trim());
 
   return (
     <>
@@ -602,14 +613,32 @@ function ActionForm({
             </Select>
           </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <Label>التاريخ المستهدف</Label>
-          <Input
-            type="date"
-            dir="ltr"
-            value={targetDate}
-            onChange={(e) => setTargetDate(e.target.value)}
-          />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <Label>التاريخ المستهدف</Label>
+            <Input
+              type="date"
+              dir="ltr"
+              value={targetDate}
+              onChange={(e) => setTargetDate(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>رقم أمر الشغل في SAP</Label>
+            <Input
+              dir="ltr"
+              inputMode="numeric"
+              placeholder="اختياري"
+              className="font-mono"
+              value={workOrder}
+              onChange={(e) => setWorkOrder(e.target.value)}
+            />
+            {workOrderValid ? null : (
+              <p className="text-xs text-red-600 dark:text-red-400">
+                أرقام وحروف إنجليزية وشرطات فقط
+              </p>
+            )}
+          </div>
         </div>
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -622,7 +651,7 @@ function ActionForm({
         </label>
         <DialogFooter>
           <Button
-            disabled={submitting || !title.trim()}
+            disabled={submitting || !title.trim() || !workOrderValid}
             onClick={() =>
               onSubmit({
                 action_title: title.trim(),
@@ -632,6 +661,7 @@ function ActionForm({
                 responsible_department: department,
                 responsible_person: person || null,
                 target_date: targetDate || null,
+                sap_work_order: workOrder.trim() || null,
                 verification_required: needsVerification,
               })
             }

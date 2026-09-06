@@ -233,6 +233,11 @@ export const ACTION_STATUS_BADGE_CLASS: Record<Enums<"action_status">, string> =
   Cancelled: "bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400",
 };
 
+// SAP PM order numbers are normally digits, but external number ranges can carry a
+// prefix, so letters and dashes are allowed too. Spaces are not — that would mean a
+// whole description got pasted into the field.
+export const WORK_ORDER_PATTERN = /^[A-Za-z0-9-]{1,32}$/;
+
 export const DEPARTMENTS_AR = [
   "الصيانة الميكانيكية",
   "الصيانة الكهربائية",

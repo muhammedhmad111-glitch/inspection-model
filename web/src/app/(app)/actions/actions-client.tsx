@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, CheckCircle2, Plus, Search } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Hash, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,7 @@ import {
   DEPARTMENTS_AR,
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS_AR,
+  WORK_ORDER_PATTERN,
 } from "@/lib/constants";
 
 type ActionRow = Tables<"maintenance_actions"> & {
@@ -91,6 +92,7 @@ export function ActionsClient({
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(ALL);
   const [completing, setCompleting] = useState<ActionRow | null>(null);
+  const [linkingWorkOrder, setLinkingWorkOrder] = useState<ActionRow | null>(null);
   const [creating, setCreating] = useState(false);
 
   const isOverdue = (a: ActionRow) =>
@@ -106,6 +108,8 @@ export function ActionsClient({
       return (
         a.action_code.toLowerCase().includes(q) ||
         a.action_title.toLowerCase().includes(q) ||
+        // Planners quote the SAP number, not ours, so it has to be searchable.
+        (a.sap_work_order ?? "").toLowerCase().includes(q) ||
         (a.inspection_findings?.finding_code ?? "").toLowerCase().includes(q) ||
         (a.inspection_findings?.equipment?.equipment_name ?? "")
           .toLowerCase()
@@ -236,6 +240,15 @@ export function ActionsClient({
                     <Badge variant="outline" className="font-mono" dir="ltr">
                       {a.action_code}
                     </Badge>
+                    {a.sap_work_order ? (
+                      <Badge
+                        className="gap-1 bg-indigo-100 font-mono text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300"
+                        dir="ltr"
+                      >
+                        <Hash className="size-3" />
+                        SAP {a.sap_work_order}
+                      </Badge>
+                    ) : null}
                     <Badge variant="secondary">{ACTION_TYPE_LABELS_AR[a.action_type]}</Badge>
                     <Badge className={PRIORITY_BADGE_CLASS[a.priority]}>
                       {PRIORITY_LABELS_AR[a.priority]}
@@ -268,38 +281,52 @@ export function ActionsClient({
                   </p>
                 ) : null}
 
-                {canManage &&
-                !["Verified", "Cancelled"].includes(a.status) ? (
+                {canManage && a.status !== "Cancelled" ? (
                   <div className="flex flex-wrap gap-2 border-t pt-3">
-                    {(NEXT_STATUS[a.status] ?? [])
-                      .filter((s) => s !== "Completed")
-                      .map((s) => (
-                        <Button
-                          key={s}
-                          size="sm"
-                          variant="outline"
-                          className="rounded-xl"
-                          onClick={() => setStatus(a, s)}
-                        >
-                          {ACTION_STATUS_LABELS_AR[s]}
-                        </Button>
-                      ))}
-                    {(NEXT_STATUS[a.status] ?? []).includes("Completed") ? (
-                      <Button
-                        size="sm"
-                        className="rounded-xl"
-                        onClick={() => setCompleting(a)}
-                      >
-                        <CheckCircle2 className="size-3.5" />
-                        إكمال
-                      </Button>
+                    {a.status !== "Verified" ? (
+                      <>
+                        {(NEXT_STATUS[a.status] ?? [])
+                          .filter((s) => s !== "Completed")
+                          .map((s) => (
+                            <Button
+                              key={s}
+                              size="sm"
+                              variant="outline"
+                              className="rounded-xl"
+                              onClick={() => setStatus(a, s)}
+                            >
+                              {ACTION_STATUS_LABELS_AR[s]}
+                            </Button>
+                          ))}
+                        {(NEXT_STATUS[a.status] ?? []).includes("Completed") ? (
+                          <Button
+                            size="sm"
+                            className="rounded-xl"
+                            onClick={() => setCompleting(a)}
+                          >
+                            <CheckCircle2 className="size-3.5" />
+                            إكمال
+                          </Button>
+                        ) : null}
+                        {a.status === "Completed" ? (
+                          <Button size="sm" className="rounded-xl" onClick={() => verify(a)}>
+                            <BadgeCheck className="size-3.5" />
+                            تحقق وإقفال
+                          </Button>
+                        ) : null}
+                      </>
                     ) : null}
-                    {a.status === "Completed" ? (
-                      <Button size="sm" className="rounded-xl" onClick={() => verify(a)}>
-                        <BadgeCheck className="size-3.5" />
-                        تحقق وإقفال
-                      </Button>
-                    ) : null}
+                    {/* The planner usually raises the order days after the action, so
+                        this stays reachable at every stage, not only at creation. */}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="rounded-xl"
+                      onClick={() => setLinkingWorkOrder(a)}
+                    >
+                      <Hash className="size-3.5" />
+                      {a.sap_work_order ? "تعديل أمر الشغل" : "ربط أمر شغل SAP"}
+                    </Button>
                   </div>
                 ) : null}
               </CardContent>
@@ -311,6 +338,11 @@ export function ActionsClient({
       <CompleteActionDialog
         action={completing}
         onClose={() => setCompleting(null)}
+      />
+
+      <WorkOrderDialog
+        action={linkingWorkOrder}
+        onClose={() => setLinkingWorkOrder(null)}
       />
 
       <NewActionDialog
@@ -353,10 +385,12 @@ function NewActionDialog({
   const [department, setDepartment] = useState<string>(DEPARTMENTS_AR[0]);
   const [person, setPerson] = useState("");
   const [targetDate, setTargetDate] = useState("");
+  const [workOrder, setWorkOrder] = useState("");
   const [needsVerification, setNeedsVerification] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const linked = findingId !== NO_FINDING;
+  const workOrderValid = !workOrder.trim() || WORK_ORDER_PATTERN.test(workOrder.trim());
 
   function reset() {
     setFindingId(NO_FINDING);
@@ -369,6 +403,7 @@ function NewActionDialog({
     setDepartment(DEPARTMENTS_AR[0]);
     setPerson("");
     setTargetDate("");
+    setWorkOrder("");
     setNeedsVerification(false);
   }
 
@@ -388,6 +423,7 @@ function NewActionDialog({
       responsible_department: department,
       responsible_person: person || null,
       target_date: targetDate || null,
+      sap_work_order: workOrder.trim() || null,
       verification_required: needsVerification,
       created_by: userData.user?.id ?? null,
     });
@@ -535,14 +571,32 @@ function NewActionDialog({
               </Select>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <Label>التاريخ المستهدف</Label>
-            <Input
-              type="date"
-              dir="ltr"
-              value={targetDate}
-              onChange={(e) => setTargetDate(e.target.value)}
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label>التاريخ المستهدف</Label>
+              <Input
+                type="date"
+                dir="ltr"
+                value={targetDate}
+                onChange={(e) => setTargetDate(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>رقم أمر الشغل في SAP</Label>
+              <Input
+                dir="ltr"
+                inputMode="numeric"
+                placeholder="اختياري"
+                className="font-mono"
+                value={workOrder}
+                onChange={(e) => setWorkOrder(e.target.value)}
+              />
+              {workOrderValid ? null : (
+                <p className="text-xs text-red-600 dark:text-red-400">
+                  أرقام وحروف إنجليزية وشرطات فقط
+                </p>
+              )}
+            </div>
           </div>
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -557,7 +611,10 @@ function NewActionDialog({
             <Button
               onClick={submit}
               disabled={
-                submitting || !title.trim() || (!linked && (!equipmentId || !partId))
+                submitting ||
+                !title.trim() ||
+                !workOrderValid ||
+                (!linked && (!equipmentId || !partId))
               }
             >
               إنشاء الإجراء
@@ -566,6 +623,98 @@ function NewActionDialog({
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Attach — or correct — the SAP PM order number on an action that already exists.
+ * Clearing the field unlinks it, which is the way back out of a typo.
+ */
+function WorkOrderDialog({
+  action,
+  onClose,
+}: {
+  action: ActionRow | null;
+  onClose: () => void;
+}) {
+  return (
+    <Dialog open={!!action} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        {action ? (
+          // Keyed so the field is remounted per action and starts on the number
+          // that action already carries, instead of an empty box that would wipe it.
+          <WorkOrderForm key={action.action_id} action={action} onClose={onClose} />
+        ) : null}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function WorkOrderForm({
+  action,
+  onClose,
+}: {
+  action: ActionRow;
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [value, setValue] = useState(action.sap_work_order ?? "");
+  const [submitting, setSubmitting] = useState(false);
+
+  const trimmed = value.trim();
+  const valid = !trimmed || WORK_ORDER_PATTERN.test(trimmed);
+
+  async function submit() {
+    setSubmitting(true);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("maintenance_actions")
+      .update({ sap_work_order: trimmed || null })
+      .eq("action_id", action.action_id);
+    setSubmitting(false);
+    if (error) {
+      toast.error("فشل حفظ رقم أمر الشغل");
+      return;
+    }
+    toast.success(trimmed ? "تم ربط أمر الشغل" : "تم إلغاء ربط أمر الشغل");
+    onClose();
+    router.refresh();
+  }
+
+  return (
+    <>
+      <DialogHeader>
+        <DialogTitle>أمر الشغل في SAP — {action.action_code}</DialogTitle>
+      </DialogHeader>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <Label>رقم أمر الشغل</Label>
+          <Input
+            dir="ltr"
+            inputMode="numeric"
+            className="font-mono"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="مثال: 4000123456"
+          />
+          <p
+            className={cn(
+              "text-xs",
+              valid ? "text-muted-foreground" : "text-red-600 dark:text-red-400"
+            )}
+          >
+            {valid
+              ? "اتركه فاضي لو عايز تشيل الربط"
+              : "أرقام وحروف إنجليزية وشرطات فقط"}
+          </p>
+        </div>
+        <DialogFooter>
+          <Button onClick={submit} disabled={submitting || !valid}>
+            حفظ
+          </Button>
+        </DialogFooter>
+      </div>
+    </>
   );
 }
 

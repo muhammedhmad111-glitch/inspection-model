@@ -14,7 +14,7 @@ export default async function FindingsPage() {
          equipment ( equipment_name, functional_location ),
          equipment_parts ( part_name ),
          inspection_tasks ( task_code ),
-         maintenance_actions ( action_id, action_code, status )`
+         maintenance_actions ( action_id, action_code, status, sap_work_order )`
       )
       .order("created_at", { ascending: false })
       .limit(400),

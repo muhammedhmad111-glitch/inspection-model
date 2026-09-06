@@ -68,7 +68,7 @@ export default async function ReportsPage() {
       .from("maintenance_actions")
       .select(
         `action_code, action_title, action_type, priority, responsible_department,
-         target_date, status,
+         target_date, status, sap_work_order,
          inspection_findings ( equipment ( equipment_name ) )`
       )
       .order("created_at", { ascending: false })
@@ -156,9 +156,20 @@ export default async function ReportsPage() {
       id: "maintenance-actions",
       title: "تقرير إجراءات الصيانة",
       description: "إجراءات الصيانة الناتجة عن الملاحظات",
-      headers: ["الكود", "العنوان", "المعدة", "النوع", "الأولوية", "القسم", "المستهدف", "الحالة"],
+      headers: [
+        "الكود",
+        "أمر شغل SAP",
+        "العنوان",
+        "المعدة",
+        "النوع",
+        "الأولوية",
+        "القسم",
+        "المستهدف",
+        "الحالة",
+      ],
       rows: (actions.data ?? []).map((a) => [
         a.action_code,
+        a.sap_work_order ?? "",
         a.action_title,
         one<{ equipment: Rel<{ equipment_name: string }> }>(a.inspection_findings)
           ? one<{ equipment_name: string }>(
