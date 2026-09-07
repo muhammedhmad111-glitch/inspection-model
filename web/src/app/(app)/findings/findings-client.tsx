@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Paperclip, Plus, Search, Wrench } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, ClipboardList, Paperclip, Plus, Search, Wrench, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,12 +33,15 @@ import { EquipmentSelect, type EquipmentOption } from "@/components/equipment-se
 import {
   ACTION_STATUS_LABELS_AR,
   ACTION_TYPE_LABELS_AR,
+  CHECKLIST_RESULT_LABELS_AR,
   DEPARTMENTS_AR,
   FINDING_STATUS_BADGE_CLASS,
   FINDING_STATUS_LABELS_AR,
   FINDING_TYPE_LABELS_AR,
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS_AR,
+  TASK_STATUS_BADGE_CLASS,
+  TASK_STATUS_LABELS_AR,
   WORK_ORDER_PATTERN,
 } from "@/lib/constants";
 
@@ -53,6 +57,9 @@ type Finding = Tables<"inspection_findings"> & {
   }[];
 };
 
+/** A checklist item note nobody has turned into a finding or waved off yet. */
+export type PendingNote = Tables<"pending_checklist_notes">;
+
 type ProfileOption = { id: string; full_name: string; role: string };
 
 const ALL = "__all__";
@@ -61,11 +68,13 @@ export function FindingsClient({
   initialFindings,
   profiles,
   equipment,
+  pendingNotes,
   canManage,
 }: {
   initialFindings: Finding[];
   profiles: ProfileOption[];
   equipment: EquipmentOption[];
+  pendingNotes: PendingNote[];
   canManage: boolean;
 }) {
   const router = useRouter();
@@ -75,6 +84,7 @@ export function FindingsClient({
   const [typeFilter, setTypeFilter] = useState(ALL);
   const [actionFor, setActionFor] = useState<Finding | null>(null);
   const [creating, setCreating] = useState(false);
+  const [noteFor, setNoteFor] = useState<PendingNote | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -122,6 +132,12 @@ export function FindingsClient({
           </Button>
         ) : null}
       </div>
+
+      <PendingNotesSection
+        notes={pendingNotes}
+        canManage={canManage}
+        onConvert={setNoteFor}
+      />
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative w-full max-w-xs">
@@ -211,6 +227,12 @@ export function FindingsClient({
                     <Badge className={FINDING_STATUS_BADGE_CLASS[f.status]}>
                       {FINDING_STATUS_LABELS_AR[f.status]}
                     </Badge>
+                    {f.checklist_item_id ? (
+                      <Badge variant="outline" className="gap-1">
+                        <ClipboardList className="size-3" />
+                        من بند فحص
+                      </Badge>
+                    ) : null}
                   </div>
                 </div>
 
@@ -291,29 +313,194 @@ export function FindingsClient({
       />
 
       <NewFindingDialog
-        open={creating}
+        // Remounts per note so the form starts from that note's text, not the last one's.
+        key={noteFor?.checklist_item_id ?? "blank"}
+        open={creating || !!noteFor}
+        note={noteFor}
         equipment={equipment}
-        onClose={() => setCreating(false)}
+        onClose={() => {
+          setCreating(false);
+          setNoteFor(null);
+        }}
       />
     </div>
   );
 }
 
-/** Raise a finding straight against a piece of equipment, with no inspection behind it. */
+function noteDate(value: string | null): string {
+  if (!value) return "";
+  return new Date(value).toLocaleDateString("en-GB");
+}
+
+/** The inbox of checklist notes still waiting for someone to decide what they mean. */
+function PendingNotesSection({
+  notes,
+  canManage,
+  onConvert,
+}: {
+  notes: PendingNote[];
+  canManage: boolean;
+  onConvert: (note: PendingNote) => void;
+}) {
+  const router = useRouter();
+  const [expanded, setExpanded] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  if (notes.length === 0) return null;
+
+  const shown = expanded ? notes : notes.slice(0, 6);
+
+  async function setDismissed(note: PendingNote, dismissed: boolean) {
+    const id = note.checklist_item_id;
+    if (!id) return;
+    setBusy(id);
+    const supabase = createClient();
+    const { error } = await supabase.rpc(
+      dismissed ? "dismiss_checklist_note" : "restore_checklist_note",
+      { p_item_id: id }
+    );
+    setBusy(null);
+    if (error) {
+      toast.error((dismissed ? "فشل التجاهل: " : "فشل التراجع: ") + error.message);
+      return;
+    }
+    if (dismissed) {
+      toast.success("تم تجاهل الملاحظة", {
+        action: { label: "تراجع", onClick: () => setDismissed(note, false) },
+      });
+    } else {
+      toast.success("رجعت الملاحظة للقائمة");
+    }
+    router.refresh();
+  }
+
+  return (
+    <Card className="rounded-3xl border-0 bg-amber-50/70 shadow-sm dark:bg-amber-950/20">
+      <CardContent className="flex flex-col gap-3 pt-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <ClipboardList className="size-4 text-amber-700 dark:text-amber-400" />
+            <p className="font-semibold text-amber-900 dark:text-amber-200">
+              ملاحظات مكتوبة على بنود الفحص ({notes.length})
+            </p>
+          </div>
+          {notes.length > shown.length || expanded ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="rounded-xl text-amber-800 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/40"
+              onClick={() => setExpanded((v) => !v)}
+            >
+              {expanded ? "عرض أقل" : `عرض الكل (${notes.length})`}
+            </Button>
+          ) : null}
+        </div>
+        <p className="-mt-1 text-sm text-amber-800/80 dark:text-amber-300/80">
+          كتبها المفتش داخل بند فحص ولسه محتاجة قرار — حوّلها لملاحظة رسمية عشان تقدر
+          تعمل منها إجراء صيانة، أو تجاهلها لو مش محتاجة.
+        </p>
+
+        <div className="flex flex-col gap-2">
+          {shown.map((n) => (
+            <div
+              key={n.checklist_item_id}
+              className="flex flex-col gap-2 rounded-2xl bg-background/80 p-3"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <p className="font-medium" dir="auto">
+                  {n.notes}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {n.result ? (
+                    <Badge variant="secondary">{CHECKLIST_RESULT_LABELS_AR[n.result]}</Badge>
+                  ) : null}
+                  {n.task_status ? (
+                    <Badge className={TASK_STATUS_BADGE_CLASS[n.task_status]}>
+                      {TASK_STATUS_LABELS_AR[n.task_status]}
+                    </Badge>
+                  ) : null}
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground" dir="auto">
+                {n.label}
+              </p>
+              {/* Two spans rather than one joined string: the codes run left-to-right
+                  inside a right-to-left line, and a shared " · " lands on the wrong
+                  side of the boundary. */}
+              <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                <span dir="auto">
+                  {[
+                    n.equipment_name,
+                    n.part_name !== n.equipment_name ? n.part_name : null,
+                    n.inspector_name,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </span>
+                <span className="font-mono" dir="ltr">
+                  {n.task_code} · {noteDate(n.noted_at)}
+                </span>
+              </div>
+              {canManage ? (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    className="rounded-xl"
+                    disabled={busy === n.checklist_item_id}
+                    onClick={() => onConvert(n)}
+                  >
+                    <ArrowLeft className="size-3.5" />
+                    تحويل إلى ملاحظة
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-xl"
+                    disabled={busy === n.checklist_item_id}
+                    onClick={() => setDismissed(n, true)}
+                  >
+                    <X className="size-3.5" />
+                    تجاهل
+                  </Button>
+                  {n.inspection_task_id ? (
+                    <Button size="sm" variant="ghost" className="rounded-xl" asChild>
+                      <Link href={`/tasks/${n.inspection_task_id}?from=/findings`}>
+                        فتح الفحص
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/**
+ * Raise a finding against a piece of equipment. With a `note` it is promoting a
+ * checklist note, so the equipment comes from the inspection and cannot be changed;
+ * without one the finding is being raised from scratch and the equipment is picked.
+ */
 function NewFindingDialog({
   open,
+  note,
   equipment,
   onClose,
 }: {
   open: boolean;
+  note: PendingNote | null;
   equipment: EquipmentOption[];
   onClose: () => void;
 }) {
   const router = useRouter();
-  const [equipmentId, setEquipmentId] = useState("");
-  const [partId, setPartId] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [equipmentId, setEquipmentId] = useState(note?.equipment_id ?? "");
+  const [partId, setPartId] = useState(note?.equipment_part_id ?? "");
+  const [title, setTitle] = useState(note?.label ?? "");
+  // The inspector's own words are the description; the checklist item is the title.
+  const [description, setDescription] = useState(note?.notes?.trim() ?? "");
   const [findingType, setFindingType] = useState<Enums<"finding_type">>("Mechanical");
   const [severity, setSeverity] = useState<Enums<"priority_level">>("Medium");
   const [recommended, setRecommended] = useState("");
@@ -334,8 +521,9 @@ function NewFindingDialog({
     const supabase = createClient();
     const { data: userData } = await supabase.auth.getUser();
     const { error } = await supabase.from("inspection_findings").insert({
-      // No task: this was spotted outside a scheduled inspection.
-      inspection_task_id: null,
+      // Null unless promoted from a note: this was spotted outside a scheduled inspection.
+      inspection_task_id: note?.inspection_task_id ?? null,
+      checklist_item_id: note?.checklist_item_id ?? null,
       equipment_id: equipmentId,
       equipment_part_id: partId,
       finding_title: title.trim(),
@@ -350,7 +538,7 @@ function NewFindingDialog({
       toast.error("فشل تسجيل الملاحظة: " + error.message);
       return;
     }
-    toast.success("تم تسجيل الملاحظة");
+    toast.success(note ? "تم تحويل الملاحظة" : "تم تسجيل الملاحظة");
     reset();
     onClose();
     router.refresh();
@@ -360,18 +548,32 @@ function NewFindingDialog({
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>تسجيل ملاحظة جديدة</DialogTitle>
+          <DialogTitle>
+            {note ? "تحويل ملاحظة بند فحص" : "تسجيل ملاحظة جديدة"}
+          </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          <EquipmentSelect
-            equipment={equipment}
-            equipmentId={equipmentId}
-            partId={partId}
-            onChange={(next) => {
-              setEquipmentId(next.equipmentId);
-              setPartId(next.partId);
-            }}
-          />
+          {note ? (
+            <div className="rounded-2xl bg-muted/60 p-3 text-sm">
+              <p className="font-medium">{note.equipment_name}</p>
+              <p className="mt-0.5 text-muted-foreground" dir="auto">
+                {note.label}
+              </p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground" dir="ltr">
+                {note.task_code}
+              </p>
+            </div>
+          ) : (
+            <EquipmentSelect
+              equipment={equipment}
+              equipmentId={equipmentId}
+              partId={partId}
+              onChange={(next) => {
+                setEquipmentId(next.equipmentId);
+                setPartId(next.partId);
+              }}
+            />
+          )}
           <div className="flex flex-col gap-2">
             <Label>عنوان الملاحظة</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -435,7 +637,7 @@ function NewFindingDialog({
               onClick={submit}
               disabled={submitting || !title.trim() || !equipmentId || !partId}
             >
-              تسجيل الملاحظة
+              {note ? "تحويل إلى ملاحظة" : "تسجيل الملاحظة"}
             </Button>
           </DialogFooter>
         </div>

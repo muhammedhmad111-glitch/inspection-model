@@ -507,6 +507,8 @@ export type Database = {
           inspection_task_id: string
           label: string
           measured_value: number | null
+          note_dismissed_at: string | null
+          note_dismissed_by: string | null
           notes: string | null
           result: Database["public"]["Enums"]["checklist_result"] | null
           sort_order: number
@@ -518,6 +520,8 @@ export type Database = {
           inspection_task_id: string
           label: string
           measured_value?: number | null
+          note_dismissed_at?: string | null
+          note_dismissed_by?: string | null
           notes?: string | null
           result?: Database["public"]["Enums"]["checklist_result"] | null
           sort_order?: number
@@ -529,6 +533,8 @@ export type Database = {
           inspection_task_id?: string
           label?: string
           measured_value?: number | null
+          note_dismissed_at?: string | null
+          note_dismissed_by?: string | null
           notes?: string | null
           result?: Database["public"]["Enums"]["checklist_result"] | null
           sort_order?: number
@@ -651,6 +657,7 @@ export type Database = {
       }
       inspection_findings: {
         Row: {
+          checklist_item_id: string | null
           created_at: string
           created_by: string | null
           equipment_id: string
@@ -668,6 +675,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          checklist_item_id?: string | null
           created_at?: string
           created_by?: string | null
           equipment_id: string
@@ -685,6 +693,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          checklist_item_id?: string | null
           created_at?: string
           created_by?: string | null
           equipment_id?: string
@@ -728,6 +737,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_findings_checklist_item_id_fkey"
+            columns: ["checklist_item_id"]
+            isOneToOne: true
+            referencedRelation: "inspection_task_checklist_items"
             referencedColumns: ["id"]
           },
         ]
@@ -949,7 +965,28 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      pending_checklist_notes: {
+        Row: {
+          activity_name: string | null
+          checklist_item_id: string | null
+          due_date: string | null
+          equipment_id: string | null
+          equipment_name: string | null
+          equipment_part_id: string | null
+          functional_location: string | null
+          inspection_task_id: string | null
+          inspector_name: string | null
+          label: string | null
+          measured_value: number | null
+          notes: string | null
+          noted_at: string | null
+          part_name: string | null
+          result: Database["public"]["Enums"]["checklist_result"] | null
+          task_code: string | null
+          task_status: Database["public"]["Enums"]["task_status"] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_execute_task: {
@@ -962,6 +999,14 @@ export type Database = {
           p_condition: Database["public"]["Enums"]["equipment_condition"]
           p_notes?: string | null
         }
+        Returns: undefined
+      }
+      dismiss_checklist_note: {
+        Args: { p_item_id: string }
+        Returns: undefined
+      }
+      restore_checklist_note: {
+        Args: { p_item_id: string }
         Returns: undefined
       }
       frequency_interval_days: {
