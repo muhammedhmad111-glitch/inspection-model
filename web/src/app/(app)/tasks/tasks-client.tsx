@@ -26,6 +26,12 @@ import {
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/types";
+import {
+  groupBySection,
+  sectionOf,
+  sectionsWord,
+  type SectionRef,
+} from "@/lib/sections";
 import { cn } from "@/lib/utils";
 import { DailyReportButton } from "@/components/daily-report-button";
 import { WeeklyReportButton } from "@/components/weekly-report-button";
@@ -61,25 +67,10 @@ type TaskRow = {
     equipment_id: string;
     equipment_name: string;
     functional_location: string | null;
-    sections: {
-      section_id: string;
-      section_name: string;
-      areas: { area_name: string } | null;
-    } | null;
+    sections: SectionRef;
   } | null;
   equipment_parts: { part_name: string } | null;
 };
-
-const NO_SECTION = { id: "__nosection__", name: "بدون قسم", area: null as string | null };
-
-const sectionsWord = (n: number) =>
-  n === 1 ? "قسم" : n === 2 ? "قسمين" : n <= 10 ? "أقسام" : "قسمًا";
-
-function sectionOf(t: TaskRow) {
-  const s = t.equipment?.sections;
-  if (!s) return NO_SECTION;
-  return { id: s.section_id, name: s.section_name, area: s.areas?.area_name ?? null };
-}
 
 type ProfileOption = { id: string; full_name: string; role: string };
 
@@ -184,24 +175,7 @@ export function TasksClient({
 
   // The 200-row cap is applied before grouping, otherwise a section header would
   // advertise a count that the rows underneath it do not add up to.
-  const groups = useMemo(() => {
-    const byId = new Map<
-      string,
-      { id: string; name: string; area: string | null; tasks: TaskRow[] }
-    >();
-    for (const t of filtered.slice(0, 200)) {
-      const s = sectionOf(t);
-      const g = byId.get(s.id) ?? { ...s, tasks: [] };
-      g.tasks.push(t);
-      byId.set(s.id, g);
-    }
-    return [...byId.values()].sort((a, b) => {
-      // Equipment with no section yet sinks to the bottom: that is a data gap, not a place.
-      if (a.id === NO_SECTION.id) return 1;
-      if (b.id === NO_SECTION.id) return -1;
-      return a.name.localeCompare(b.name, "ar");
-    });
-  }, [filtered]);
+  const groups = useMemo(() => groupBySection(filtered.slice(0, 200)), [filtered]);
 
   function toggleSection(id: string) {
     setCollapsed((cur) => {

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/types";
+import { groupBySection, sectionsWord, type SectionRef } from "@/lib/sections";
 import { cn } from "@/lib/utils";
 import {
   PRIORITY_BADGE_CLASS,
@@ -30,7 +31,11 @@ type TaskLite = {
   priority: Enums<"priority_level">;
   assigned_user_id: string | null;
   inspection_activities: { activity_name: string } | null;
-  equipment: { equipment_name: string; functional_location: string | null } | null;
+  equipment: {
+    equipment_name: string;
+    functional_location: string | null;
+    sections: SectionRef;
+  } | null;
 };
 
 const ALL = "__all__";
@@ -74,7 +79,10 @@ export function CalendarClient({
         .select(
           `inspection_task_id, due_date, status, priority, assigned_user_id,
            inspection_activities ( activity_name ),
-           equipment ( equipment_name, functional_location )`
+           equipment (
+             equipment_name, functional_location,
+             sections ( section_id, section_name, areas ( area_name ) )
+           )`
         )
         .gte("due_date", start)
         .lte("due_date", end)
@@ -138,7 +146,13 @@ export function CalendarClient({
     }
   }
 
-  const selectedTasks = selectedDay ? byDay.get(selectedDay) ?? [] : [];
+  const selectedTasks = useMemo(
+    () => (selectedDay ? byDay.get(selectedDay) ?? [] : []),
+    [byDay, selectedDay]
+  );
+  // Same grouping as the tasks table, so a day's work reads as "the kiln needs
+  // these three, the raw mills need those two" rather than one flat pile.
+  const selectedGroups = useMemo(() => groupBySection(selectedTasks), [selectedTasks]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -229,36 +243,52 @@ export function CalendarClient({
         <Card className="rounded-3xl border-0 shadow-sm">
           <CardContent className="flex flex-col gap-2 pt-5">
             <p className="font-semibold">
-              مهام يوم <span className="font-mono" dir="ltr">{selectedDay}</span> ({selectedTasks.length})
+              مهام يوم <span className="font-mono" dir="ltr">{selectedDay}</span> (
+              {selectedTasks.length}) في {selectedGroups.length}{" "}
+              {sectionsWord(selectedGroups.length)}
             </p>
-            {selectedTasks.map((t) => (
-              <Link
-                key={t.inspection_task_id}
-                href={`/tasks/${t.inspection_task_id}?from=${encodeURIComponent(
-                  `/calendar?day=${selectedDay}`
-                )}`}
-                className="flex items-center justify-between gap-2 rounded-2xl bg-muted/50 px-4 py-2.5 text-sm hover:bg-muted"
-              >
-                <div className="flex flex-col">
-                  <span className="font-medium">
-                    {t.inspection_activities?.activity_name ?? "فحص"}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {t.equipment?.equipment_name}
-                    {t.equipment?.functional_location ? (
-                      <span className="font-mono" dir="ltr"> · {t.equipment.functional_location}</span>
-                    ) : null}
-                  </span>
+            {selectedGroups.map((g) => (
+              <div key={g.id} className="flex flex-col gap-2">
+                <div className="mt-1 flex flex-wrap items-center gap-2 border-b pb-1.5">
+                  <span className="text-sm font-semibold">{g.name}</span>
+                  {g.area ? (
+                    <span className="text-xs text-muted-foreground">{g.area}</span>
+                  ) : null}
+                  <Badge variant="secondary">{g.tasks.length}</Badge>
                 </div>
-                <div className="flex shrink-0 gap-1.5">
-                  <Badge className={PRIORITY_BADGE_CLASS[t.priority]}>
-                    {PRIORITY_LABELS_AR[t.priority]}
-                  </Badge>
-                  <Badge className={TASK_STATUS_BADGE_CLASS[t.status]}>
-                    {TASK_STATUS_LABELS_AR[t.status]}
-                  </Badge>
-                </div>
-              </Link>
+                {g.tasks.map((t) => (
+                  <Link
+                    key={t.inspection_task_id}
+                    href={`/tasks/${t.inspection_task_id}?from=${encodeURIComponent(
+                      `/calendar?day=${selectedDay}`
+                    )}`}
+                    className="flex items-center justify-between gap-2 rounded-2xl bg-muted/50 px-4 py-2.5 text-sm hover:bg-muted"
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {t.inspection_activities?.activity_name ?? "فحص"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {t.equipment?.equipment_name}
+                        {t.equipment?.functional_location ? (
+                          <span className="font-mono" dir="ltr">
+                            {" "}
+                            · {t.equipment.functional_location}
+                          </span>
+                        ) : null}
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 gap-1.5">
+                      <Badge className={PRIORITY_BADGE_CLASS[t.priority]}>
+                        {PRIORITY_LABELS_AR[t.priority]}
+                      </Badge>
+                      <Badge className={TASK_STATUS_BADGE_CLASS[t.status]}>
+                        {TASK_STATUS_LABELS_AR[t.status]}
+                      </Badge>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             ))}
           </CardContent>
         </Card>
