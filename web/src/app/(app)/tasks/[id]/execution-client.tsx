@@ -28,7 +28,11 @@ import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { Constants } from "@/lib/supabase/types";
 import { Attachments } from "@/components/attachments";
-import { WhatsappShare, type ShareFinding } from "@/components/whatsapp-share";
+import {
+  WhatsappShare,
+  isNoteworthy,
+  type ShareFinding,
+} from "@/components/whatsapp-share";
 import { cn } from "@/lib/utils";
 import { inferMeasurement, rangeHint, verdictFor } from "@/lib/measurement";
 import { Label } from "@/components/ui/label";
@@ -112,6 +116,10 @@ export function ExecutionClient({
     const cl = task.inspection_activities?.standard_checklist;
     return Array.isArray(cl) ? cl.length : 0;
   }, [task]);
+
+  // Everything the inspector flagged or wrote about, in one place — otherwise the
+  // one item that matters is buried among thirty cards that all say "سليم".
+  const noteworthy = useMemo(() => items.filter(isNoteworthy), [items]);
 
   async function start() {
     setStarting(true);
@@ -323,6 +331,55 @@ export function ExecutionClient({
           ) : null}
         </CardContent>
       </Card>
+
+      {/* summary of what the round actually turned up */}
+      {noteworthy.length > 0 ? (
+        <Card className="rounded-3xl border-0 bg-amber-50/70 shadow-sm dark:bg-amber-950/20">
+          <CardContent className="flex flex-col gap-3 pt-5">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="size-4 text-amber-700 dark:text-amber-400" />
+              <p className="font-semibold text-amber-900 dark:text-amber-200">
+                ملخص البنود المحتاجة انتباه ({noteworthy.length} من {items.length})
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              {noteworthy.map((i) => {
+                const unit = inferMeasurement(i.label).unit;
+                return (
+                  <div key={i.id} className="rounded-2xl bg-background/80 p-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <p className="text-sm font-medium" dir="auto">
+                        {i.label}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {i.measured_value != null ? (
+                          <Badge variant="outline" className="font-mono" dir="ltr">
+                            {i.measured_value}
+                            {unit ? ` ${unit}` : ""}
+                          </Badge>
+                        ) : null}
+                        {i.result ? (
+                          <Badge className={CHECKLIST_RESULT_ACTIVE_CLASS[i.result]}>
+                            {CHECKLIST_RESULT_LABELS_AR[i.result]}
+                          </Badge>
+                        ) : null}
+                      </div>
+                    </div>
+                    {i.notes?.trim() ? (
+                      <p className="mt-1 text-sm text-muted-foreground" dir="auto">
+                        {i.notes.trim()}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
+              الملاحظات دي بتظهر كمان في صفحة الملاحظات وفي التقرير اليومي.
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {/* attachments */}
       <Card className="rounded-3xl border-0 shadow-sm">

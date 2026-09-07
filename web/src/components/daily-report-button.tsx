@@ -17,7 +17,9 @@ import {
 } from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/types";
-import type { ReportData } from "@/lib/report-pdf";
+import { issueCount, type ReportData } from "@/lib/report-pdf";
+import { isNoteworthy } from "@/components/whatsapp-share";
+import { inferMeasurement } from "@/lib/measurement";
 import { ROLE_LABELS_AR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +29,42 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+/**
+ * The flagged items, inline in the email body. A manager reading on a phone should
+ * get the substance without having to open the PDF attachment first.
+ */
+function issuesTableHtml(d: ReportData): string {
+  const rows = d.completed.flatMap((c) =>
+    c.issues.map((i) => {
+      const bits = [i.reading, i.result].filter(Boolean).join(" · ");
+      return `<tr>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px">
+          <b>${escapeHtml(c.equipment)}</b><br>
+          <span style="color:#555">${escapeHtml(i.label)}</span>
+          ${bits ? `<br><span style="color:#ea580c;font-size:11px">${escapeHtml(bits)}</span>` : ""}
+        </td>
+        <!-- dir=auto because this is the inspector's own words: Arabic as often as
+             English, and the email body is the one place it survives intact. -->
+        <td dir="auto" style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;color:#333">
+          ${i.note ? escapeHtml(i.note) : "-"}
+        </td>
+      </tr>`;
+    })
+  );
+  if (rows.length === 0) return "";
+  return `
+    <div style="font-size:13px;font-weight:bold;color:#252a5e;margin:0 0 6px">
+      Checklist Items Needing Attention (${rows.length})
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin:0 0 16px">
+      <tr style="background:#252a5e;color:#fff">
+        <td style="padding:6px 8px;font-size:11px">Equipment / Item</td>
+        <td style="padding:6px 8px;font-size:11px">Inspector Note</td>
+      </tr>
+      ${rows.join("")}
+    </table>`;
 }
 
 function buildEmailHtml(d: ReportData): string {
@@ -52,9 +90,11 @@ function buildEmailHtml(d: ReportData): string {
       }
       <table style="width:100%;border-spacing:8px;margin:0 -8px 14px"><tr>
         ${chip("Completed", d.completed.length)}
+        ${chip("Items Flagged", issueCount(d))}
         ${chip("Open Findings", d.findings.length)}
         ${chip("Open Maintenance", d.actions.length)}
       </tr></table>
+      ${issuesTableHtml(d)}
       <p style="font-size:14px">Please find the detailed inspection report attached as a PDF.</p>
       <p style="color:#999;font-size:12px;margin-top:18px;border-top:1px solid #eee;padding-top:12px">
         Sent automatically from CPIIS — Inspection Management System
@@ -71,10 +111,24 @@ type Recipient = {
   is_manager: boolean;
 };
 type CompletedRow = {
+  task_code: string;
   completion_date: string | null;
   condition_rating: Enums<"equipment_condition"> | null;
+  completed_by: string | null;
+  assigned_user_id: string | null;
   inspection_activities: { activity_name: string } | null;
-  equipment: { equipment_name: string; functional_location: string | null } | null;
+  equipment: {
+    equipment_name: string;
+    functional_location: string | null;
+    sections: { section_name: string } | null;
+  } | null;
+  inspection_task_checklist_items: {
+    label: string;
+    result: Enums<"checklist_result"> | null;
+    measured_value: number | null;
+    notes: string | null;
+    sort_order: number;
+  }[];
 };
 type FindingRow = {
   finding_code: string;
@@ -103,6 +157,7 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     completed: CompletedRow[];
     findings: FindingRow[];
     actions: ActionRow[];
+    nameById: Map<string, string>;
   } | null>(null);
 
   const todayISO = new Date().toISOString().slice(0, 10);
@@ -111,14 +166,18 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     setLoading(true);
     const supabase = createClient();
     const startOfDay = `${todayISO}T00:00:00`;
-    const [rec, comp, finds, acts] = await Promise.all([
+    const [rec, comp, finds, acts, profs] = await Promise.all([
       supabase.rpc("get_report_recipients"),
       supabase
         .from("inspection_tasks")
         .select(
-          `completion_date, condition_rating,
+          `task_code, completion_date, condition_rating, completed_by, assigned_user_id,
            inspection_activities ( activity_name ),
-           equipment ( equipment_name, functional_location )`
+           equipment (
+             equipment_name, functional_location,
+             sections ( section_name )
+           ),
+           inspection_task_checklist_items ( label, result, measured_value, notes, sort_order )`
         )
         .eq("status", "Completed")
         .gte("completion_date", startOfDay)
@@ -135,6 +194,7 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
         .not("status", "in", "(Completed,Verified,Cancelled)")
         .order("created_at", { ascending: false })
         .limit(60),
+      supabase.from("profiles").select("id, full_name"),
     ]);
 
     const recs = (rec.data ?? []) as Recipient[];
@@ -151,6 +211,7 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
       completed: (comp.data ?? []) as unknown as CompletedRow[],
       findings: (finds.data ?? []) as unknown as FindingRow[],
       actions: (acts.data ?? []) as unknown as ActionRow[],
+      nameById: new Map((profs.data ?? []).map((p) => [p.id, p.full_name])),
     });
     setLoading(false);
   }
@@ -164,12 +225,33 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
       date: todayISO,
       preparedBy: senderName,
       note: note.trim() || undefined,
-      completed: data.completed.map((t) => ({
-        equipment: t.equipment?.equipment_name ?? "Equipment",
-        location: t.equipment?.functional_location ?? null,
-        activity: t.inspection_activities?.activity_name ?? "Inspection",
-        condition: t.condition_rating ?? null,
-      })),
+      completed: data.completed.map((t) => {
+        const inspectorId = t.completed_by ?? t.assigned_user_id;
+        return {
+          section: t.equipment?.sections?.section_name ?? "Unassigned",
+          equipment: t.equipment?.equipment_name ?? "Equipment",
+          location: t.equipment?.functional_location ?? null,
+          activity: t.inspection_activities?.activity_name ?? "Inspection",
+          condition: t.condition_rating ?? null,
+          taskCode: t.task_code,
+          inspector: inspectorId ? data.nameById.get(inspectorId) ?? null : null,
+          issues: [...t.inspection_task_checklist_items]
+            .sort((a, b) => a.sort_order - b.sort_order)
+            .filter(isNoteworthy)
+            .map((i) => {
+              const unit = inferMeasurement(i.label).unit;
+              return {
+                label: i.label,
+                result: i.result,
+                reading:
+                  i.measured_value != null
+                    ? `${i.measured_value}${unit ? ` ${unit}` : ""}`
+                    : null,
+                note: i.notes?.trim() || null,
+              };
+            }),
+        };
+      }),
       findings: data.findings.map((f) => ({
         severity: f.severity,
         equipment: f.equipment?.equipment_name ?? null,
@@ -198,16 +280,36 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     L.push("");
     L.push(`Completed Inspections Today (${reportData.completed.length}):`);
     if (reportData.completed.length) {
-      reportData.completed.slice(0, 25).forEach((t) => {
-        const loc = t.location ? ` (${t.location})` : "";
-        const cond = t.condition ? ` — Condition: ${t.condition}` : "";
-        L.push(`- ${t.equipment}${loc}: ${t.activity}${cond}`);
-      });
-      if (reportData.completed.length > 25)
-        L.push(`... and ${reportData.completed.length - 25} more`);
+      // Grouped by section so the reader can tell at a glance which part of the
+      // plant was covered today and which was not touched at all.
+      const bySection = new Map<string, typeof reportData.completed>();
+      for (const t of reportData.completed) {
+        bySection.set(t.section, [...(bySection.get(t.section) ?? []), t]);
+      }
+      for (const [sectionName, rows] of [...bySection].sort((a, b) =>
+        a[0].localeCompare(b[0])
+      )) {
+        L.push("");
+        L.push(`  ${sectionName} (${rows.length}):`);
+        for (const t of rows) {
+          const loc = t.location ? ` (${t.location})` : "";
+          const cond = t.condition ? ` — Condition: ${t.condition}` : "";
+          const who = t.inspector ? ` — by ${t.inspector}` : "";
+          L.push(`  - ${t.equipment}${loc}: ${t.activity}${cond}${who}`);
+          for (const i of t.issues) {
+            const verdict = i.result ? ` [${i.result}]` : "";
+            const reading = i.reading ? ` = ${i.reading}` : "";
+            const note = i.note ? ` — "${i.note}"` : "";
+            L.push(`      * ${i.label}${reading}${verdict}${note}`);
+          }
+        }
+      }
     } else {
       L.push("- None");
     }
+
+    L.push("");
+    L.push(`Checklist Items Needing Attention: ${issueCount(reportData)}`);
 
     L.push("");
     L.push(`Open Findings / Issues (${reportData.findings.length}):`);

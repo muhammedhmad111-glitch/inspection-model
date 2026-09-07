@@ -1,15 +1,27 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
+/** A checklist item the inspector flagged or wrote a note on. */
+export type ReportIssue = {
+  label: string;
+  result: string | null;
+  reading: string | null;
+  note: string | null;
+};
+
 export type ReportData = {
   date: string; // YYYY-MM-DD
   preparedBy: string;
   note?: string;
   completed: {
+    section: string;
     equipment: string;
     location: string | null;
     activity: string;
     condition: string | null;
+    taskCode: string;
+    inspector: string | null;
+    issues: ReportIssue[];
   }[];
   findings: {
     severity: string;
@@ -19,6 +31,23 @@ export type ReportData = {
   }[];
   actions: { title: string; status: string; target: string | null }[];
 };
+
+/** Total flagged/noted items across every inspection in the report. */
+export function issueCount(d: ReportData): number {
+  return d.completed.reduce((n, c) => n + c.issues.length, 0);
+}
+
+// jsPDF's built-in fonts only carry WinAnsi, so an Arabic note comes out as a row
+// of broken boxes. A short honest marker beats silently mangling what the inspector
+// wrote — the email body is UTF-8 and shows the original text intact.
+const WIN_ANSI = /^[\x20-\x7e -ÿ–—‘’“”•€]*$/;
+
+function pdfSafe(text: string | null): string {
+  if (!text) return "-";
+  const t = text.trim();
+  if (!t) return "-";
+  return WIN_ANSI.test(t) ? t : "[non-Latin text - see email body]";
+}
 
 // Amreyah Cement identity
 const NAVY: [number, number, number] = [37, 42, 94]; // #252A5E — brand navy
@@ -70,10 +99,11 @@ export function buildReportPdf(d: ReportData): jsPDF {
   // ---- summary chips ----
   const chips: [string, string][] = [
     ["Completed Inspections", String(d.completed.length)],
+    ["Items Flagged", String(issueCount(d))],
     ["Open Findings", String(d.findings.length)],
     ["Open Maintenance", String(d.actions.length)],
   ];
-  const chipW = (pageW - M * 2 - 20) / 3;
+  const chipW = (pageW - M * 2 - 30) / 4;
   chips.forEach((c, i) => {
     const x = M + i * (chipW + 10);
     doc.setFillColor(...LIGHT);
@@ -93,7 +123,7 @@ export function buildReportPdf(d: ReportData): jsPDF {
   if (d.note && d.note.trim()) {
     doc.setFontSize(9);
     const noteLines = doc.splitTextToSize(
-      `Note: ${d.note.trim()}`,
+      `Note: ${pdfSafe(d.note)}`,
       pageW - M * 2 - 20
     ) as string[];
     const nh = 16 + noteLines.length * 12;
@@ -125,15 +155,75 @@ export function buildReportPdf(d: ReportData): jsPDF {
   autoTable(doc, {
     startY: y + 4,
     margin: { left: M, right: M },
-    head: [["Equipment", "Location", "Activity", "Condition"]],
+    head: [["Section", "Equipment", "Activity", "Inspector", "Condition", "Items"]],
     body: d.completed.length
-      ? d.completed.map((c) => [c.equipment, c.location ?? "-", c.activity, c.condition ?? "-"])
-      : [["No completed inspections today.", "", "", ""]],
+      ? d.completed.map((c) => [
+          c.section,
+          c.location ? `${c.equipment}\n${c.location}` : c.equipment,
+          c.activity,
+          c.inspector ?? "-",
+          c.condition ?? "-",
+          // A zero here is the reassuring answer, so it is always spelled out.
+          String(c.issues.length),
+        ])
+      : [["No completed inspections today.", "", "", "", "", ""]],
     headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
     bodyStyles: { fontSize: 8, textColor: 40 },
     alternateRowStyles: { fillColor: LIGHT },
     styles: { cellPadding: 5, overflow: "linebreak" },
-    columnStyles: { 0: { cellWidth: 130 }, 3: { cellWidth: 70 } },
+    columnStyles: {
+      0: { cellWidth: 85 },
+      3: { cellWidth: 70 },
+      4: { cellWidth: 55 },
+      5: { cellWidth: 34, halign: "center" },
+    },
+    didParseCell: (data) => {
+      // The flagged count is the column a manager scans first.
+      if (data.section === "body" && data.column.index === 5) {
+        if (Number(data.cell.raw) > 0) {
+          data.cell.styles.textColor = [234, 88, 12];
+          data.cell.styles.fontStyle = "bold";
+        }
+      }
+    },
+  });
+  tableAfter();
+
+  // ---- what the inspectors actually wrote ----
+  const issueRows = d.completed.flatMap((c) =>
+    c.issues.map((i) => [
+      c.equipment,
+      pdfSafe(i.label),
+      i.result ?? "-",
+      i.reading ?? "-",
+      pdfSafe(i.note),
+    ])
+  );
+  section("Checklist Items Needing Attention");
+  autoTable(doc, {
+    startY: y + 4,
+    margin: { left: M, right: M },
+    head: [["Equipment", "Checklist Item", "Result", "Reading", "Inspector Note"]],
+    body: issueRows.length
+      ? issueRows
+      : [["", "Every checklist item passed with no notes.", "", "", ""]],
+    headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
+    bodyStyles: { fontSize: 8, textColor: 40 },
+    alternateRowStyles: { fillColor: LIGHT },
+    styles: { cellPadding: 5, overflow: "linebreak" },
+    columnStyles: {
+      0: { cellWidth: 85 },
+      2: { cellWidth: 60 },
+      3: { cellWidth: 50 },
+    },
+    didParseCell: (data) => {
+      if (data.section === "body" && data.column.index === 2) {
+        const v = String(data.cell.raw);
+        if (v === "Not OK") data.cell.styles.textColor = [220, 38, 38];
+        else if (v === "Attention") data.cell.styles.textColor = [234, 88, 12];
+        if (v !== "-") data.cell.styles.fontStyle = "bold";
+      }
+    },
   });
   tableAfter();
 

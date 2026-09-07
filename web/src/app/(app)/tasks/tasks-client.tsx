@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Play, Search, UserRound } from "lucide-react";
+import { ChevronDown, Play, Search, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,9 +61,25 @@ type TaskRow = {
     equipment_id: string;
     equipment_name: string;
     functional_location: string | null;
+    sections: {
+      section_id: string;
+      section_name: string;
+      areas: { area_name: string } | null;
+    } | null;
   } | null;
   equipment_parts: { part_name: string } | null;
 };
+
+const NO_SECTION = { id: "__nosection__", name: "بدون قسم", area: null as string | null };
+
+const sectionsWord = (n: number) =>
+  n === 1 ? "قسم" : n === 2 ? "قسمين" : n <= 10 ? "أقسام" : "قسمًا";
+
+function sectionOf(t: TaskRow) {
+  const s = t.equipment?.sections;
+  if (!s) return NO_SECTION;
+  return { id: s.section_id, name: s.section_name, area: s.areas?.area_name ?? null };
+}
 
 type ProfileOption = { id: string; full_name: string; role: string };
 
@@ -88,7 +104,10 @@ export function TasksClient({
   const [search, setSearch] = useState("");
   const [equipmentFilter, setEquipmentFilter] = useState(ALL);
   const [priorityFilter, setPriorityFilter] = useState(ALL);
+  const [sectionFilter, setSectionFilter] = useState(ALL);
   const [assigning, setAssigning] = useState<string | null>(null);
+  // Sections start open; collapsing is for hiding the ones you are not working today.
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   const profileById = useMemo(
     () => new Map(profiles.map((p) => [p.id, p.full_name])),
@@ -107,6 +126,15 @@ export function TasksClient({
         );
     }
     return [...map.entries()].sort((x, y) => x[1].localeCompare(y[1]));
+  }, [initialTasks]);
+
+  const sectionOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const t of initialTasks) {
+      const s = sectionOf(t);
+      map.set(s.id, s.area ? `${s.name} · ${s.area}` : s.name);
+    }
+    return [...map.entries()].sort((x, y) => x[1].localeCompare(y[1], "ar"));
   }, [initialTasks]);
 
   const counts = useMemo(() => {
@@ -134,6 +162,7 @@ export function TasksClient({
       if (tab === "completed" && t.status !== "Completed") return false;
       if (equipmentFilter !== ALL && t.equipment?.equipment_id !== equipmentFilter)
         return false;
+      if (sectionFilter !== ALL && sectionOf(t).id !== sectionFilter) return false;
       if (priorityFilter !== ALL && t.priority !== priorityFilter) return false;
       if (!q) return true;
       return (
@@ -143,7 +172,45 @@ export function TasksClient({
         (t.equipment_parts?.part_name ?? "").toLowerCase().includes(q)
       );
     });
-  }, [initialTasks, tab, search, equipmentFilter, priorityFilter, currentUserId]);
+  }, [
+    initialTasks,
+    tab,
+    search,
+    equipmentFilter,
+    sectionFilter,
+    priorityFilter,
+    currentUserId,
+  ]);
+
+  // The 200-row cap is applied before grouping, otherwise a section header would
+  // advertise a count that the rows underneath it do not add up to.
+  const groups = useMemo(() => {
+    const byId = new Map<
+      string,
+      { id: string; name: string; area: string | null; tasks: TaskRow[] }
+    >();
+    for (const t of filtered.slice(0, 200)) {
+      const s = sectionOf(t);
+      const g = byId.get(s.id) ?? { ...s, tasks: [] };
+      g.tasks.push(t);
+      byId.set(s.id, g);
+    }
+    return [...byId.values()].sort((a, b) => {
+      // Equipment with no section yet sinks to the bottom: that is a data gap, not a place.
+      if (a.id === NO_SECTION.id) return 1;
+      if (b.id === NO_SECTION.id) return -1;
+      return a.name.localeCompare(b.name, "ar");
+    });
+  }, [filtered]);
+
+  function toggleSection(id: string) {
+    setCollapsed((cur) => {
+      const next = new Set(cur);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   async function assign(taskId: string, userId: string) {
     setAssigning(taskId);
@@ -203,6 +270,19 @@ export function TasksClient({
             className="pr-9"
           />
         </div>
+        <Select value={sectionFilter} onValueChange={setSectionFilter}>
+          <SelectTrigger className="w-52">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>كل الأقسام</SelectItem>
+            {sectionOptions.map(([id, name]) => (
+              <SelectItem key={id} value={id}>
+                {name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={equipmentFilter} onValueChange={setEquipmentFilter}>
           <SelectTrigger className="w-56">
             <SelectValue />
@@ -229,7 +309,19 @@ export function TasksClient({
             ))}
           </SelectContent>
         </Select>
-        <span className="text-sm text-muted-foreground">{filtered.length} مهمة</span>
+        <span className="text-sm text-muted-foreground">
+          {filtered.length} مهمة في {groups.length} {sectionsWord(groups.length)}
+        </span>
+        {collapsed.size > 0 ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="rounded-xl"
+            onClick={() => setCollapsed(new Set())}
+          >
+            فتح كل الأقسام
+          </Button>
+        ) : null}
       </div>
 
       <div className="overflow-hidden rounded-3xl border-0 bg-card shadow-sm">
@@ -248,139 +340,199 @@ export function TasksClient({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {groups.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
                   لا توجد مهام مطابقة
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.slice(0, 200).map((t) => (
-                <TableRow
-                  key={t.inspection_task_id}
-                  // The action button sits in the last column, which is off-screen
-                  // on narrow viewports — opening from anywhere on the row means
-                  // nobody has to scroll sideways to reach it.
-                  onClick={() => router.push(`/tasks/${t.inspection_task_id}`)}
-                  className={cn(
-                    "cursor-pointer",
-                    t.status === "Overdue" && "bg-red-50/60 dark:bg-red-950/20"
-                  )}
-                >
-                  <TableCell>
-                    <div className="font-medium">
-                      {t.inspection_activities?.activity_name ?? "—"}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {t.inspection_activities
-                        ? CATEGORY_LABELS_AR[t.inspection_activities.inspection_category]
-                        : ""}
-                      {" · "}
-                      <span className="font-mono" dir="ltr">
-                        {t.task_code}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">{t.equipment?.equipment_name ?? "—"}</div>
-                    {t.equipment?.functional_location ? (
-                      <div className="font-mono text-xs text-muted-foreground" dir="ltr">
-                        {t.equipment.functional_location}
-                      </div>
-                    ) : null}
-                  </TableCell>
-                  <TableCell>
-                    {t.inspection_activities ? (
-                      <Badge
-                        className={
-                          FREQUENCY_BADGE_CLASS[t.inspection_activities.frequency_type]
-                        }
-                      >
-                        {FREQUENCY_LABELS_AR[t.inspection_activities.frequency_type]}
-                      </Badge>
-                    ) : (
-                      "—"
-                    )}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "font-mono text-sm",
-                      t.status === "Overdue" &&
-                        "font-bold text-red-600 dark:text-red-400"
-                    )}
-                    dir="ltr"
+              groups.map((g) => (
+                <Fragment key={g.id}>
+                  <TableRow
+                    className="cursor-pointer bg-muted/60 hover:bg-muted"
+                    onClick={() => toggleSection(g.id)}
                   >
-                    {t.due_date}
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={PRIORITY_BADGE_CLASS[t.priority]}>
-                      {PRIORITY_LABELS_AR[t.priority]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={TASK_STATUS_BADGE_CLASS[t.status]}>
-                      {TASK_STATUS_LABELS_AR[t.status]}
-                    </Badge>
-                  </TableCell>
-                  {/* Assigning an inspector must not open the task. */}
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    {tab === "completed" ? (
-                      t.condition_rating ? (
-                        <Badge className={CONDITION_BADGE_CLASS[t.condition_rating]}>
-                          {CONDITION_LABELS_AR[t.condition_rating]}
-                        </Badge>
-                      ) : (
-                        "—"
-                      )
-                    ) : canManage ? (
-                      <Select
-                        value={t.assigned_user_id ?? UNASSIGNED}
-                        onValueChange={(v) => assign(t.inspection_task_id, v)}
-                        disabled={assigning === t.inspection_task_id}
-                      >
-                        <SelectTrigger className="h-8 w-36 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={UNASSIGNED}>غير معيّن</SelectItem>
-                          {profiles.map((p) => (
-                            <SelectItem key={p.id} value={p.id}>
-                              {p.full_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <UserRound className="size-3.5" />
-                        {t.assigned_user_id
-                          ? profileById.get(t.assigned_user_id) ?? "—"
-                          : "غير معيّن"}
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {t.status !== "Completed" &&
-                    t.status !== "Cancelled" &&
-                    t.status !== "Skipped" ? (
-                      <Button asChild size="sm" className="rounded-xl">
-                        <Link href={`/tasks/${t.inspection_task_id}`}>
-                          <Play className="size-3.5" />
-                          {t.status === "In Progress" ? "متابعة" : "بدء الفحص"}
-                        </Link>
-                      </Button>
-                    ) : (
-                      <Button asChild size="sm" variant="ghost" className="rounded-xl">
-                        <Link href={`/tasks/${t.inspection_task_id}`}>عرض</Link>
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
+                    <TableCell colSpan={8} className="py-2.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <ChevronDown
+                          className={cn(
+                            "size-4 text-muted-foreground transition-transform",
+                            collapsed.has(g.id) && "-rotate-90"
+                          )}
+                        />
+                        <span className="font-semibold">{g.name}</span>
+                        {g.area ? (
+                          <span className="text-xs text-muted-foreground">{g.area}</span>
+                        ) : null}
+                        <Badge variant="secondary">{g.tasks.length}</Badge>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  {collapsed.has(g.id)
+                    ? null
+                    : g.tasks.map((t) => (
+                        <TaskTableRow
+                          key={t.inspection_task_id}
+                          t={t}
+                          tab={tab}
+                          canManage={canManage}
+                          profiles={profiles}
+                          profileById={profileById}
+                          assigning={assigning}
+                          onAssign={assign}
+                          onOpen={(id) => router.push(`/tasks/${id}`)}
+                        />
+                      ))}
+                </Fragment>
               ))
             )}
           </TableBody>
         </Table>
       </div>
     </div>
+  );
+}
+
+/** One task row. Pulled out so the section grouping above stays readable. */
+function TaskTableRow({
+  t,
+  tab,
+  canManage,
+  profiles,
+  profileById,
+  assigning,
+  onAssign,
+  onOpen,
+}: {
+  t: TaskRow;
+  tab: Tab;
+  canManage: boolean;
+  profiles: ProfileOption[];
+  profileById: Map<string, string>;
+  assigning: string | null;
+  onAssign: (taskId: string, userId: string) => void;
+  onOpen: (taskId: string) => void;
+}) {
+  return (
+    <TableRow
+      // The action button sits in the last column, which is off-screen
+      // on narrow viewports — opening from anywhere on the row means
+      // nobody has to scroll sideways to reach it.
+      onClick={() => onOpen(t.inspection_task_id)}
+      className={cn(
+        "cursor-pointer",
+        t.status === "Overdue" && "bg-red-50/60 dark:bg-red-950/20"
+      )}
+    >
+      <TableCell>
+        <div className="font-medium">
+          {t.inspection_activities?.activity_name ?? "—"}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {t.inspection_activities
+            ? CATEGORY_LABELS_AR[t.inspection_activities.inspection_category]
+            : ""}
+          {" · "}
+          <span className="font-mono" dir="ltr">
+            {t.task_code}
+          </span>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="text-sm">{t.equipment?.equipment_name ?? "—"}</div>
+        {t.equipment?.functional_location ? (
+          <div className="font-mono text-xs text-muted-foreground" dir="ltr">
+            {t.equipment.functional_location}
+          </div>
+        ) : null}
+      </TableCell>
+      <TableCell>
+        {t.inspection_activities ? (
+          <Badge
+            className={
+              FREQUENCY_BADGE_CLASS[t.inspection_activities.frequency_type]
+            }
+          >
+            {FREQUENCY_LABELS_AR[t.inspection_activities.frequency_type]}
+          </Badge>
+        ) : (
+          "—"
+        )}
+      </TableCell>
+      <TableCell
+        className={cn(
+          "font-mono text-sm",
+          t.status === "Overdue" &&
+            "font-bold text-red-600 dark:text-red-400"
+        )}
+        dir="ltr"
+      >
+        {t.due_date}
+      </TableCell>
+      <TableCell>
+        <Badge className={PRIORITY_BADGE_CLASS[t.priority]}>
+          {PRIORITY_LABELS_AR[t.priority]}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <Badge className={TASK_STATUS_BADGE_CLASS[t.status]}>
+          {TASK_STATUS_LABELS_AR[t.status]}
+        </Badge>
+      </TableCell>
+      {/* Assigning an inspector must not open the task. */}
+      <TableCell onClick={(e) => e.stopPropagation()}>
+        {tab === "completed" ? (
+          t.condition_rating ? (
+            <Badge className={CONDITION_BADGE_CLASS[t.condition_rating]}>
+              {CONDITION_LABELS_AR[t.condition_rating]}
+            </Badge>
+          ) : (
+            "—"
+          )
+        ) : canManage ? (
+          <Select
+            value={t.assigned_user_id ?? UNASSIGNED}
+            onValueChange={(v) => onAssign(t.inspection_task_id, v)}
+            disabled={assigning === t.inspection_task_id}
+          >
+            <SelectTrigger className="h-8 w-36 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={UNASSIGNED}>غير معيّن</SelectItem>
+              {profiles.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <span className="flex items-center gap-1 text-sm text-muted-foreground">
+            <UserRound className="size-3.5" />
+            {t.assigned_user_id
+              ? profileById.get(t.assigned_user_id) ?? "—"
+              : "غير معيّن"}
+          </span>
+        )}
+      </TableCell>
+      <TableCell>
+        {t.status !== "Completed" &&
+        t.status !== "Cancelled" &&
+        t.status !== "Skipped" ? (
+          <Button asChild size="sm" className="rounded-xl">
+            <Link href={`/tasks/${t.inspection_task_id}`}>
+              <Play className="size-3.5" />
+              {t.status === "In Progress" ? "متابعة" : "بدء الفحص"}
+            </Link>
+          </Button>
+        ) : (
+          <Button asChild size="sm" variant="ghost" className="rounded-xl">
+            <Link href={`/tasks/${t.inspection_task_id}`}>عرض</Link>
+          </Button>
+        )}
+      </TableCell>
+    </TableRow>
   );
 }

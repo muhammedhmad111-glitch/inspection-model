@@ -69,6 +69,16 @@ const RESULT_ORDER: Enums<"checklist_result">[] = [
 // Results worth spelling out item-by-item in the message.
 const FLAGGED: Enums<"checklist_result">[] = ["Attention", "Not OK", "Not Accessible"];
 
+/**
+ * An item earns a line of its own if its result is flagged, or if the inspector
+ * bothered to write a note on it. A note on a passing item is usually the early
+ * warning — "بيسخن شوية" on a bearing that still reads OK — and dropping it was
+ * throwing away the most useful sentence in the round.
+ */
+export function isNoteworthy(item: ShareItem): boolean {
+  return Boolean((item.result && FLAGGED.includes(item.result)) || item.notes?.trim());
+}
+
 const MAX_LISTED = 12;
 
 const itemsWord = (n: number) =>
@@ -107,7 +117,7 @@ export function buildWhatsappMessage(
         .join(" · ")
     );
 
-    const flagged = items.filter((i) => i.result && FLAGGED.includes(i.result));
+    const flagged = items.filter(isNoteworthy);
     if (flagged.length) {
       L.push("");
       L.push("⚠️ بنود تحتاج انتباه:");
@@ -115,10 +125,9 @@ export function buildWhatsappMessage(
         const unit = inferMeasurement(i.label).unit;
         const reading =
           i.measured_value != null ? `: ${i.measured_value}${unit ? ` ${unit}` : ""}` : "";
+        const verdict = i.result ? ` — ${CHECKLIST_RESULT_LABELS_AR[i.result]}` : "";
         const note = i.notes?.trim() ? ` (${i.notes.trim()})` : "";
-        L.push(
-          `• ${i.label}${reading} — ${CHECKLIST_RESULT_LABELS_AR[i.result!]}${note}`
-        );
+        L.push(`• ${i.label}${reading}${verdict}${note}`);
       }
       if (flagged.length > MAX_LISTED) {
         const rest = flagged.length - MAX_LISTED;
