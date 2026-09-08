@@ -27,6 +27,9 @@ export type ShareItem = {
   result: Enums<"checklist_result"> | null;
   measured_value: number | null;
   notes: string | null;
+  /** Public URLs of the photos taken at this item. Optional: the daily report
+   *  builds ShareItems from a query that does not join attachments. */
+  photos?: string[] | null;
 };
 
 export type ShareFinding = {
@@ -71,15 +74,23 @@ const FLAGGED: Enums<"checklist_result">[] = ["Attention", "Not OK", "Not Access
 
 /**
  * An item earns a line of its own if its result is flagged, or if the inspector
- * bothered to write a note on it. A note on a passing item is usually the early
- * warning — "بيسخن شوية" on a bearing that still reads OK — and dropping it was
- * throwing away the most useful sentence in the round.
+ * bothered to write a note or take a photo of it. A note on a passing item is
+ * usually the early warning — "بيسخن شوية" on a bearing that still reads OK — and
+ * dropping it was throwing away the most useful sentence in the round. A photo is
+ * the same signal without the typing.
  */
 export function isNoteworthy(item: ShareItem): boolean {
-  return Boolean((item.result && FLAGGED.includes(item.result)) || item.notes?.trim());
+  return Boolean(
+    (item.result && FLAGGED.includes(item.result)) ||
+      item.notes?.trim() ||
+      item.photos?.length
+  );
 }
 
 const MAX_LISTED = 12;
+// Links are long and the whole report has to stay readable in a chat bubble, so
+// only the first few shots of an item go in; the rest live on the task page.
+const MAX_PHOTOS_PER_ITEM = 3;
 
 const itemsWord = (n: number) =>
   n === 1 ? "بند" : n === 2 ? "بندان" : n <= 10 ? "بنود" : "بندًا";
@@ -117,6 +128,9 @@ export function buildWhatsappMessage(
         .join(" · ")
     );
 
+    const photoCount = items.reduce((n, i) => n + (i.photos?.length ?? 0), 0);
+    if (photoCount) L.push(`📷 صور مرفقة: ${photoCount}`);
+
     const flagged = items.filter(isNoteworthy);
     if (flagged.length) {
       L.push("");
@@ -128,6 +142,13 @@ export function buildWhatsappMessage(
         const verdict = i.result ? ` — ${CHECKLIST_RESULT_LABELS_AR[i.result]}` : "";
         const note = i.notes?.trim() ? ` (${i.notes.trim()})` : "";
         L.push(`• ${i.label}${reading}${verdict}${note}`);
+        // Each link on its own line, so WhatsApp keeps it clickable instead of
+        // swallowing it into the sentence around it.
+        const photos = i.photos ?? [];
+        for (const url of photos.slice(0, MAX_PHOTOS_PER_ITEM)) L.push(`   📷 ${url}`);
+        if (photos.length > MAX_PHOTOS_PER_ITEM) {
+          L.push(`   📷 +${photos.length - MAX_PHOTOS_PER_ITEM} صور أخرى على النظام`);
+        }
       }
       if (flagged.length > MAX_LISTED) {
         const rest = flagged.length - MAX_LISTED;

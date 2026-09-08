@@ -55,10 +55,23 @@ export default async function TaskExecutionPage({
     ? await supabase.from("profiles").select("full_name").eq("id", inspectorId).single()
     : { data: null };
 
+  // Every item's photos in one round trip. Letting each card fetch its own would
+  // be thirty queries on a thirty-item round, on a phone, in the plant.
+  const itemIds = (items ?? []).map((i) => i.id);
+  const { data: photos } = itemIds.length
+    ? await supabase
+        .from("attachments")
+        .select("*")
+        .eq("entity_type", "checklist_item")
+        .in("entity_id", itemIds)
+        .order("created_at")
+    : { data: [] };
+
   return (
     <ExecutionClient
       task={task}
       initialItems={items ?? []}
+      initialPhotos={photos ?? []}
       findings={findings ?? []}
       inspectorName={inspector?.full_name ?? null}
       backHref={safeBackHref(from)}

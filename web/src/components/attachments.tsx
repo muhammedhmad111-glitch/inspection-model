@@ -5,16 +5,13 @@ import { ImagePlus, Loader2, Trash2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import type { Tables } from "@/lib/supabase/types";
-
-type Attachment = Tables<"attachments">;
-
-const BUCKET = "attachments";
-
-function publicUrl(path: string): string {
-  const supabase = createClient();
-  return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-}
+import {
+  attachmentUrl,
+  deleteAttachment,
+  isImage,
+  uploadAttachments,
+  type Attachment,
+} from "@/lib/attachments";
 
 export function Attachments({
   entityType,
@@ -53,68 +50,26 @@ export function Attachments({
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
     setUploading(true);
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      setUploading(false);
+    const res = await uploadAttachments(entityType, entityId, Array.from(files));
+    setUploading(false);
+    if (inputRef.current) inputRef.current.value = "";
+    if (!res) {
       toast.error("انتهت الجلسة");
       return;
     }
-
-    const added: Attachment[] = [];
-    for (const file of Array.from(files)) {
-      const safeName = file.name.replace(/[^\w.\-]+/g, "_");
-      const path = `${entityType}/${entityId}/${crypto.randomUUID()}-${safeName}`;
-      const { error: upErr } = await supabase.storage
-        .from(BUCKET)
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (upErr) {
-        toast.error(`فشل رفع ${file.name}`);
-        continue;
-      }
-      const { data: row, error: insErr } = await supabase
-        .from("attachments")
-        .insert({
-          entity_type: entityType,
-          entity_id: entityId,
-          storage_path: path,
-          file_name: file.name,
-          mime_type: file.type,
-          size_bytes: file.size,
-          uploaded_by: user.id,
-        })
-        .select("*")
-        .single();
-      if (insErr || !row) {
-        toast.error(`فشل حفظ ${file.name}`);
-        continue;
-      }
-      added.push(row);
-    }
-    setItems((cur) => [...added, ...cur]);
-    setUploading(false);
-    if (inputRef.current) inputRef.current.value = "";
-    if (added.length) toast.success(`تم رفع ${added.length} ملف`);
+    setItems((cur) => [...res.rows, ...cur]);
+    for (const name of res.failed) toast.error(`فشل رفع ${name}`);
+    if (res.rows.length) toast.success(`تم رفع ${res.rows.length} ملف`);
   }
 
   async function remove(att: Attachment) {
     const prev = items;
     setItems((cur) => cur.filter((x) => x.attachment_id !== att.attachment_id));
-    const supabase = createClient();
-    await supabase.storage.from(BUCKET).remove([att.storage_path]);
-    const { error } = await supabase
-      .from("attachments")
-      .delete()
-      .eq("attachment_id", att.attachment_id);
-    if (error) {
+    if (!(await deleteAttachment(att))) {
       setItems(prev);
       toast.error("فشل الحذف");
     }
   }
-
-  const isImage = (a: Attachment) => (a.mime_type ?? "").startsWith("image/");
 
   return (
     <div className="flex flex-col gap-3">
@@ -156,11 +111,11 @@ export function Attachments({
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
           {items.map((a) => (
             <div key={a.attachment_id} className="group relative overflow-hidden rounded-2xl border bg-muted">
-              <a href={publicUrl(a.storage_path)} target="_blank" rel="noopener noreferrer">
+              <a href={attachmentUrl(a.storage_path)} target="_blank" rel="noopener noreferrer">
                 {isImage(a) ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={publicUrl(a.storage_path)}
+                    src={attachmentUrl(a.storage_path)}
                     alt={a.file_name}
                     className="aspect-square w-full object-cover"
                   />

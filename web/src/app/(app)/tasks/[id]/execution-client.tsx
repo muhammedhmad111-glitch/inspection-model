@@ -28,6 +28,12 @@ import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { Constants } from "@/lib/supabase/types";
 import { Attachments } from "@/components/attachments";
+import { ChecklistPhotos } from "@/components/checklist-photos";
+import {
+  attachmentUrl,
+  deleteAttachment,
+  type Attachment,
+} from "@/lib/attachments";
 import {
   WhatsappShare,
   isNoteworthy,
@@ -83,12 +89,14 @@ const RESULT_OPTIONS = Constants.public.Enums.checklist_result;
 export function ExecutionClient({
   task,
   initialItems,
+  initialPhotos,
   findings,
   inspectorName,
   backHref,
 }: {
   task: Task;
   initialItems: Item[];
+  initialPhotos: Attachment[];
   findings: ShareFinding[];
   inspectorName: string | null;
   backHref: string;
@@ -96,6 +104,7 @@ export function ExecutionClient({
   const router = useRouter();
   const cameFromCalendar = backHref.startsWith("/calendar");
   const [items, setItems] = useState<Item[]>(initialItems);
+  const [photos, setPhotos] = useState<Attachment[]>(initialPhotos);
   const [starting, setStarting] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [completeOpen, setCompleteOpen] = useState(false);
@@ -108,6 +117,9 @@ export function ExecutionClient({
   const [returnOnShareClose, setReturnOnShareClose] = useState(false);
 
   const isClosed = ["Completed", "Cancelled", "Skipped"].includes(task.status);
+  // Photos stay open after the round is signed off, unlike the results: evidence
+  // often gets added while writing up the report, and it changes no verdict.
+  const canAttach = !["Cancelled", "Skipped"].includes(task.status);
   const isStarted = task.status === "In Progress" || items.length > 0;
   const doneCount = items.filter((i) => i.result !== null).length;
   const progress = items.length ? Math.round((doneCount / items.length) * 100) : 0;
@@ -117,9 +129,39 @@ export function ExecutionClient({
     return Array.isArray(cl) ? cl.length : 0;
   }, [task]);
 
-  // Everything the inspector flagged or wrote about, in one place — otherwise the
-  // one item that matters is buried among thirty cards that all say "سليم".
-  const noteworthy = useMemo(() => items.filter(isNoteworthy), [items]);
+  const photosByItem = useMemo(() => {
+    const map = new Map<string, Attachment[]>();
+    for (const p of photos) {
+      const arr = map.get(p.entity_id) ?? [];
+      arr.push(p);
+      map.set(p.entity_id, arr);
+    }
+    return map;
+  }, [photos]);
+
+  // The checklist as the summary card and the WhatsApp report want it: each item
+  // carrying the public URLs of its own photos.
+  const shareItems = useMemo(
+    () =>
+      items.map((i) => ({
+        ...i,
+        photos: (photosByItem.get(i.id) ?? []).map((p) => attachmentUrl(p.storage_path)),
+      })),
+    [items, photosByItem]
+  );
+
+  // Everything the inspector flagged, wrote about or photographed, in one place —
+  // otherwise the one item that matters is buried among thirty cards saying "سليم".
+  const noteworthy = useMemo(() => shareItems.filter(isNoteworthy), [shareItems]);
+
+  async function removePhoto(att: Attachment) {
+    const prev = photos;
+    setPhotos((cur) => cur.filter((p) => p.attachment_id !== att.attachment_id));
+    if (!(await deleteAttachment(att))) {
+      setPhotos(prev);
+      toast.error("فشل حذف الصورة");
+    }
+  }
 
   async function start() {
     setStarting(true);
@@ -370,12 +412,27 @@ export function ExecutionClient({
                         {i.notes.trim()}
                       </p>
                     ) : null}
+                    {i.photos.length ? (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {i.photos.map((url) => (
+                          <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={url}
+                              alt=""
+                              className="size-14 rounded-xl border object-cover"
+                            />
+                          </a>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 );
               })}
             </div>
             <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
-              الملاحظات دي بتظهر كمان في صفحة الملاحظات وفي التقرير اليومي.
+              الملاحظات دي بتظهر كمان في صفحة الملاحظات وفي التقرير اليومي، والصور
+              بتتبعت مع تقرير الواتساب.
             </p>
           </CardContent>
         </Card>
@@ -387,7 +444,7 @@ export function ExecutionClient({
           <Attachments
             entityType="task"
             entityId={task.inspection_task_id}
-            canEdit={!["Cancelled", "Skipped"].includes(task.status)}
+            canEdit={canAttach}
           />
         </CardContent>
       </Card>
@@ -401,6 +458,10 @@ export function ExecutionClient({
               item={item}
               idx={idx}
               isClosed={isClosed}
+              photos={photosByItem.get(item.id) ?? []}
+              canAttach={canAttach}
+              onAddPhotos={(rows) => setPhotos((cur) => [...cur, ...rows])}
+              onRemovePhoto={removePhoto}
               onSetResult={setResult}
               onSaveMeasured={saveMeasured}
               onSaveNotes={saveNotes}
@@ -445,7 +506,7 @@ export function ExecutionClient({
       <WhatsappShare
         open={shareOpen}
         onOpenChange={closeShare}
-        items={items}
+        items={shareItems}
         findings={findings}
         task={{
           taskCode: task.task_code,
@@ -514,6 +575,10 @@ function ItemCard({
   item,
   idx,
   isClosed,
+  photos,
+  canAttach,
+  onAddPhotos,
+  onRemovePhoto,
   onSetResult,
   onSaveMeasured,
   onSaveNotes,
@@ -521,6 +586,10 @@ function ItemCard({
   item: Item;
   idx: number;
   isClosed: boolean;
+  photos: Attachment[];
+  canAttach: boolean;
+  onAddPhotos: (rows: Attachment[]) => void;
+  onRemovePhoto: (att: Attachment) => void;
   onSetResult: (item: Item, r: Enums<"checklist_result">) => void;
   onSaveMeasured: (item: Item, value: string) => void;
   onSaveNotes: (item: Item, value: string) => void;
@@ -635,6 +704,14 @@ function ItemCard({
           defaultValue={item.notes ?? ""}
           disabled={isClosed}
           onBlur={(e) => onSaveNotes(item, e.target.value)}
+        />
+
+        <ChecklistPhotos
+          itemId={item.id}
+          photos={photos}
+          canEdit={canAttach}
+          onAdded={onAddPhotos}
+          onRemove={onRemovePhoto}
         />
       </CardContent>
     </Card>
