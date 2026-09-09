@@ -922,6 +922,35 @@ export type Database = {
         }
         Relationships: []
       }
+      report_extra_recipients: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          email: string
+          label: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          email: string
+          label?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          email?: string
+          label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_extra_recipients_added_by_fkey"
+            columns: ["added_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sections: {
         Row: {
           active: boolean

@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { Copy, FileDown, Loader2, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -19,6 +18,8 @@ import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/types";
 import { issueCount, type ReportData } from "@/lib/report-pdf";
 import { isNoteworthy } from "@/components/whatsapp-share";
+import { ExtraRecipients } from "@/components/extra-recipients";
+import { PLACEHOLDER_DOMAIN, useExtraRecipients } from "@/lib/report-recipients";
 import { inferMeasurement } from "@/lib/measurement";
 import { ROLE_LABELS_AR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -142,8 +143,6 @@ type ActionRow = {
   target_date: string | null;
 };
 
-const PLACEHOLDER_DOMAIN = "@cimpor-amreyah.local";
-
 export function DailyReportButton({ senderName }: { senderName: string }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -151,7 +150,7 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
   const [sending, setSending] = useState(false);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [manual, setManual] = useState("");
+  const { extras, add: addExtra, forget: forgetExtra } = useExtraRecipients();
   const [note, setNote] = useState("");
   const [data, setData] = useState<{
     completed: CompletedRow[];
@@ -343,19 +342,44 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     return L.join("\r\n");
   }, [reportData, subject]);
 
-  const manualEmails = manual
-    .split(/[\s,;]+/)
-    .map((e) => e.trim())
-    .filter((e) => e.includes("@"));
-  const allEmails = [...new Set([...selected, ...manualEmails])];
   // users whose address can actually receive mail (placeholder domain can't)
   const reachable = recipients.filter((r) => !r.email.endsWith(PLACEHOLDER_DOMAIN));
+  const selectable = [
+    ...new Set([...reachable.map((r) => r.email), ...extras.map((e) => e.email)]),
+  ];
+  // Intersect rather than read `selected` straight: an address that was ticked and
+  // then removed from the list must not still be mailed.
+  const allEmails = selectable.filter((e) => selected.has(e));
 
   function toggle(email: string) {
     setSelected((cur) => {
       const next = new Set(cur);
       if (next.has(email)) next.delete(email);
       else next.add(email);
+      return next;
+    });
+  }
+
+  // A freshly added address is what the user is about to send to — tick it for them.
+  async function addExtras(emails: string[]) {
+    let unsaved = 0;
+    for (const email of emails) {
+      if ((await addExtra(email)) === "unsaved") unsaved++;
+    }
+    setSelected((cur) => new Set([...cur, ...emails]));
+    if (unsaved) {
+      toast.warning("الإيميلات هتتبعت دلوقتي بس مش هتتحفظ — محتاج صلاحية التقارير");
+    }
+  }
+
+  async function forgetExtras(email: string) {
+    if (!(await forgetExtra(email))) {
+      toast.error("مش مسموح لك تحذف من القائمة");
+      return;
+    }
+    setSelected((cur) => {
+      const next = new Set(cur);
+      next.delete(email);
       return next;
     });
   }
@@ -466,14 +490,14 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <Label>المستلمون ({selected.size} من {reachable.length})</Label>
+                <Label>المستلمون ({allEmails.length} من {selectable.length})</Label>
                 <div className="flex gap-1">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     className="h-7 rounded-lg px-2 text-xs"
-                    onClick={() => setSelected(new Set(reachable.map((r) => r.email)))}
+                    onClick={() => setSelected(new Set(selectable))}
                   >
                     الكل
                   </Button>
@@ -551,16 +575,14 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
               )}
             </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="manual">إيميلات إضافية (اختياري)</Label>
-              <Input
-                id="manual"
-                dir="ltr"
-                placeholder="name@example.com, other@example.com"
-                value={manual}
-                onChange={(e) => setManual(e.target.value)}
-              />
-            </div>
+            <ExtraRecipients
+              idPrefix="daily"
+              extras={extras}
+              selected={selected}
+              onToggle={toggle}
+              onAdd={addExtras}
+              onForget={forgetExtras}
+            />
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="note">Note (English, optional)</Label>
