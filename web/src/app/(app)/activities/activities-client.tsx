@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Search } from "lucide-react";
+import { MoreHorizontal, PowerOff, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -207,7 +207,15 @@ export function ActivitiesClient({
               filtered.map((a) => (
                 <TableRow key={a.inspection_activity_id}>
                   <TableCell>
-                    <div className="font-medium">{a.activity_name}</div>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="font-medium">{a.activity_name}</span>
+                      {a.requires_shutdown ? (
+                        <Badge className="gap-1 bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                          <PowerOff className="size-3" />
+                          وقف
+                        </Badge>
+                      ) : null}
+                    </div>
                     <div className="font-mono text-xs text-muted-foreground" dir="ltr">
                       {a.activity_code}
                     </div>
@@ -329,6 +337,7 @@ function ActivityEditForm({
     custom_interval_days: number | null;
     priority: Enums<"priority_level">;
     responsible_role: Enums<"app_user_role">;
+    requires_shutdown: boolean;
     active: boolean;
   }) => Promise<void>;
 }) {
@@ -344,6 +353,7 @@ function ActivityEditForm({
   const [role, setRole] = useState<Enums<"app_user_role">>(
     activity.responsible_role
   );
+  const [requiresShutdown, setRequiresShutdown] = useState(activity.requires_shutdown);
   const [active, setActive] = useState(activity.active);
 
   return (
@@ -424,6 +434,16 @@ function ActivityEditForm({
             </SelectContent>
           </Select>
         </div>
+        <div className="flex items-start justify-between gap-3 rounded-xl border p-3">
+          <div>
+            <Label>يتطلب إيقاف المعدة</Label>
+            <p className="mt-1 text-xs text-muted-foreground">
+              الفحص ده مش ممكن يتعمل والمعدة شغالة — بنوده هتظهر في تقرير الـPM
+              الأسبوعي.
+            </p>
+          </div>
+          <Switch checked={requiresShutdown} onCheckedChange={setRequiresShutdown} />
+        </div>
         <div className="flex items-center justify-between rounded-xl border p-3">
           <Label>نشط (يولّد مهام)</Label>
           <Switch checked={active} onCheckedChange={setActive} />
@@ -442,6 +462,7 @@ function ActivityEditForm({
                   frequency === "Custom" ? Number(customDays) : null,
                 priority,
                 responsible_role: role,
+                requires_shutdown: requiresShutdown,
                 active,
               })
             }

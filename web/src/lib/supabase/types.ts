@@ -363,6 +363,7 @@ export type Database = {
           inspection_category: Database["public"]["Enums"]["inspection_category"]
           instructions: string | null
           priority: Database["public"]["Enums"]["priority_level"]
+          requires_shutdown: boolean
           responsible_role: Database["public"]["Enums"]["app_user_role"]
           standard_checklist: Json
           start_date: string
@@ -384,6 +385,7 @@ export type Database = {
           inspection_category?: Database["public"]["Enums"]["inspection_category"]
           instructions?: string | null
           priority?: Database["public"]["Enums"]["priority_level"]
+          requires_shutdown?: boolean
           responsible_role?: Database["public"]["Enums"]["app_user_role"]
           standard_checklist?: Json
           start_date?: string
@@ -405,6 +407,7 @@ export type Database = {
           inspection_category?: Database["public"]["Enums"]["inspection_category"]
           instructions?: string | null
           priority?: Database["public"]["Enums"]["priority_level"]
+          requires_shutdown?: boolean
           responsible_role?: Database["public"]["Enums"]["app_user_role"]
           standard_checklist?: Json
           start_date?: string
@@ -444,6 +447,7 @@ export type Database = {
           inspection_method: string | null
           priority: Database["public"]["Enums"]["priority_level"]
           reference_documents: string | null
+          requires_shutdown: boolean
           required_ppe: string | null
           required_skills: string | null
           required_tools: string | null
@@ -467,6 +471,7 @@ export type Database = {
           inspection_method?: string | null
           priority?: Database["public"]["Enums"]["priority_level"]
           reference_documents?: string | null
+          requires_shutdown?: boolean
           required_ppe?: string | null
           required_skills?: string | null
           required_tools?: string | null
@@ -490,6 +495,7 @@ export type Database = {
           inspection_method?: string | null
           priority?: Database["public"]["Enums"]["priority_level"]
           reference_documents?: string | null
+          requires_shutdown?: boolean
           required_ppe?: string | null
           required_skills?: string | null
           required_tools?: string | null
@@ -1062,6 +1068,10 @@ export type Database = {
           email: string
           is_manager: boolean
         }[]
+      }
+      get_pm_report_data: {
+        Args: { p_week_start?: string }
+        Returns: Json
       }
       get_weekly_report_data: {
         Args: { p_week_start?: string }

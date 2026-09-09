@@ -10,6 +10,7 @@ import {
   ClipboardCheck,
   AlertTriangle,
   Wrench,
+  PowerOff,
   FileBarChart,
   Clapperboard,
   ScrollText,
@@ -40,6 +41,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/calendar", label: "التقويم", icon: CalendarDays },
   { href: "/findings", label: "الملاحظات", icon: AlertTriangle },
   { href: "/actions", label: "إجراءات الصيانة", icon: Wrench },
+  { href: "/pm", label: "الصيانة الوقائية (PM)", icon: PowerOff },
   { href: "/reports", label: "التقارير", icon: FileBarChart },
   { href: "/reports/video", label: "فيديو التقرير", icon: Clapperboard },
 ];
