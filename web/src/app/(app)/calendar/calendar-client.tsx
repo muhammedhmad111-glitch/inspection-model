@@ -16,6 +16,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/types";
 import { groupBySection, sectionsWord, type SectionRef } from "@/lib/sections";
+import { EquipmentRefText } from "@/components/equipment-ref";
+import type { EquipmentRef } from "@/lib/equipment-ref";
 import { cn } from "@/lib/utils";
 import {
   PRIORITY_BADGE_CLASS,
@@ -31,11 +33,7 @@ type TaskLite = {
   priority: Enums<"priority_level">;
   assigned_user_id: string | null;
   inspection_activities: { activity_name: string } | null;
-  equipment: {
-    equipment_name: string;
-    functional_location: string | null;
-    sections: SectionRef;
-  } | null;
+  equipment: (EquipmentRef & { sections: SectionRef }) | null;
 };
 
 const ALL = "__all__";
@@ -269,13 +267,8 @@ export function CalendarClient({
                         {t.inspection_activities?.activity_name ?? "فحص"}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {t.equipment?.equipment_name}
-                        {t.equipment?.functional_location ? (
-                          <span className="font-mono" dir="ltr">
-                            {" "}
-                            · {t.equipment.functional_location}
-                          </span>
-                        ) : null}
+                        {/* The day list is already grouped under section headings. */}
+                        <EquipmentRefText equipment={t.equipment} showSection={false} />
                       </span>
                     </div>
                     <div className="flex shrink-0 gap-1.5">

@@ -29,6 +29,8 @@ import type { Enums, Tables } from "@/lib/supabase/types";
 import { Constants } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 import { EquipmentSelect, type EquipmentOption } from "@/components/equipment-select";
+import { EquipmentRefText } from "@/components/equipment-ref";
+import { equipmentLabel, type EquipmentRef } from "@/lib/equipment-ref";
 import {
   ACTION_STATUS_BADGE_CLASS,
   ACTION_STATUS_LABELS_AR,
@@ -44,15 +46,25 @@ type ActionRow = Tables<"maintenance_actions"> & {
     finding_code: string;
     finding_title: string;
     severity: Enums<"priority_level">;
-    equipment: { equipment_name: string } | null;
+    equipment: EquipmentRef;
     equipment_parts: { part_name: string } | null;
   } | null;
   // Set instead of the finding when the action was raised straight on the equipment.
-  equipment: { equipment_name: string } | null;
+  equipment: EquipmentRef;
   equipment_parts: { part_name: string } | null;
   responsible: { full_name: string } | null;
   verifier: { full_name: string } | null;
 };
+
+/**
+ * An action raised from a finding leaves its own equipment_id null — the machine
+ * is only reachable through the finding. Every read of it has to go through here.
+ */
+const actionEquipment = (a: ActionRow): EquipmentRef =>
+  a.inspection_findings?.equipment ?? a.equipment;
+
+const actionPart = (a: ActionRow): string | null =>
+  a.inspection_findings?.equipment_parts?.part_name ?? a.equipment_parts?.part_name ?? null;
 
 type ProfileOption = { id: string; full_name: string; role: string };
 
@@ -61,7 +73,7 @@ type FindingOption = {
   finding_code: string;
   finding_title: string;
   severity: Enums<"priority_level">;
-  equipment: { equipment_name: string } | null;
+  equipment: EquipmentRef;
 };
 
 const ALL = "__all__";
@@ -111,9 +123,9 @@ export function ActionsClient({
         // Planners quote the SAP number, not ours, so it has to be searchable.
         (a.sap_work_order ?? "").toLowerCase().includes(q) ||
         (a.inspection_findings?.finding_code ?? "").toLowerCase().includes(q) ||
-        (a.inspection_findings?.equipment?.equipment_name ?? "")
-          .toLowerCase()
-          .includes(q)
+        // The name, the register code and the number on the frame all match: a
+        // fitter searches "B06.04", a planner searches "RM-007".
+        equipmentLabel(actionEquipment(a), "").toLowerCase().includes(q)
       );
     });
   }, [initialActions, search, statusFilter]);
@@ -216,14 +228,10 @@ export function ActionsClient({
                   <div>
                     <p className="font-semibold">{a.action_title}</p>
                     <p className="mt-0.5 text-sm text-muted-foreground">
-                      {[
-                        a.inspection_findings?.equipment?.equipment_name ??
-                          a.equipment?.equipment_name,
-                        a.inspection_findings?.equipment_parts?.part_name ??
-                          a.equipment_parts?.part_name,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
+                      <EquipmentRefText
+                        equipment={actionEquipment(a)}
+                        part={actionPart(a)}
+                      />
                       {a.inspection_findings ? (
                         <>
                           {" · من الملاحظة "}
@@ -470,7 +478,7 @@ function NewActionDialog({
                 {openFindings.map((f) => (
                   <SelectItem key={f.finding_id} value={f.finding_id}>
                     {f.finding_code} · {f.finding_title}
-                    {f.equipment ? ` · ${f.equipment.equipment_name}` : ""}
+                    {f.equipment ? ` · ${equipmentLabel(f.equipment)}` : ""}
                   </SelectItem>
                 ))}
               </SelectContent>

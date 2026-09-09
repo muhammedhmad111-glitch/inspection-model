@@ -16,7 +16,8 @@ export type ReportData = {
   completed: {
     section: string;
     equipment: string;
-    location: string | null;
+    /** The numbers on the machine, already joined: `B06.04 · RM-007`. */
+    tags: string;
     activity: string;
     condition: string | null;
     taskCode: string;
@@ -25,11 +26,20 @@ export type ReportData = {
   }[];
   findings: {
     severity: string;
-    equipment: string | null;
+    // Name and numbers together — a reader who only gets "Belt conveyor" cannot
+    // tell which of the plant's twelve conveyors the finding is about.
+    equipment: string;
+    section: string | null;
     title: string;
     code: string;
   }[];
-  actions: { title: string; status: string; target: string | null }[];
+  actions: {
+    title: string;
+    equipment: string;
+    section: string | null;
+    status: string;
+    target: string | null;
+  }[];
 };
 
 /** Total flagged/noted items across every inspection in the report. */
@@ -159,7 +169,7 @@ export function buildReportPdf(d: ReportData): jsPDF {
     body: d.completed.length
       ? d.completed.map((c) => [
           c.section,
-          c.location ? `${c.equipment}\n${c.location}` : c.equipment,
+          c.tags ? `${c.equipment}\n${c.tags}` : c.equipment,
           c.activity,
           c.inspector ?? "-",
           c.condition ?? "-",
@@ -192,7 +202,7 @@ export function buildReportPdf(d: ReportData): jsPDF {
   // ---- what the inspectors actually wrote ----
   const issueRows = d.completed.flatMap((c) =>
     c.issues.map((i) => [
-      c.equipment,
+      c.tags ? `${c.equipment}\n${c.tags}` : c.equipment,
       pdfSafe(i.label),
       i.result ?? "-",
       i.reading ?? "-",
@@ -232,15 +242,26 @@ export function buildReportPdf(d: ReportData): jsPDF {
   autoTable(doc, {
     startY: y + 4,
     margin: { left: M, right: M },
-    head: [["Severity", "Equipment", "Finding", "Code"]],
+    head: [["Severity", "Equipment", "Section", "Finding", "Code"]],
     body: d.findings.length
-      ? d.findings.map((f) => [f.severity, f.equipment ?? "-", f.title, f.code])
-      : [["", "No open findings.", "", ""]],
+      ? d.findings.map((f) => [
+          f.severity,
+          f.equipment,
+          f.section ?? "-",
+          f.title,
+          f.code,
+        ])
+      : [["", "", "", "No open findings.", ""]],
     headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
     bodyStyles: { fontSize: 8, textColor: 40 },
     alternateRowStyles: { fillColor: LIGHT },
     styles: { cellPadding: 5, overflow: "linebreak" },
-    columnStyles: { 0: { cellWidth: 65 }, 3: { cellWidth: 75 } },
+    columnStyles: {
+      0: { cellWidth: 52 },
+      1: { cellWidth: 95 },
+      2: { cellWidth: 80 },
+      4: { cellWidth: 62 },
+    },
     didParseCell: (data) => {
       if (data.section === "body" && data.column.index === 0) {
         const v = String(data.cell.raw);
@@ -257,15 +278,28 @@ export function buildReportPdf(d: ReportData): jsPDF {
   autoTable(doc, {
     startY: y + 4,
     margin: { left: M, right: M },
-    head: [["Action", "Status", "Target Date"]],
+    // Equipment is the column this table was missing entirely: a list of actions
+    // with no machine against them is a list nobody can be dispatched from.
+    head: [["Action", "Equipment", "Section", "Status", "Target Date"]],
     body: d.actions.length
-      ? d.actions.map((a) => [a.title, a.status, a.target ?? "-"])
-      : [["No open maintenance actions.", "", ""]],
+      ? d.actions.map((a) => [
+          a.title,
+          a.equipment,
+          a.section ?? "-",
+          a.status,
+          a.target ?? "-",
+        ])
+      : [["No open maintenance actions.", "", "", "", ""]],
     headStyles: { fillColor: NAVY, textColor: 255, fontSize: 9 },
     bodyStyles: { fontSize: 8, textColor: 40 },
     alternateRowStyles: { fillColor: LIGHT },
     styles: { cellPadding: 5, overflow: "linebreak" },
-    columnStyles: { 1: { cellWidth: 90 }, 2: { cellWidth: 90 } },
+    columnStyles: {
+      1: { cellWidth: 95 },
+      2: { cellWidth: 75 },
+      3: { cellWidth: 70 },
+      4: { cellWidth: 62 },
+    },
   });
 
   // ---- footer on every page ----

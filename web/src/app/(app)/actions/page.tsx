@@ -14,10 +14,16 @@ export default async function ActionsPage() {
           `*,
            inspection_findings (
              finding_code, finding_title, severity,
-             equipment ( equipment_name ),
+             equipment (
+               equipment_name, equipment_code, functional_location,
+               sections ( section_name )
+             ),
              equipment_parts ( part_name )
            ),
-           equipment ( equipment_name ),
+           equipment (
+             equipment_name, equipment_code, functional_location,
+             sections ( section_name )
+           ),
            equipment_parts ( part_name ),
            responsible:profiles!maintenance_actions_responsible_person_fkey ( full_name ),
            verifier:profiles!maintenance_actions_verified_by_fkey ( full_name )`
@@ -29,7 +35,8 @@ export default async function ActionsPage() {
       supabase
         .from("equipment")
         .select(
-          `equipment_id, equipment_name, functional_location,
+          `equipment_id, equipment_name, equipment_code, functional_location,
+           sections ( section_name ),
            equipment_parts ( equipment_part_id, part_name )`
         )
         .eq("active", true)
@@ -37,7 +44,13 @@ export default async function ActionsPage() {
       // Still offered as an optional link, so the finding → action chain survives.
       supabase
         .from("inspection_findings")
-        .select("finding_id, finding_code, finding_title, severity, equipment ( equipment_name )")
+        .select(
+          `finding_id, finding_code, finding_title, severity,
+           equipment (
+             equipment_name, equipment_code, functional_location,
+             sections ( section_name )
+           )`
+        )
         .neq("status", "Closed")
         .order("created_at", { ascending: false })
         .limit(200),

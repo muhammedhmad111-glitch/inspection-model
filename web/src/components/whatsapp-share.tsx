@@ -17,6 +17,11 @@ import {
 import type { Enums } from "@/lib/supabase/types";
 import { inferMeasurement } from "@/lib/measurement";
 import {
+  equipmentLabel,
+  equipmentSection,
+  type EquipmentRef,
+} from "@/lib/equipment-ref";
+import {
   CHECKLIST_RESULT_LABELS_AR,
   CONDITION_LABELS_AR,
   PRIORITY_LABELS_AR,
@@ -40,9 +45,7 @@ export type ShareFinding = {
 
 export type ShareTask = {
   taskCode: string;
-  equipment: string;
-  equipmentCode: string | null;
-  location: string | null;
+  equipment: EquipmentRef;
   part: string | null;
   activity: string;
   completionDate: string | null;
@@ -105,10 +108,11 @@ export function buildWhatsappMessage(
   L.push(`✅ تقرير فحص مكتمل — ${task.taskCode}`);
   L.push("");
 
-  const equipmentLine = [task.equipment, task.location ?? task.equipmentCode]
-    .filter(Boolean)
-    .join(" · ");
-  L.push(`🏭 المعدة: ${equipmentLine}`);
+  // Both numbers, not one: whoever reads this in the group chat has to be able to
+  // walk to the machine, and half the plant's equipment shares a name.
+  L.push(`🏭 المعدة: ${equipmentLabel(task.equipment)}`);
+  const section = equipmentSection(task.equipment);
+  if (section) L.push(`🏗️ القسم: ${section}`);
   if (task.part) L.push(`⚙️ الجزء: ${task.part}`);
   L.push(`🔧 النشاط: ${task.activity}`);
   L.push(`📅 تاريخ الإنهاء: ${(task.completionDate ?? task.dueDate).slice(0, 10)}`);

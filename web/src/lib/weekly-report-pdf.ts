@@ -196,7 +196,11 @@ export function buildWeeklyReportPdf(d: WeeklyReportData): jsPDF {
     body: d.topFindings.length
       ? d.topFindings.map((f) => [
           f.severity,
-          f.equipment ?? "-",
+          // Name over numbers, on two lines: the row has to be enough to raise a
+          // work order from without opening the system.
+          [f.equipment ?? "-", [f.location, f.equipmentCode].filter(Boolean).join(" · ")]
+            .filter(Boolean)
+            .join("\n"),
           f.section ?? "-",
           f.title,
           f.code,

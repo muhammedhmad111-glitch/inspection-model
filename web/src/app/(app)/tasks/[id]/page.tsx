@@ -30,7 +30,10 @@ export default async function TaskExecutionPage({
            activity_name, activity_code, inspection_category, frequency_type,
            standard_checklist, acceptance_criteria, failure_criteria
          ),
-         equipment ( equipment_name, equipment_code, functional_location ),
+         equipment (
+           equipment_name, equipment_code, functional_location,
+           sections ( section_name )
+         ),
          equipment_parts ( part_name, part_code )`
       )
       .eq("inspection_task_id", id)

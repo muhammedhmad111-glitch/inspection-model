@@ -34,6 +34,7 @@ import {
   WEEKLY_FPS,
   WEEKLY_WIDTH,
   WEEKLY_HEIGHT,
+  weeklyFindingWhere,
   type WeeklyReportVideoProps,
 } from "@/remotion/weekly-report";
 
@@ -93,7 +94,7 @@ function buildEmailHtml(d: WeeklyReportVideoProps, note: string, videoUrl: strin
         <td style="padding:8px 10px;border-bottom:1px solid #eee;font-size:12px">${escapeHtml(
           f.title
         )}<div style="color:#888;font-size:11px;margin-top:2px">${escapeHtml(
-          [f.equipment, f.section].filter(Boolean).join(" · ")
+          weeklyFindingWhere(f)
         )}</div></td>
         <td style="padding:8px 10px;border-bottom:1px solid #eee;font-size:11px;color:#666">${escapeHtml(
           f.code
@@ -292,7 +293,7 @@ export function WeeklyReportButton({ senderName }: { senderName: string }) {
       L.push("Highest severity open findings:");
       reportData.topFindings.forEach((f) =>
         L.push(
-          `- [${f.severity}] ${[f.equipment, f.section].filter(Boolean).join(" · ")}: ${f.title} (${f.code})`
+          `- [${f.severity}] ${weeklyFindingWhere(f)}: ${f.title} (${f.code})`
         )
       );
     }

@@ -12,7 +12,10 @@ export default async function FindingsPage() {
         .from("inspection_findings")
         .select(
           `*,
-         equipment ( equipment_name, functional_location ),
+         equipment (
+           equipment_name, equipment_code, functional_location,
+           sections ( section_name )
+         ),
          equipment_parts ( part_name ),
          inspection_tasks ( task_code ),
          maintenance_actions ( action_id, action_code, status, sap_work_order )`
@@ -24,7 +27,8 @@ export default async function FindingsPage() {
       supabase
         .from("equipment")
         .select(
-          `equipment_id, equipment_name, functional_location,
+          `equipment_id, equipment_name, equipment_code, functional_location,
+         sections ( section_name ),
          equipment_parts ( equipment_part_id, part_name )`
         )
         .eq("active", true)

@@ -21,6 +21,12 @@ import { isNoteworthy } from "@/components/whatsapp-share";
 import { ExtraRecipients } from "@/components/extra-recipients";
 import { PLACEHOLDER_DOMAIN, useExtraRecipients } from "@/lib/report-recipients";
 import { inferMeasurement } from "@/lib/measurement";
+import {
+  equipmentLabel,
+  equipmentSection,
+  equipmentTags,
+  type EquipmentRef,
+} from "@/lib/equipment-ref";
 import { ROLE_LABELS_AR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +48,9 @@ function issuesTableHtml(d: ReportData): string {
       const bits = [i.reading, i.result].filter(Boolean).join(" · ");
       return `<tr>
         <td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px">
-          <b>${escapeHtml(c.equipment)}</b><br>
+          <b>${escapeHtml(c.equipment)}</b>
+          ${c.tags ? `<span style="color:#888;font-size:11px"> ${escapeHtml(c.tags)}</span>` : ""}
+          <br>
           <span style="color:#555">${escapeHtml(i.label)}</span>
           ${bits ? `<br><span style="color:#ea580c;font-size:11px">${escapeHtml(bits)}</span>` : ""}
         </td>
@@ -65,6 +73,46 @@ function issuesTableHtml(d: ReportData): string {
         <td style="padding:6px 8px;font-size:11px">Inspector Note</td>
       </tr>
       ${rows.join("")}
+    </table>`;
+}
+
+// The email body is where most managers stop reading, so the two backlog lists
+// carry the machine and the section with them rather than pointing at the PDF.
+const HTML_LIST_LIMIT = 15;
+
+function backlogTableHtml(
+  title: string,
+  headers: [string, string, string],
+  rows: [string, string, string][],
+  total: number
+): string {
+  if (rows.length === 0) return "";
+  const more =
+    total > rows.length
+      ? `<tr><td colspan="3" style="padding:6px 8px;font-size:11px;color:#888">
+           ... and ${total - rows.length} more in the attached PDF</td></tr>`
+      : "";
+  return `
+    <div style="font-size:13px;font-weight:bold;color:#252a5e;margin:0 0 6px">
+      ${escapeHtml(title)} (${total})
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin:0 0 16px">
+      <tr style="background:#252a5e;color:#fff">
+        ${headers.map((h) => `<td style="padding:6px 8px;font-size:11px">${escapeHtml(h)}</td>`).join("")}
+      </tr>
+      ${rows
+        .map(
+          (r) => `<tr>${r
+            .map(
+              (cell) =>
+                `<td dir="auto" style="padding:6px 8px;border-bottom:1px solid #eee;font-size:12px;color:#333">${escapeHtml(
+                  cell
+                )}</td>`
+            )
+            .join("")}</tr>`
+        )
+        .join("")}
+      ${more}
     </table>`;
 }
 
@@ -96,6 +144,30 @@ function buildEmailHtml(d: ReportData): string {
         ${chip("Open Maintenance", d.actions.length)}
       </tr></table>
       ${issuesTableHtml(d)}
+      ${backlogTableHtml(
+        "Open Findings",
+        ["Equipment / Section", "Finding", "Severity"],
+        d.findings
+          .slice(0, HTML_LIST_LIMIT)
+          .map((f) => [
+            f.section ? `${f.equipment} — ${f.section}` : f.equipment,
+            `${f.title} (${f.code})`,
+            f.severity,
+          ]),
+        d.findings.length
+      )}
+      ${backlogTableHtml(
+        "Open Maintenance Actions",
+        ["Equipment / Section", "Action", "Status"],
+        d.actions
+          .slice(0, HTML_LIST_LIMIT)
+          .map((a) => [
+            a.section ? `${a.equipment} — ${a.section}` : a.equipment,
+            a.target ? `${a.title} (target ${a.target})` : a.title,
+            a.status,
+          ]),
+        d.actions.length
+      )}
       <p style="font-size:14px">Please find the detailed inspection report attached as a PDF.</p>
       <p style="color:#999;font-size:12px;margin-top:18px;border-top:1px solid #eee;padding-top:12px">
         Sent automatically from CPIIS — Inspection Management System
@@ -118,11 +190,7 @@ type CompletedRow = {
   completed_by: string | null;
   assigned_user_id: string | null;
   inspection_activities: { activity_name: string } | null;
-  equipment: {
-    equipment_name: string;
-    functional_location: string | null;
-    sections: { section_name: string } | null;
-  } | null;
+  equipment: EquipmentRef;
   inspection_task_checklist_items: {
     label: string;
     result: Enums<"checklist_result"> | null;
@@ -135,12 +203,16 @@ type FindingRow = {
   finding_code: string;
   finding_title: string;
   severity: Enums<"priority_level">;
-  equipment: { equipment_name: string } | null;
+  equipment: EquipmentRef;
 };
 type ActionRow = {
   action_title: string;
   status: Enums<"action_status">;
   target_date: string | null;
+  // An action raised from a finding has no equipment_id of its own; the machine is
+  // only reachable through the finding it came from.
+  equipment: EquipmentRef;
+  inspection_findings: { equipment: EquipmentRef } | null;
 };
 
 export function DailyReportButton({ senderName }: { senderName: string }) {
@@ -173,7 +245,7 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
           `task_code, completion_date, condition_rating, completed_by, assigned_user_id,
            inspection_activities ( activity_name ),
            equipment (
-             equipment_name, functional_location,
+             equipment_name, equipment_code, functional_location,
              sections ( section_name )
            ),
            inspection_task_checklist_items ( label, result, measured_value, notes, sort_order )`
@@ -183,13 +255,31 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
         .order("completion_date", { ascending: false }),
       supabase
         .from("inspection_findings")
-        .select(`finding_code, finding_title, severity, equipment ( equipment_name )`)
+        .select(
+          `finding_code, finding_title, severity,
+           equipment (
+             equipment_name, equipment_code, functional_location,
+             sections ( section_name )
+           )`
+        )
         .neq("status", "Closed")
         .order("created_at", { ascending: false })
         .limit(60),
       supabase
         .from("maintenance_actions")
-        .select(`action_title, status, target_date`)
+        .select(
+          `action_title, status, target_date,
+           equipment (
+             equipment_name, equipment_code, functional_location,
+             sections ( section_name )
+           ),
+           inspection_findings (
+             equipment (
+               equipment_name, equipment_code, functional_location,
+               sections ( section_name )
+             )
+           )`
+        )
         .not("status", "in", "(Completed,Verified,Cancelled)")
         .order("created_at", { ascending: false })
         .limit(60),
@@ -227,9 +317,9 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
       completed: data.completed.map((t) => {
         const inspectorId = t.completed_by ?? t.assigned_user_id;
         return {
-          section: t.equipment?.sections?.section_name ?? "Unassigned",
+          section: equipmentSection(t.equipment) ?? "Unassigned",
           equipment: t.equipment?.equipment_name ?? "Equipment",
-          location: t.equipment?.functional_location ?? null,
+          tags: equipmentTags(t.equipment).join(" · "),
           activity: t.inspection_activities?.activity_name ?? "Inspection",
           condition: t.condition_rating ?? null,
           taskCode: t.task_code,
@@ -253,15 +343,21 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
       }),
       findings: data.findings.map((f) => ({
         severity: f.severity,
-        equipment: f.equipment?.equipment_name ?? null,
+        equipment: equipmentLabel(f.equipment, "-"),
+        section: equipmentSection(f.equipment),
         title: f.finding_title,
         code: f.finding_code,
       })),
-      actions: data.actions.map((a) => ({
-        title: a.action_title,
-        status: a.status,
-        target: a.target_date,
-      })),
+      actions: data.actions.map((a) => {
+        const eq = a.inspection_findings?.equipment ?? a.equipment;
+        return {
+          title: a.action_title,
+          equipment: equipmentLabel(eq, "-"),
+          section: equipmentSection(eq),
+          status: a.status,
+          target: a.target_date,
+        };
+      }),
     };
   }, [data, note, senderName, todayISO]);
 
@@ -291,7 +387,7 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
         L.push("");
         L.push(`  ${sectionName} (${rows.length}):`);
         for (const t of rows) {
-          const loc = t.location ? ` (${t.location})` : "";
+          const loc = t.tags ? ` (${t.tags})` : "";
           const cond = t.condition ? ` — Condition: ${t.condition}` : "";
           const who = t.inspector ? ` — by ${t.inspector}` : "";
           L.push(`  - ${t.equipment}${loc}: ${t.activity}${cond}${who}`);
@@ -314,8 +410,8 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     L.push(`Open Findings / Issues (${reportData.findings.length}):`);
     if (reportData.findings.length) {
       reportData.findings.slice(0, 25).forEach((f) => {
-        const eq = f.equipment ? `${f.equipment}: ` : "";
-        L.push(`- [${f.severity}] ${eq}${f.title} (${f.code})`);
+        const where = f.section ? ` [${f.section}]` : "";
+        L.push(`- [${f.severity}] ${f.equipment}${where}: ${f.title} (${f.code})`);
       });
       if (reportData.findings.length > 25)
         L.push(`... and ${reportData.findings.length - 25} more`);
@@ -328,7 +424,8 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     if (reportData.actions.length) {
       reportData.actions.slice(0, 25).forEach((a) => {
         const target = a.target ? ` (Target: ${a.target})` : "";
-        L.push(`- ${a.title} — ${a.status}${target}`);
+        const where = a.section ? ` [${a.section}]` : "";
+        L.push(`- ${a.equipment}${where}: ${a.title} — ${a.status}${target}`);
       });
       if (reportData.actions.length > 25)
         L.push(`... and ${reportData.actions.length - 25} more`);

@@ -32,6 +32,7 @@ import {
   sectionsWord,
   type SectionRef,
 } from "@/lib/sections";
+import { equipmentLabel, equipmentTags, type EquipmentRef } from "@/lib/equipment-ref";
 import { cn } from "@/lib/utils";
 import { DailyReportButton } from "@/components/daily-report-button";
 import { WeeklyReportButton } from "@/components/weekly-report-button";
@@ -63,12 +64,7 @@ type TaskRow = {
     inspection_category: Enums<"inspection_category">;
     frequency_type: Enums<"frequency_type">;
   } | null;
-  equipment: {
-    equipment_id: string;
-    equipment_name: string;
-    functional_location: string | null;
-    sections: SectionRef;
-  } | null;
+  equipment: (EquipmentRef & { equipment_id: string; sections: SectionRef }) | null;
   equipment_parts: { part_name: string } | null;
 };
 
@@ -108,13 +104,7 @@ export function TasksClient({
   const equipmentOptions = useMemo(() => {
     const map = new Map<string, string>();
     for (const t of initialTasks) {
-      if (t.equipment)
-        map.set(
-          t.equipment.equipment_id,
-          t.equipment.functional_location
-            ? `${t.equipment.equipment_name} · ${t.equipment.functional_location}`
-            : t.equipment.equipment_name
-        );
+      if (t.equipment) map.set(t.equipment.equipment_id, equipmentLabel(t.equipment));
     }
     return [...map.entries()].sort((x, y) => x[1].localeCompare(y[1]));
   }, [initialTasks]);
@@ -159,7 +149,8 @@ export function TasksClient({
       return (
         t.task_code.toLowerCase().includes(q) ||
         (t.inspection_activities?.activity_name ?? "").toLowerCase().includes(q) ||
-        (t.equipment?.equipment_name ?? "").toLowerCase().includes(q) ||
+        // The numbers too: a fitter searches "B06.04", a planner "RM-007".
+        equipmentLabel(t.equipment, "").toLowerCase().includes(q) ||
         (t.equipment_parts?.part_name ?? "").toLowerCase().includes(q)
       );
     });
@@ -415,9 +406,9 @@ function TaskTableRow({
       </TableCell>
       <TableCell>
         <div className="text-sm">{t.equipment?.equipment_name ?? "—"}</div>
-        {t.equipment?.functional_location ? (
+        {equipmentTags(t.equipment).length ? (
           <div className="font-mono text-xs text-muted-foreground" dir="ltr">
-            {t.equipment.functional_location}
+            {equipmentTags(t.equipment).join(" · ")}
           </div>
         ) : null}
       </TableCell>

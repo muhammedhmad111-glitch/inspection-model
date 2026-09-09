@@ -39,6 +39,8 @@ import {
   isNoteworthy,
   type ShareFinding,
 } from "@/components/whatsapp-share";
+import { EquipmentRefText } from "@/components/equipment-ref";
+import type { EquipmentRef } from "@/lib/equipment-ref";
 import { cn } from "@/lib/utils";
 import { inferMeasurement, rangeHint, verdictFor } from "@/lib/measurement";
 import { Label } from "@/components/ui/label";
@@ -74,11 +76,7 @@ type Task = Tables<"inspection_tasks"> & {
     acceptance_criteria: string | null;
     failure_criteria: string | null;
   } | null;
-  equipment: {
-    equipment_name: string;
-    equipment_code: string;
-    functional_location: string | null;
-  } | null;
+  equipment: EquipmentRef;
   equipment_parts: { part_name: string; part_code: string } | null;
 };
 
@@ -283,10 +281,10 @@ export function ExecutionClient({
                 {task.inspection_activities?.activity_name ?? "مهمة فحص"}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                {task.equipment?.equipment_name}
-                {task.equipment?.functional_location ? (
-                  <span className="font-mono" dir="ltr"> · {task.equipment.functional_location}</span>
-                ) : null}
+                <EquipmentRefText
+                  equipment={task.equipment}
+                  part={task.equipment_parts?.part_name}
+                />
               </p>
             </div>
             <Badge className={TASK_STATUS_BADGE_CLASS[task.status]}>
@@ -510,9 +508,7 @@ export function ExecutionClient({
         findings={findings}
         task={{
           taskCode: task.task_code,
-          equipment: task.equipment?.equipment_name ?? "معدة",
-          equipmentCode: task.equipment?.equipment_code ?? null,
-          location: task.equipment?.functional_location ?? null,
+          equipment: task.equipment,
           part: task.equipment_parts?.part_name ?? null,
           activity: task.inspection_activities?.activity_name ?? "فحص",
           completionDate: task.completion_date,

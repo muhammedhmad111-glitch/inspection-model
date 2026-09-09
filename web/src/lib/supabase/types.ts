@@ -999,6 +999,7 @@ export type Database = {
           activity_name: string | null
           checklist_item_id: string | null
           due_date: string | null
+          equipment_code: string | null
           equipment_id: string | null
           equipment_name: string | null
           equipment_part_id: string | null
@@ -1011,6 +1012,7 @@ export type Database = {
           noted_at: string | null
           part_name: string | null
           result: Database["public"]["Enums"]["checklist_result"] | null
+          section_name: string | null
           task_code: string | null
           task_status: Database["public"]["Enums"]["task_status"] | null
         }

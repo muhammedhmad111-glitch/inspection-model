@@ -54,8 +54,21 @@ export type WeeklyFinding = {
   title: string;
   severity: string;
   equipment: string | null;
+  /** Register code, e.g. RM-007 — what a planner searches SAP with. */
+  equipmentCode: string | null;
+  /** The number stencilled on the machine, e.g. B06.04. */
+  location: string | null;
   section: string | null;
 };
+
+/**
+ * Where a finding is, on one line. The numbers are what makes the row actionable:
+ * five of this plant's worst open findings sit on equipment all called "Belt
+ * conveyor". The video, the email and the plain-text body all say it the same way.
+ */
+export function weeklyFindingWhere(f: WeeklyFinding): string {
+  return [f.equipment, f.location, f.equipmentCode, f.section].filter(Boolean).join(" · ");
+}
 
 export type WeeklyReportVideoProps = {
   weekStart: string;
@@ -109,6 +122,8 @@ export const WEEKLY_REPORT_DEFAULTS: WeeklyReportVideoProps = {
       title: "Excessive bearing vibration on the main drive",
       severity: "Critical",
       equipment: "Raw Mill 1",
+      equipmentCode: "RM-016",
+      location: "RM1",
       section: "Raw mills",
     },
     {
@@ -116,6 +131,8 @@ export const WEEKLY_REPORT_DEFAULTS: WeeklyReportVideoProps = {
       title: "Oil leak from the gearbox seal",
       severity: "High",
       equipment: "Kiln Drive",
+      equipmentCode: "KLN-012",
+      location: null,
       section: "Kiln",
     },
     {
@@ -123,20 +140,26 @@ export const WEEKLY_REPORT_DEFAULTS: WeeklyReportVideoProps = {
       title: "Torn bag filter compartment 4",
       severity: "High",
       equipment: "Bag Filter",
+      equipmentCode: "BP-022",
+      location: "K15",
       section: "Bypass",
     },
     {
       code: "F-00031",
       title: "Worn conveyor belt edge",
       severity: "Medium",
-      equipment: "Belt Conveyor B12",
+      equipment: "Belt conveyor",
+      equipmentCode: "RM-007",
+      location: "B06.04",
       section: "Raw materials",
     },
     {
       code: "F-00028",
       title: "Loose guard on the cooler fan",
       severity: "Medium",
-      equipment: "Cooler Fan 3",
+      equipment: "Cooler fan V3",
+      equipmentCode: "KLN-035",
+      location: null,
       section: "Cooler & gravill",
     },
   ],
@@ -469,7 +492,7 @@ function FindingRow({ f, index }: { f: WeeklyFinding; index: number }) {
           {f.title}
         </div>
         <div style={{ fontSize: 21, lineHeight: 1.3, color: C.muted, marginTop: 4 }}>
-          {[f.equipment, f.section].filter(Boolean).join(" · ")}
+          {weeklyFindingWhere(f)}
         </div>
       </div>
       <div style={{ fontSize: 24, color: C.mist }}>{f.code}</div>

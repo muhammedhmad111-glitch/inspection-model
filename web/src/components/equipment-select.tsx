@@ -8,11 +8,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { equipmentFull } from "@/lib/equipment-ref";
 
 export type EquipmentOption = {
   equipment_id: string;
   equipment_name: string;
+  equipment_code: string;
   functional_location: string | null;
+  sections: { section_name: string } | null;
   equipment_parts: { equipment_part_id: string; part_name: string }[];
 };
 
@@ -55,8 +58,10 @@ export function EquipmentSelect({
           <SelectContent>
             {equipment.map((e) => (
               <SelectItem key={e.equipment_id} value={e.equipment_id}>
-                {e.equipment_name}
-                {e.functional_location ? ` · ${e.functional_location}` : ""}
+                {/* Never the bare name: this plant runs a dozen machines called
+                    "Belt conveyor" and picking the wrong one files the action
+                    against equipment nobody inspected. */}
+                {equipmentFull(e)}
               </SelectItem>
             ))}
           </SelectContent>

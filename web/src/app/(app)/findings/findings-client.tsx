@@ -30,6 +30,8 @@ import type { Enums, Tables } from "@/lib/supabase/types";
 import { Constants } from "@/lib/supabase/types";
 import { Attachments } from "@/components/attachments";
 import { EquipmentSelect, type EquipmentOption } from "@/components/equipment-select";
+import { EquipmentRefText } from "@/components/equipment-ref";
+import { equipmentLabel, flatEquipmentRef, type EquipmentRef } from "@/lib/equipment-ref";
 import {
   ACTION_STATUS_LABELS_AR,
   ACTION_TYPE_LABELS_AR,
@@ -46,7 +48,7 @@ import {
 } from "@/lib/constants";
 
 type Finding = Tables<"inspection_findings"> & {
-  equipment: { equipment_name: string; functional_location: string | null } | null;
+  equipment: EquipmentRef;
   equipment_parts: { part_name: string } | null;
   inspection_tasks: { task_code: string } | null;
   maintenance_actions: {
@@ -96,7 +98,8 @@ export function FindingsClient({
       return (
         f.finding_code.toLowerCase().includes(q) ||
         f.finding_title.toLowerCase().includes(q) ||
-        (f.equipment?.equipment_name ?? "").toLowerCase().includes(q) ||
+        // Including the numbers: a fitter searches "B06.04", a planner "RM-007".
+        equipmentLabel(f.equipment, "").toLowerCase().includes(q) ||
         (f.equipment_parts?.part_name ?? "").toLowerCase().includes(q)
       );
     });
@@ -207,10 +210,10 @@ export function FindingsClient({
                   <div>
                     <p className="font-semibold">{f.finding_title}</p>
                     <p className="mt-0.5 text-sm text-muted-foreground">
-                      {f.equipment?.equipment_name}
-                      {f.equipment?.functional_location ? (
-                        <span className="font-mono" dir="ltr"> · {f.equipment.functional_location}</span>
-                      ) : null}
+                      <EquipmentRefText
+                        equipment={f.equipment}
+                        part={f.equipment_parts?.part_name}
+                      />
                       {" · "}
                       <span className="font-mono text-xs" dir="ltr">
                         {f.finding_code}
@@ -424,19 +427,15 @@ function PendingNotesSection({
               <p className="text-sm text-muted-foreground" dir="auto">
                 {n.label}
               </p>
-              {/* Two spans rather than one joined string: the codes run left-to-right
-                  inside a right-to-left line, and a shared " · " lands on the wrong
-                  side of the boundary. */}
+              {/* Separate spans rather than one joined string: the codes run
+                  left-to-right inside a right-to-left line, and a shared " · "
+                  lands on the wrong side of the boundary. */}
               <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-                <span dir="auto">
-                  {[
-                    n.equipment_name,
-                    n.part_name !== n.equipment_name ? n.part_name : null,
-                    n.inspector_name,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </span>
+                <EquipmentRefText
+                  equipment={flatEquipmentRef(n)}
+                  part={n.part_name !== n.equipment_name ? n.part_name : null}
+                />
+                {n.inspector_name ? <span dir="auto">{n.inspector_name}</span> : null}
                 <span className="font-mono" dir="ltr">
                   {n.task_code} · {noteDate(n.noted_at)}
                 </span>
@@ -555,7 +554,11 @@ function NewFindingDialog({
         <div className="flex flex-col gap-4">
           {note ? (
             <div className="rounded-2xl bg-muted/60 p-3 text-sm">
-              <p className="font-medium">{note.equipment_name}</p>
+              {/* The finding inherits this equipment, so the dialog has to show
+                  which machine that is — not just its name. */}
+              <p className="font-medium">
+                <EquipmentRefText equipment={flatEquipmentRef(note)} />
+              </p>
               <p className="mt-0.5 text-muted-foreground" dir="auto">
                 {note.label}
               </p>

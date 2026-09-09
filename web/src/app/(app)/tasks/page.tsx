@@ -14,7 +14,7 @@ export default async function TasksPage() {
          recurrence_cycle, assigned_user_id, condition_rating, completion_date,
          inspection_activities ( activity_name, inspection_category, frequency_type ),
          equipment (
-           equipment_id, equipment_name, functional_location,
+           equipment_id, equipment_name, equipment_code, functional_location,
            sections ( section_id, section_name, areas ( area_name ) )
          ),
          equipment_parts ( part_name )`
