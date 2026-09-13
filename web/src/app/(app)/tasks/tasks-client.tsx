@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Play, Search, UserRound } from "lucide-react";
@@ -25,13 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
-import type { Enums } from "@/lib/supabase/types";
-import {
-  groupBySection,
-  sectionOf,
-  sectionsWord,
-  type SectionRef,
-} from "@/lib/sections";
+import { Constants, type Enums } from "@/lib/supabase/types";
+import { groupBySection, sectionsWord, type SectionRef } from "@/lib/sections";
 import { equipmentLabel, equipmentTags, type EquipmentRef } from "@/lib/equipment-ref";
 import { cn } from "@/lib/utils";
 import { DailyReportButton } from "@/components/daily-report-button";
@@ -69,20 +64,62 @@ type TaskRow = {
 };
 
 type ProfileOption = { id: string; full_name: string; role: string };
+type EquipmentOption = {
+  equipment_id: string;
+  equipment_name: string;
+  equipment_code: string | null;
+  functional_location: string | null;
+};
+type SectionOption = {
+  section_id: string;
+  section_name: string;
+  areas: { area_name: string } | null;
+};
 
 const ALL = "__all__";
 const UNASSIGNED = "__none__";
 
 type Tab = "open" | "mine" | "overdue" | "completed";
 
+const OPEN_STATUSES: Enums<"task_status">[] = [
+  "Scheduled",
+  "Upcoming",
+  "In Progress",
+  "Overdue",
+];
+
+const TAB_STATUSES: Record<Tab, Enums<"task_status">[]> = {
+  open: OPEN_STATUSES,
+  mine: OPEN_STATUSES,
+  overdue: ["Overdue"],
+  completed: ["Completed"],
+};
+
+// `!inner` on both embeds so a filter on the activity's frequency or on the
+// equipment's section drops the parent task instead of just blanking the embed.
+const TASK_SELECT = `inspection_task_id, task_code, scheduled_date, due_date, status, priority,
+   recurrence_cycle, assigned_user_id, condition_rating, completion_date,
+   inspection_activities!inner ( activity_name, inspection_category, frequency_type ),
+   equipment!inner (
+     equipment_id, equipment_name, equipment_code, functional_location,
+     sections ( section_id, section_name, areas ( area_name ) )
+   ),
+   equipment_parts ( part_name )`;
+
+// One screenful of scrolling is plenty; past this the answer is a tighter filter,
+// not a longer page. The header says how many matched so the cap is never silent.
+const ROW_LIMIT = 500;
+
 export function TasksClient({
-  initialTasks,
   profiles,
+  equipmentOptions,
+  sectionOptions,
   currentUserId,
   canManage,
 }: {
-  initialTasks: TaskRow[];
   profiles: ProfileOption[];
+  equipmentOptions: EquipmentOption[];
+  sectionOptions: SectionOption[];
   currentUserId: string;
   canManage: boolean;
 }) {
@@ -92,7 +129,13 @@ export function TasksClient({
   const [equipmentFilter, setEquipmentFilter] = useState(ALL);
   const [priorityFilter, setPriorityFilter] = useState(ALL);
   const [sectionFilter, setSectionFilter] = useState(ALL);
+  const [frequencyFilter, setFrequencyFilter] = useState(ALL);
   const [assigning, setAssigning] = useState<string | null>(null);
+  const [tasks, setTasks] = useState<TaskRow[]>([]);
+  const [matched, setMatched] = useState(0);
+  const [counts, setCounts] = useState({ open: 0, mine: 0, overdue: 0, completed: 0 });
+  const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
   // Sections start open; collapsing is for hiding the ones you are not working today.
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
@@ -101,72 +144,76 @@ export function TasksClient({
     [profiles]
   );
 
-  const equipmentOptions = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const t of initialTasks) {
-      if (t.equipment) map.set(t.equipment.equipment_id, equipmentLabel(t.equipment));
-    }
-    return [...map.entries()].sort((x, y) => x[1].localeCompare(y[1]));
-  }, [initialTasks]);
+  // Every filter except the search box runs in the database. Filtering a fixed
+  // page of rows in the browser meant anything scheduled past that page — the
+  // quarterly, half-yearly and yearly rounds — could not be reached at all.
+  const buildQuery = useCallback(
+    (statuses: Enums<"task_status">[], mineOnly: boolean, head: boolean) => {
+      const supabase = createClient();
+      let q = supabase
+        .from("inspection_tasks")
+        .select(TASK_SELECT, { count: "exact", head })
+        .in("status", statuses);
+      if (mineOnly) q = q.eq("assigned_user_id", currentUserId);
+      if (equipmentFilter !== ALL) q = q.eq("equipment_id", equipmentFilter);
+      if (sectionFilter !== ALL) q = q.eq("equipment.section_id", sectionFilter);
+      if (priorityFilter !== ALL)
+        q = q.eq("priority", priorityFilter as Enums<"priority_level">);
+      if (frequencyFilter !== ALL)
+        q = q.eq(
+          "inspection_activities.frequency_type",
+          frequencyFilter as Enums<"frequency_type">
+        );
+      return q;
+    },
+    [currentUserId, equipmentFilter, sectionFilter, priorityFilter, frequencyFilter]
+  );
 
-  const sectionOptions = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const t of initialTasks) {
-      const s = sectionOf(t);
-      map.set(s.id, s.area ? `${s.name} · ${s.area}` : s.name);
-    }
-    return [...map.entries()].sort((x, y) => x[1].localeCompare(y[1], "ar"));
-  }, [initialTasks]);
-
-  const counts = useMemo(() => {
-    const open = initialTasks.filter((t) =>
-      ["Scheduled", "Upcoming", "In Progress", "Overdue"].includes(t.status)
-    );
-    return {
-      open: open.length,
-      mine: open.filter((t) => t.assigned_user_id === currentUserId).length,
-      overdue: initialTasks.filter((t) => t.status === "Overdue").length,
-      completed: initialTasks.filter((t) => t.status === "Completed").length,
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      setLoading(true);
+      const [rows, open, mine, overdue, completed] = await Promise.all([
+        buildQuery(TAB_STATUSES[tab], tab === "mine", false)
+          .order("due_date")
+          .limit(ROW_LIMIT),
+        buildQuery(OPEN_STATUSES, false, true),
+        buildQuery(OPEN_STATUSES, true, true),
+        buildQuery(["Overdue"], false, true),
+        buildQuery(["Completed"], false, true),
+      ]);
+      if (!active) return;
+      setTasks((rows.data ?? []) as unknown as TaskRow[]);
+      setMatched(rows.count ?? 0);
+      setCounts({
+        open: open.count ?? 0,
+        mine: mine.count ?? 0,
+        overdue: overdue.count ?? 0,
+        completed: completed.count ?? 0,
+      });
+      setLoading(false);
+    })();
+    return () => {
+      active = false;
     };
-  }, [initialTasks, currentUserId]);
+  }, [buildQuery, tab, reloadKey]);
 
+  // Search refines what the filters already loaded — it is a way to find a row on
+  // the page, not a way to reach one that is not on it.
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return initialTasks.filter((t) => {
-      if (tab === "open" && !["Scheduled", "Upcoming", "In Progress", "Overdue"].includes(t.status))
-        return false;
-      if (tab === "mine") {
-        if (t.assigned_user_id !== currentUserId) return false;
-        if (!["Scheduled", "Upcoming", "In Progress", "Overdue"].includes(t.status)) return false;
-      }
-      if (tab === "overdue" && t.status !== "Overdue") return false;
-      if (tab === "completed" && t.status !== "Completed") return false;
-      if (equipmentFilter !== ALL && t.equipment?.equipment_id !== equipmentFilter)
-        return false;
-      if (sectionFilter !== ALL && sectionOf(t).id !== sectionFilter) return false;
-      if (priorityFilter !== ALL && t.priority !== priorityFilter) return false;
-      if (!q) return true;
-      return (
+    if (!q) return tasks;
+    return tasks.filter(
+      (t) =>
         t.task_code.toLowerCase().includes(q) ||
         (t.inspection_activities?.activity_name ?? "").toLowerCase().includes(q) ||
         // The numbers too: a fitter searches "B06.04", a planner "RM-007".
         equipmentLabel(t.equipment, "").toLowerCase().includes(q) ||
         (t.equipment_parts?.part_name ?? "").toLowerCase().includes(q)
-      );
-    });
-  }, [
-    initialTasks,
-    tab,
-    search,
-    equipmentFilter,
-    sectionFilter,
-    priorityFilter,
-    currentUserId,
-  ]);
+    );
+  }, [tasks, search]);
 
-  // The 200-row cap is applied before grouping, otherwise a section header would
-  // advertise a count that the rows underneath it do not add up to.
-  const groups = useMemo(() => groupBySection(filtered.slice(0, 200)), [filtered]);
+  const groups = useMemo(() => groupBySection(filtered), [filtered]);
 
   function toggleSection(id: string) {
     setCollapsed((cur) => {
@@ -190,7 +237,9 @@ export function TasksClient({
       return;
     }
     toast.success("تم تحديث التعيين");
-    router.refresh();
+    // The rows come from the client query, not from the server render, so a
+    // router refresh would leave the table showing the old inspector.
+    setReloadKey((k) => k + 1);
   }
 
   return (
@@ -241,9 +290,9 @@ export function TasksClient({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>كل الأقسام</SelectItem>
-            {sectionOptions.map(([id, name]) => (
-              <SelectItem key={id} value={id}>
-                {name}
+            {sectionOptions.map((s) => (
+              <SelectItem key={s.section_id} value={s.section_id}>
+                {s.areas ? `${s.section_name} · ${s.areas.area_name}` : s.section_name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -254,9 +303,24 @@ export function TasksClient({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>كل المعدات</SelectItem>
-            {equipmentOptions.map(([id, name]) => (
-              <SelectItem key={id} value={id}>
-                {name}
+            {equipmentOptions.map((e) => (
+              <SelectItem key={e.equipment_id} value={e.equipment_id}>
+                {equipmentLabel(e)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {/* The long cycles live months out, past any page of the schedule —
+            picking one here asks the database for them directly. */}
+        <Select value={frequencyFilter} onValueChange={setFrequencyFilter}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>كل التكرارات</SelectItem>
+            {Constants.public.Enums.frequency_type.map((f) => (
+              <SelectItem key={f} value={f}>
+                {FREQUENCY_LABELS_AR[f]}
               </SelectItem>
             ))}
           </SelectContent>
@@ -275,7 +339,11 @@ export function TasksClient({
           </SelectContent>
         </Select>
         <span className="text-sm text-muted-foreground">
-          {filtered.length} مهمة في {groups.length} {sectionsWord(groups.length)}
+          {loading
+            ? "جارِ التحميل…"
+            : matched > filtered.length
+              ? `عرض ${filtered.length} من ${matched} مهمة مطابقة`
+              : `${filtered.length} مهمة في ${groups.length} ${sectionsWord(groups.length)}`}
         </span>
         {collapsed.size > 0 ? (
           <Button
@@ -308,7 +376,7 @@ export function TasksClient({
             {groups.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
-                  لا توجد مهام مطابقة
+                  {loading ? "جارِ التحميل…" : "لا توجد مهام مطابقة"}
                 </TableCell>
               </TableRow>
             ) : (
