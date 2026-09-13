@@ -40,6 +40,7 @@ const CONDITION_DOT: Record<Enums<"equipment_condition">, string> = {
 
 type TaskLite = {
   inspection_task_id: string;
+  inspection_activity_id: string;
   task_code: string;
   status: Enums<"task_status">;
   priority: Enums<"priority_level">;
@@ -89,8 +90,8 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
     supabase
       .from("inspection_tasks")
       .select(
-        `inspection_task_id, task_code, status, priority, due_date, scheduled_date,
-         completion_date, condition_rating,
+        `inspection_task_id, inspection_activity_id, task_code, status, priority,
+         due_date, scheduled_date, completion_date, condition_rating,
          inspection_activities ( activity_name, inspection_category, frequency_type ),
          equipment_parts ( part_name )`
       )
@@ -124,6 +125,22 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
     .filter((t) => openStatuses.includes(t.status))
     .sort((a, b) => a.due_date.localeCompare(b.due_date));
   const nextDue = openTasks[0];
+
+  // One row per activity, not per cycle. A machine carries a handful of
+  // activities but dozens of open tasks, so a plain chronological list is the
+  // same weekly round repeated — and the quarterly, half-yearly and yearly ones
+  // sit forty rows below the fold where nobody ever sees them. Showing each
+  // activity's next occurrence fits the whole programme on the card instead.
+  const programme = [
+    ...openTasks
+      .reduce((acc, t) => {
+        const seen = acc.get(t.inspection_activity_id);
+        if (seen) seen.cycles += 1;
+        else acc.set(t.inspection_activity_id, { next: t, cycles: 1 });
+        return acc;
+      }, new Map<string, { next: TaskLite; cycles: number }>())
+      .values(),
+  ].sort((a, b) => a.next.due_date.localeCompare(b.next.due_date));
 
   // Coming back from the round lands on this page, not the generic task list.
   const backHere = `/master-data/equipment/${equipmentId}`;
@@ -309,23 +326,28 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
 
       {/* scheduled inspections — startable without leaving the equipment */}
       <Card className="rounded-3xl border-0 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-base">
-            الفحوصات المجدولة
-            {openTasks.length ? (
-              <Badge variant="secondary" className="ms-2">
-                {openTasks.length}
-              </Badge>
-            ) : null}
-          </CardTitle>
+        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+          <div className="flex flex-col gap-0.5">
+            <CardTitle className="text-base">
+              الفحوصات المجدولة
+              {programme.length ? (
+                <Badge variant="secondary" className="ms-2">
+                  {programme.length}
+                </Badge>
+              ) : null}
+            </CardTitle>
+            <span className="text-xs text-muted-foreground">
+              الدورة القادمة من كل فحص — من اليومي حتى السنوي
+            </span>
+          </div>
           <Link href="/tasks" className="text-xs text-primary hover:underline">
             كل المهام
           </Link>
         </CardHeader>
         <CardContent>
-          {openTasks.length ? (
+          {programme.length ? (
             <ul className="flex flex-col divide-y">
-              {openTasks.slice(0, 10).map((t) => (
+              {programme.map(({ next: t, cycles }) => (
                 <li
                   key={t.inspection_task_id}
                   className={cn(
@@ -346,6 +368,7 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
                       <span className="font-mono" dir="ltr">
                         {t.task_code}
                       </span>
+                      {cycles > 1 ? ` · +${cycles - 1} دورة لاحقة` : ""}
                     </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5">
