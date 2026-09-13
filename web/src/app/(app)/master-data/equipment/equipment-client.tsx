@@ -76,6 +76,7 @@ export function EquipmentClient({
   areas: Area[];
   canWrite: boolean;
 }) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [areaFilter, setAreaFilter] = useState("all");
   const [sectionFilter, setSectionFilter] = useState("all");
@@ -225,7 +226,14 @@ export function EquipmentClient({
                 const section = sectionById.get(eq.section_id);
                 const area = section ? areaById.get(section.area_id) : undefined;
                 return (
-                  <TableRow key={eq.equipment_id}>
+                  <TableRow
+                    key={eq.equipment_id}
+                    // The whole row opens the equipment: the chevron is the last
+                    // column, off-screen on a phone, and nobody scrolls sideways
+                    // to reach it.
+                    onClick={() => router.push(`/master-data/equipment/${eq.equipment_id}`)}
+                    className="cursor-pointer"
+                  >
                     <TableCell className="font-mono text-sm">
                       {eq.equipment_code}
                     </TableCell>
@@ -258,7 +266,15 @@ export function EquipmentClient({
                     <TableCell>
                       <div className="flex items-center gap-1">
                         {canWrite ? (
-                          <Button variant="ghost" size="sm" onClick={() => openEdit(eq)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            // Editing must not also navigate away from the list.
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEdit(eq);
+                            }}
+                          >
                             تعديل
                           </Button>
                         ) : null}

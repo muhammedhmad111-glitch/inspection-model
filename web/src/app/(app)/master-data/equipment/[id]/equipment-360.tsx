@@ -4,11 +4,13 @@ import {
   CalendarClock,
   CheckCircle2,
   Clock,
+  Play,
   ShieldCheck,
   Wrench,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
@@ -18,6 +20,8 @@ import {
   CONDITION_LABELS_AR,
   FINDING_STATUS_BADGE_CLASS,
   FINDING_STATUS_LABELS_AR,
+  FREQUENCY_BADGE_CLASS,
+  FREQUENCY_LABELS_AR,
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS_AR,
   ACTION_STATUS_BADGE_CLASS,
@@ -36,7 +40,9 @@ const CONDITION_DOT: Record<Enums<"equipment_condition">, string> = {
 
 type TaskLite = {
   inspection_task_id: string;
+  task_code: string;
   status: Enums<"task_status">;
+  priority: Enums<"priority_level">;
   due_date: string;
   scheduled_date: string;
   completion_date: string | null;
@@ -44,7 +50,9 @@ type TaskLite = {
   inspection_activities: {
     activity_name: string;
     inspection_category: Enums<"inspection_category">;
+    frequency_type: Enums<"frequency_type">;
   } | null;
+  equipment_parts: { part_name: string } | null;
 };
 
 type ActionLite = {
@@ -81,8 +89,10 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
     supabase
       .from("inspection_tasks")
       .select(
-        `inspection_task_id, status, due_date, scheduled_date, completion_date,
-         condition_rating, inspection_activities ( activity_name, inspection_category )`
+        `inspection_task_id, task_code, status, priority, due_date, scheduled_date,
+         completion_date, condition_rating,
+         inspection_activities ( activity_name, inspection_category, frequency_type ),
+         equipment_parts ( part_name )`
       )
       .eq("equipment_id", equipmentId)
       .order("due_date"),
@@ -109,9 +119,14 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
   const overdue = tasks.filter((t) => t.status === "Overdue").length;
   const completed = tasks.filter((t) => t.status === "Completed");
 
-  const nextDue = tasks
+  // The work you can actually do from here, soonest first.
+  const openTasks = tasks
     .filter((t) => openStatuses.includes(t.status))
-    .sort((a, b) => a.due_date.localeCompare(b.due_date))[0];
+    .sort((a, b) => a.due_date.localeCompare(b.due_date));
+  const nextDue = openTasks[0];
+
+  // Coming back from the round lands on this page, not the generic task list.
+  const backHere = `/master-data/equipment/${equipmentId}`;
 
   const completedSorted = [...completed].sort((a, b) =>
     (a.completion_date ?? "").localeCompare(b.completion_date ?? "")
@@ -291,6 +306,88 @@ export async function Equipment360({ equipmentId }: { equipmentId: string }) {
           </Card>
         ))}
       </div>
+
+      {/* scheduled inspections — startable without leaving the equipment */}
+      <Card className="rounded-3xl border-0 shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-base">
+            الفحوصات المجدولة
+            {openTasks.length ? (
+              <Badge variant="secondary" className="ms-2">
+                {openTasks.length}
+              </Badge>
+            ) : null}
+          </CardTitle>
+          <Link href="/tasks" className="text-xs text-primary hover:underline">
+            كل المهام
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {openTasks.length ? (
+            <ul className="flex flex-col divide-y">
+              {openTasks.slice(0, 10).map((t) => (
+                <li
+                  key={t.inspection_task_id}
+                  className={cn(
+                    "flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0",
+                    t.status === "Overdue" && "-mx-2 rounded-xl bg-red-50/60 px-2 dark:bg-red-950/20"
+                  )}
+                >
+                  <div className="flex min-w-48 flex-1 flex-col">
+                    <span className="text-sm font-medium">
+                      {t.inspection_activities?.activity_name ?? "فحص"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {t.inspection_activities
+                        ? CATEGORY_LABELS_AR[t.inspection_activities.inspection_category]
+                        : "فحص"}
+                      {t.equipment_parts ? ` · ${t.equipment_parts.part_name}` : ""}
+                      {" · "}
+                      <span className="font-mono" dir="ltr">
+                        {t.task_code}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {t.inspection_activities ? (
+                      <Badge
+                        className={FREQUENCY_BADGE_CLASS[t.inspection_activities.frequency_type]}
+                      >
+                        {FREQUENCY_LABELS_AR[t.inspection_activities.frequency_type]}
+                      </Badge>
+                    ) : null}
+                    <Badge className={PRIORITY_BADGE_CLASS[t.priority]}>
+                      {PRIORITY_LABELS_AR[t.priority]}
+                    </Badge>
+                    <Badge className={TASK_STATUS_BADGE_CLASS[t.status]}>
+                      {TASK_STATUS_LABELS_AR[t.status]}
+                    </Badge>
+                  </div>
+                  <span
+                    className={cn(
+                      "font-mono text-sm text-muted-foreground",
+                      t.status === "Overdue" && "font-bold text-red-600 dark:text-red-400"
+                    )}
+                    dir="ltr"
+                  >
+                    {t.due_date}
+                  </span>
+                  <Button asChild size="sm" className="rounded-xl">
+                    <Link href={`/tasks/${t.inspection_task_id}?from=${encodeURIComponent(backHere)}`}>
+                      <Play className="size-3.5" />
+                      {t.status === "In Progress" ? "متابعة" : "بدء الفحص"}
+                    </Link>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              لا توجد فحوصات مجدولة على هذه المعدة
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* next / last + condition trend */}
