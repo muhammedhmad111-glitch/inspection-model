@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
+import type { ProductionLine } from "@/lib/production-line";
 import { PmReportSend } from "@/components/pm-report-send";
 import {
   daysWaiting,
@@ -102,9 +103,11 @@ function Block({
 export function PmClient({
   initialData,
   senderName,
+  line,
 }: {
   initialData: PmReportData;
   senderName: string;
+  line: ProductionLine;
 }) {
   const [data, setData] = useState<PmReportData>(initialData);
   const [offset, setOffset] = useState("0");
@@ -116,6 +119,7 @@ export function PmClient({
     const supabase = createClient();
     const { data: week, error } = await supabase.rpc("get_pm_report_data", {
       p_week_start: weekStartISO(Number(next)),
+      p_line: line,
     });
     setLoading(false);
     if (error || !week) {
@@ -143,7 +147,7 @@ export function PmClient({
             المعدة تكون واقفة
           </p>
         </div>
-        <PmReportSend data={data} senderName={senderName} />
+        <PmReportSend data={data} senderName={senderName} line={line} />
       </div>
 
       <div className="flex flex-wrap items-end gap-3">

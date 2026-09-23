@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/app-shell/sidebar";
 import { Topbar } from "@/components/app-shell/topbar";
 import { getCurrentProfile } from "@/lib/current-profile";
 import { createClient } from "@/lib/supabase/server";
+import { getActiveLine } from "@/lib/production-line-server";
 import { signOut } from "@/app/login/actions";
 import { Button } from "@/components/ui/button";
 
@@ -44,16 +45,23 @@ export default async function AppLayout({
   }
 
   const supabase = await createClient();
-  const { count: unreadCount } = await supabase
-    .from("notifications")
-    .select("*", { count: "exact", head: true })
-    .eq("is_read", false);
+  const [{ count: unreadCount }, activeLine] = await Promise.all([
+    supabase
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("is_read", false),
+    getActiveLine(),
+  ]);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar isSuperAdmin={profile.isSuperAdmin} canViewAudit={profile.canViewAudit} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar profile={profile} unreadCount={unreadCount ?? 0} />
+        <Topbar
+          profile={profile}
+          unreadCount={unreadCount ?? 0}
+          activeLine={activeLine}
+        />
         <main className="flex-1 px-4 pb-6 md:px-6">{children}</main>
       </div>
     </div>

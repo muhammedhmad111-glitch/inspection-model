@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  Activity,
   AlertTriangle,
   ArrowDownRight,
   ArrowUpRight,
@@ -18,6 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Donut, HBars, RingGauge, Sparkline, TrendLines, VBars } from "@/components/charts";
+import { LINE_LABELS_AR, type ProductionLine } from "@/lib/production-line";
 import type { Enums } from "@/lib/supabase/types";
 import {
   ACTION_STATUS_LABELS_AR,
@@ -179,9 +179,11 @@ function SectionCard({ title, children }: { title: string; children: React.React
 export function DashboardTabs({
   d,
   a,
+  line,
 }: {
   d: DashboardData;
   a: AnalyticsData;
+  line: ProductionLine;
 }) {
   const [tab, setTab] = useState("overview");
 
@@ -225,7 +227,9 @@ export function DashboardTabs({
     <div className="flex flex-col gap-6">
       {/* hero */}
       <div className="overflow-hidden rounded-3xl bg-gradient-to-l from-brand-purple to-brand-purple-strong p-7 text-white shadow-xl shadow-brand-navy/20">
-        <p className="text-sm font-medium text-white/70">AMREYAH CEMENT · لوحة القيادة</p>
+        <p className="text-sm font-medium text-white/70">
+          AMREYAH CEMENT · لوحة القيادة · {LINE_LABELS_AR[line]}
+        </p>
         <h1 className="mt-1 text-2xl font-bold">مؤشرات أداء الفحص والصيانة</h1>
         <div className="mt-5 flex flex-wrap gap-3">
           {headlinePills.map((p) => (

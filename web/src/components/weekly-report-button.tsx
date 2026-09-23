@@ -28,6 +28,7 @@ import { ExtraRecipients } from "@/components/extra-recipients";
 import { PLACEHOLDER_DOMAIN, useExtraRecipients } from "@/lib/report-recipients";
 import { ROLE_LABELS_AR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import type { ProductionLine } from "@/lib/production-line";
 import {
   WeeklyReportVideo,
   WEEKLY_REPORT_DURATION,
@@ -161,7 +162,13 @@ function buildEmailHtml(d: WeeklyReportVideoProps, note: string, videoUrl: strin
   </div>`;
 }
 
-export function WeeklyReportButton({ senderName }: { senderName: string }) {
+export function WeeklyReportButton({
+  senderName,
+  line,
+}: {
+  senderName: string;
+  line: ProductionLine;
+}) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rendering, setRendering] = useState(false);
@@ -188,7 +195,10 @@ export function WeeklyReportButton({ senderName }: { senderName: string }) {
     const weekStart = weekStartISO(Number(nextOffset));
     const [rec, week] = await Promise.all([
       withRecipients ? supabase.rpc("get_report_recipients") : Promise.resolve(null),
-      supabase.rpc("get_weekly_report_data", { p_week_start: weekStart }),
+      supabase.rpc("get_weekly_report_data", {
+        p_week_start: weekStart,
+        p_line: line,
+      }),
     ]);
 
     if (rec) {
@@ -251,9 +261,11 @@ export function WeeklyReportButton({ senderName }: { senderName: string }) {
     });
   }
 
+  // Both lines report the same week to the same managers, so the line has to be
+  // in the subject or the second mail looks like a duplicate of the first.
   const subject = reportData
-    ? `Weekly Inspection Report — ${reportData.weekStart} to ${reportData.weekEnd}`
-    : "Weekly Inspection Report";
+    ? `Weekly Inspection Report — Line ${line} — ${reportData.weekStart} to ${reportData.weekEnd}`
+    : `Weekly Inspection Report — Line ${line}`;
 
   const body = useMemo(() => {
     if (!reportData) return "";

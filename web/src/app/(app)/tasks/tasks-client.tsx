@@ -29,6 +29,8 @@ import { Constants, type Enums } from "@/lib/supabase/types";
 import { groupBySection, sectionsWord, type SectionRef } from "@/lib/sections";
 import { equipmentLabel, equipmentTags, type EquipmentRef } from "@/lib/equipment-ref";
 import { cn } from "@/lib/utils";
+import { VIA_EQUIPMENT_LINE_PATH } from "@/lib/line-filter";
+import { LINE_LABELS_AR, type ProductionLine } from "@/lib/production-line";
 import { DailyReportButton } from "@/components/daily-report-button";
 import { WeeklyReportButton } from "@/components/weekly-report-button";
 import {
@@ -95,14 +97,15 @@ const TAB_STATUSES: Record<Tab, Enums<"task_status">[]> = {
   completed: ["Completed"],
 };
 
-// `!inner` on both embeds so a filter on the activity's frequency or on the
-// equipment's section drops the parent task instead of just blanking the embed.
+// `!inner` on every embed so a filter on the activity's frequency, the equipment's
+// section or the area's production line drops the parent task instead of just
+// blanking the embed.
 const TASK_SELECT = `inspection_task_id, task_code, scheduled_date, due_date, status, priority,
    recurrence_cycle, assigned_user_id, condition_rating, completion_date,
    inspection_activities!inner ( activity_name, inspection_category, frequency_type ),
    equipment!inner (
      equipment_id, equipment_name, equipment_code, functional_location,
-     sections ( section_id, section_name, areas ( area_name ) )
+     sections!inner ( section_id, section_name, areas!inner ( area_name, production_line ) )
    ),
    equipment_parts ( part_name )`;
 
@@ -115,12 +118,14 @@ export function TasksClient({
   equipmentOptions,
   sectionOptions,
   currentUserId,
+  line,
   canManage,
 }: {
   profiles: ProfileOption[];
   equipmentOptions: EquipmentOption[];
   sectionOptions: SectionOption[];
   currentUserId: string;
+  line: ProductionLine;
   canManage: boolean;
 }) {
   const router = useRouter();
@@ -153,6 +158,7 @@ export function TasksClient({
       let q = supabase
         .from("inspection_tasks")
         .select(TASK_SELECT, { count: "exact", head })
+        .eq(VIA_EQUIPMENT_LINE_PATH, line)
         .in("status", statuses);
       if (mineOnly) q = q.eq("assigned_user_id", currentUserId);
       if (equipmentFilter !== ALL) q = q.eq("equipment_id", equipmentFilter);
@@ -166,7 +172,14 @@ export function TasksClient({
         );
       return q;
     },
-    [currentUserId, equipmentFilter, sectionFilter, priorityFilter, frequencyFilter]
+    [
+      currentUserId,
+      line,
+      equipmentFilter,
+      sectionFilter,
+      priorityFilter,
+      frequencyFilter,
+    ]
   );
 
   useEffect(() => {
@@ -248,12 +261,18 @@ export function TasksClient({
         <div>
           <h1 className="text-2xl font-bold">مهام الفحص</h1>
           <p className="text-sm text-muted-foreground">
-            قائمة أعمال المفتشين — بدء وتنفيذ الفحوصات
+            قائمة أعمال المفتشين — بدء وتنفيذ الفحوصات · {LINE_LABELS_AR[line]}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <DailyReportButton senderName={profileById.get(currentUserId) ?? ""} />
-          <WeeklyReportButton senderName={profileById.get(currentUserId) ?? ""} />
+          <DailyReportButton
+            senderName={profileById.get(currentUserId) ?? ""}
+            line={line}
+          />
+          <WeeklyReportButton
+            senderName={profileById.get(currentUserId) ?? ""}
+            line={line}
+          />
         </div>
       </div>
 

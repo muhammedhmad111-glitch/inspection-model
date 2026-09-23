@@ -26,6 +26,7 @@ import {
   type PmReportData,
 } from "@/lib/pm-report";
 import { cn } from "@/lib/utils";
+import type { ProductionLine } from "@/lib/production-line";
 
 type Recipient = {
   id: string;
@@ -175,9 +176,11 @@ function buildEmailHtml(d: PmReportData, preparedBy: string, note: string): stri
 export function PmReportSend({
   data,
   senderName,
+  line,
 }: {
   data: PmReportData;
   senderName: string;
+  line: ProductionLine;
 }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -188,8 +191,11 @@ export function PmReportSend({
   const { extras, add: addExtra, forget: forgetExtra } = useExtraRecipients();
   const [note, setNote] = useState("");
 
-  const filename = `Weekly-PM-Report-${data.weekStart}.pdf`;
-  const subject = `Weekly PM Report — ${data.weekStart} to ${data.weekEnd}`;
+  // Line in both the filename and the subject: the two lines' PM reports land in
+  // the same inbox in the same hour, and one overwriting the other on disk is a
+  // week of shutdown work lost.
+  const filename = `Weekly-PM-Report-Line${line}-${data.weekStart}.pdf`;
+  const subject = `Weekly PM Report — Line ${line} — ${data.weekStart} to ${data.weekEnd}`;
 
   async function loadRecipients() {
     setLoading(true);

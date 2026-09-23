@@ -8,8 +8,10 @@ import {
   FINDING_STATUS_LABELS_AR,
   FINDING_TYPE_LABELS_AR,
   PRIORITY_LABELS_AR,
-  TASK_STATUS_LABELS_AR,
 } from "@/lib/constants";
+import { LINE_LABELS_AR } from "@/lib/production-line";
+import { getActiveLine } from "@/lib/production-line-server";
+import { VIA_EQUIPMENT_LINE_PATH, VIA_FINDING_LINE_PATH } from "@/lib/line-filter";
 import { ReportsClient, type ReportDef } from "./reports-client";
 
 type Rel<T> = T | T[] | null;
@@ -29,17 +31,32 @@ function eqLabel(
 
 export default async function ReportsPage() {
   const supabase = await createClient();
+  const line = await getActiveLine();
 
-  const [overdue, findings, history, actions, completedForProd] = await Promise.all([
+  // Every report here is one line's report. Pooling both lines into a single
+  // "overdue inspections" table would hand a manager a number for a plant that
+  // nobody is accountable for.
+  const [
+    overdue,
+    findings,
+    history,
+    ownActions,
+    findingActions,
+    completedForProd,
+  ] = await Promise.all([
     supabase
       .from("inspection_tasks")
       .select(
         `task_code, due_date, priority, status,
          inspection_activities ( activity_name ),
-         equipment ( equipment_name, functional_location ),
+         equipment!inner (
+           equipment_name, functional_location,
+           sections!inner ( areas!inner ( production_line ) )
+         ),
          equipment_parts ( part_name ),
          profiles!assigned_user_id ( full_name )`
       )
+      .eq(VIA_EQUIPMENT_LINE_PATH, line)
       .eq("status", "Overdue")
       .order("due_date")
       .limit(1000),
@@ -47,8 +64,12 @@ export default async function ReportsPage() {
       .from("inspection_findings")
       .select(
         `finding_code, finding_title, severity, finding_type, status, created_at,
-         equipment ( equipment_name, functional_location )`
+         equipment!inner (
+           equipment_name, functional_location,
+           sections!inner ( areas!inner ( production_line ) )
+         )`
       )
+      .eq(VIA_EQUIPMENT_LINE_PATH, line)
       .neq("status", "Closed")
       .in("severity", ["Critical", "High"])
       .order("created_at", { ascending: false })
@@ -58,27 +79,79 @@ export default async function ReportsPage() {
       .select(
         `completion_date, condition_rating,
          inspection_activities ( activity_name, inspection_category ),
-         equipment ( equipment_name, functional_location ),
+         equipment!inner (
+           equipment_name, functional_location,
+           sections!inner ( areas!inner ( production_line ) )
+         ),
          profiles!completed_by ( full_name )`
       )
+      .eq(VIA_EQUIPMENT_LINE_PATH, line)
       .eq("status", "Completed")
       .order("completion_date", { ascending: false })
+      .limit(1000),
+    // An action knows its line from the machine it names, or — when it names
+    // none — from the finding it was raised off. Asking only through the finding
+    // would leave directly-raised work out of the maintenance report entirely,
+    // so both routes are asked for and merged below.
+    supabase
+      .from("maintenance_actions")
+      .select(
+        `action_code, action_title, action_type, priority, responsible_department,
+         target_date, status, sap_work_order, created_at,
+         equipment!inner (
+           equipment_name,
+           sections!inner ( areas!inner ( production_line ) )
+         )`
+      )
+      .eq(VIA_EQUIPMENT_LINE_PATH, line)
+      .order("created_at", { ascending: false })
       .limit(1000),
     supabase
       .from("maintenance_actions")
       .select(
         `action_code, action_title, action_type, priority, responsible_department,
-         target_date, status, sap_work_order,
-         inspection_findings ( equipment ( equipment_name ) )`
+         target_date, status, sap_work_order, created_at,
+         inspection_findings!inner (
+           equipment!inner (
+             equipment_name,
+             sections!inner ( areas!inner ( production_line ) )
+           )
+         )`
       )
+      .is("equipment_id", null)
+      .eq(VIA_FINDING_LINE_PATH, line)
       .order("created_at", { ascending: false })
       .limit(1000),
     supabase
       .from("inspection_tasks")
-      .select(`completion_date, profiles!completed_by ( full_name )`)
+      .select(
+        `completion_date, profiles!completed_by ( full_name ),
+         equipment!inner ( sections!inner ( areas!inner ( production_line ) ) )`
+      )
+      .eq(VIA_EQUIPMENT_LINE_PATH, line)
       .eq("status", "Completed")
       .limit(5000),
   ]);
+
+  // The two action queries are disjoint — the second only takes rows with no
+  // equipment of their own — so merging cannot repeat one. Each is flattened to
+  // the same shape first, since the machine sits in a different place in each.
+  const actions = [
+    ...(ownActions.data ?? []).map((a) => ({
+      ...a,
+      equipment_name: one<{ equipment_name: string }>(a.equipment)?.equipment_name ?? "",
+    })),
+    ...(findingActions.data ?? []).map((a) => ({
+      ...a,
+      equipment_name:
+        one<{ equipment_name: string }>(
+          one<{ equipment: Rel<{ equipment_name: string }> }>(a.inspection_findings)
+            ?.equipment ?? null
+        )?.equipment_name ?? "",
+    })),
+  ]
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+    .slice(0, 1000);
 
   // inspector productivity aggregation
   const prodMap = new Map<string, { count: number; last: string }>();
@@ -91,7 +164,7 @@ export default async function ReportsPage() {
     prodMap.set(name, cur);
   }
 
-  const reports: ReportDef[] = [
+  const baseReports: ReportDef[] = [
     {
       id: "overdue",
       title: "تقرير الفحوصات المتأخرة",
@@ -167,16 +240,11 @@ export default async function ReportsPage() {
         "المستهدف",
         "الحالة",
       ],
-      rows: (actions.data ?? []).map((a) => [
+      rows: actions.map((a) => [
         a.action_code,
         a.sap_work_order ?? "",
         a.action_title,
-        one<{ equipment: Rel<{ equipment_name: string }> }>(a.inspection_findings)
-          ? one<{ equipment_name: string }>(
-              one<{ equipment: Rel<{ equipment_name: string }> }>(a.inspection_findings)!
-                .equipment
-            )?.equipment_name ?? ""
-          : "",
+        a.equipment_name,
         ACTION_TYPE_LABELS_AR[a.action_type as Enums<"action_type">],
         PRIORITY_LABELS_AR[a.priority as Enums<"priority_level">],
         a.responsible_department ?? "",
@@ -185,6 +253,14 @@ export default async function ReportsPage() {
       ]),
     },
   ];
+
+  // The line goes in the title, not just on the screen. These get exported to PDF
+  // and forwarded on, and a detached table of overdue inspections that does not
+  // say which line it is for is worse than no table.
+  const reports: ReportDef[] = baseReports.map((r) => ({
+    ...r,
+    title: `${r.title} — ${LINE_LABELS_AR[line]}`,
+  }));
 
   return <ReportsClient reports={reports} />;
 }

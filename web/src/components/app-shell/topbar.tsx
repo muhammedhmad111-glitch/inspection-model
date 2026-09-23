@@ -2,16 +2,20 @@ import Link from "next/link";
 import { Bell, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/app-shell/mobile-nav";
+import { LineSwitcher } from "@/components/app-shell/line-switcher";
 import { ROLE_LABELS_AR } from "@/lib/constants";
 import { signOut } from "@/app/login/actions";
 import type { getCurrentProfile } from "@/lib/current-profile";
+import type { ProductionLine } from "@/lib/production-line";
 
 export function Topbar({
   profile,
   unreadCount = 0,
+  activeLine,
 }: {
   profile: NonNullable<Awaited<ReturnType<typeof getCurrentProfile>>>;
   unreadCount?: number;
+  activeLine: ProductionLine;
 }) {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between px-4 md:h-20 md:px-6">
@@ -20,6 +24,7 @@ export function Topbar({
         canViewAudit={profile.canViewAudit}
       />
       <div className="flex items-center gap-2 md:gap-3">
+        <LineSwitcher active={activeLine} />
         <Button
           asChild
           variant="ghost"

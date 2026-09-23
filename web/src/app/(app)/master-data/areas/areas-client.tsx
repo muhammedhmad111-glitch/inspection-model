@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/types";
+import { LINE_LABELS_AR, type ProductionLine } from "@/lib/production-line";
 
 type Area = Tables<"areas">;
 
@@ -49,9 +50,11 @@ type AreaFormValues = z.infer<typeof areaSchema>;
 
 export function AreasClient({
   initialAreas,
+  line,
   canWrite,
 }: {
   initialAreas: Area[];
+  line: ProductionLine;
   canWrite: boolean;
 }) {
   const [search, setSearch] = useState("");
@@ -84,7 +87,7 @@ export function AreasClient({
         <div>
           <h1 className="text-2xl font-bold">المناطق</h1>
           <p className="text-sm text-muted-foreground">
-            المستوى الأول من هيكل الأصول
+            المستوى الأول من هيكل الأصول — {LINE_LABELS_AR[line]}
           </p>
         </div>
         {canWrite ? (
@@ -167,6 +170,7 @@ export function AreasClient({
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           area={editing}
+          line={line}
         />
       ) : null}
     </div>
@@ -177,10 +181,12 @@ function AreaFormDialog({
   open,
   onOpenChange,
   area,
+  line,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   area: Area | null;
+  line: ProductionLine;
 }) {
   const router = useRouter();
   const isEdit = !!area;
@@ -201,10 +207,14 @@ function AreaFormDialog({
     setSubmitting(true);
     const supabase = createClient();
 
+    // A new area joins the line you are currently looking at — the alternative is
+    // a line dropdown nobody would notice, and an area silently filed under the
+    // wrong line disappears from every list that matters.
     const payload = {
       area_code: values.area_code,
       area_name: values.area_name,
       description: values.description || null,
+      production_line: line,
       active,
     };
 
@@ -239,7 +249,9 @@ function AreaFormDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "تعديل المنطقة" : "منطقة جديدة"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "تعديل المنطقة" : `منطقة جديدة — ${LINE_LABELS_AR[line]}`}
+          </DialogTitle>
         </DialogHeader>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

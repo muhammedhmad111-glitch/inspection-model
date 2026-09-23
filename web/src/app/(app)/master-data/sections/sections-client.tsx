@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/types";
+import { LINE_LABELS_AR, type ProductionLine } from "@/lib/production-line";
 
 type Section = Tables<"sections">;
 type Area = Tables<"areas">;
@@ -59,10 +60,12 @@ type SectionFormValues = z.infer<typeof sectionSchema>;
 export function SectionsClient({
   initialSections,
   areas,
+  line,
   canWrite,
 }: {
   initialSections: Section[];
   areas: Area[];
+  line: ProductionLine;
   canWrite: boolean;
 }) {
   const [search, setSearch] = useState("");
@@ -103,7 +106,7 @@ export function SectionsClient({
         <div>
           <h1 className="text-2xl font-bold">الأقسام</h1>
           <p className="text-sm text-muted-foreground">
-            المستوى الثاني من هيكل الأصول، داخل كل منطقة
+            المستوى الثاني من هيكل الأصول، داخل كل منطقة — {LINE_LABELS_AR[line]}
           </p>
         </div>
         {canWrite ? (

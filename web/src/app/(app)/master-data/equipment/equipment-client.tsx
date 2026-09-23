@@ -44,6 +44,7 @@ import {
   STATUS_LABELS_AR,
 } from "@/lib/constants";
 import { Constants } from "@/lib/supabase/types";
+import { LINE_LABELS_AR, type ProductionLine } from "@/lib/production-line";
 
 type Equipment = Tables<"equipment">;
 type Section = Tables<"sections">;
@@ -69,11 +70,13 @@ export function EquipmentClient({
   initialEquipment,
   sections,
   areas,
+  line,
   canWrite,
 }: {
   initialEquipment: Equipment[];
   sections: Section[];
   areas: Area[];
+  line: ProductionLine;
   canWrite: boolean;
 }) {
   const router = useRouter();
@@ -131,7 +134,7 @@ export function EquipmentClient({
         <div>
           <h1 className="text-2xl font-bold">المعدات</h1>
           <p className="text-sm text-muted-foreground">
-            كل معدات المصنع مع بيانات الموقع والحرجية والحالة
+            معدات {LINE_LABELS_AR[line]} مع بيانات الموقع والحرجية والحالة
           </p>
         </div>
         {canWrite ? (

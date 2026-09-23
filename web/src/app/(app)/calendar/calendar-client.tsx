@@ -19,6 +19,8 @@ import { groupBySection, sectionsWord, type SectionRef } from "@/lib/sections";
 import { EquipmentRefText } from "@/components/equipment-ref";
 import type { EquipmentRef } from "@/lib/equipment-ref";
 import { cn } from "@/lib/utils";
+import { VIA_EQUIPMENT_LINE_PATH } from "@/lib/line-filter";
+import type { ProductionLine } from "@/lib/production-line";
 import {
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS_AR,
@@ -51,9 +53,11 @@ const colOf = (dow: number) => (dow + 1) % 7;
 export function CalendarClient({
   profiles,
   initialDay,
+  line,
 }: {
   profiles: { id: string; full_name: string }[];
   initialDay: string | null;
+  line: ProductionLine;
 }) {
   const today = new Date();
   // Coming back from a task returns with ?day=…, so open on that day's month.
@@ -62,12 +66,17 @@ export function CalendarClient({
   const [month, setMonth] = useState(initial.getMonth());
   const [inspector, setInspector] = useState(ALL);
   const [tasks, setTasks] = useState<TaskLite[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<string | null>(initialDay);
+
+  // What the tasks in state were fetched for. Comparing it to what is on screen
+  // says whether we are still loading, so the month can grey out without a
+  // second state that the effect has to keep in step.
+  const shown = `${year}-${month}-${line}`;
+  const [loaded, setLoaded] = useState<string | null>(null);
+  const loading = loaded !== shown;
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
     (async () => {
       const supabase = createClient();
       const start = ymd(year, month, 1);
@@ -77,23 +86,24 @@ export function CalendarClient({
         .select(
           `inspection_task_id, due_date, status, priority, assigned_user_id,
            inspection_activities ( activity_name ),
-           equipment (
+           equipment!inner (
              equipment_name, functional_location,
-             sections ( section_id, section_name, areas ( area_name ) )
+             sections!inner ( section_id, section_name, areas!inner ( area_name, production_line ) )
            )`
         )
+        .eq(VIA_EQUIPMENT_LINE_PATH, line)
         .gte("due_date", start)
         .lte("due_date", end)
         .limit(2000);
       if (active) {
         setTasks((data ?? []) as TaskLite[]);
-        setLoading(false);
+        setLoaded(shown);
       }
     })();
     return () => {
       active = false;
     };
-  }, [year, month]);
+  }, [year, month, line, shown]);
 
   const visible = useMemo(
     () =>

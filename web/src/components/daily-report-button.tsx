@@ -29,6 +29,8 @@ import {
 } from "@/lib/equipment-ref";
 import { ROLE_LABELS_AR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { VIA_EQUIPMENT_LINE_PATH, VIA_FINDING_LINE_PATH } from "@/lib/line-filter";
+import type { ProductionLine } from "@/lib/production-line";
 
 function escapeHtml(s: string): string {
   return s
@@ -215,7 +217,13 @@ type ActionRow = {
   inspection_findings: { equipment: EquipmentRef } | null;
 };
 
-export function DailyReportButton({ senderName }: { senderName: string }) {
+export function DailyReportButton({
+  senderName,
+  line,
+}: {
+  senderName: string;
+  line: ProductionLine;
+}) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -237,19 +245,20 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     setLoading(true);
     const supabase = createClient();
     const startOfDay = `${todayISO}T00:00:00`;
-    const [rec, comp, finds, acts, profs] = await Promise.all([
+    const [rec, comp, finds, ownActs, findingActs, profs] = await Promise.all([
       supabase.rpc("get_report_recipients"),
       supabase
         .from("inspection_tasks")
         .select(
           `task_code, completion_date, condition_rating, completed_by, assigned_user_id,
            inspection_activities ( activity_name ),
-           equipment (
+           equipment!inner (
              equipment_name, equipment_code, functional_location,
-             sections ( section_name )
+             sections!inner ( section_name, areas!inner ( production_line ) )
            ),
            inspection_task_checklist_items ( label, result, measured_value, notes, sort_order )`
         )
+        .eq(VIA_EQUIPMENT_LINE_PATH, line)
         .eq("status", "Completed")
         .gte("completion_date", startOfDay)
         .order("completion_date", { ascending: false }),
@@ -257,34 +266,62 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
         .from("inspection_findings")
         .select(
           `finding_code, finding_title, severity,
-           equipment (
+           equipment!inner (
              equipment_name, equipment_code, functional_location,
-             sections ( section_name )
+             sections!inner ( section_name, areas!inner ( production_line ) )
            )`
         )
+        .eq(VIA_EQUIPMENT_LINE_PATH, line)
         .neq("status", "Closed")
+        .order("created_at", { ascending: false })
+        .limit(60),
+      // An action either names its own machine or borrows the one on the finding
+      // it came from. Asking for only one of the two would leave whole categories
+      // of open work out of the report, so both are fetched and merged.
+      supabase
+        .from("maintenance_actions")
+        .select(
+          `action_title, status, target_date, created_at,
+           equipment!inner (
+             equipment_name, equipment_code, functional_location,
+             sections!inner ( section_name, areas!inner ( production_line ) )
+           ),
+           inspection_findings (
+             equipment ( equipment_name, equipment_code, functional_location, sections ( section_name ) )
+           )`
+        )
+        .eq(VIA_EQUIPMENT_LINE_PATH, line)
+        .not("status", "in", "(Completed,Verified,Cancelled)")
         .order("created_at", { ascending: false })
         .limit(60),
       supabase
         .from("maintenance_actions")
         .select(
-          `action_title, status, target_date,
+          `action_title, status, target_date, created_at,
            equipment (
              equipment_name, equipment_code, functional_location,
              sections ( section_name )
            ),
-           inspection_findings (
-             equipment (
+           inspection_findings!inner (
+             equipment!inner (
                equipment_name, equipment_code, functional_location,
-               sections ( section_name )
+               sections!inner ( section_name, areas!inner ( production_line ) )
              )
            )`
         )
+        .is("equipment_id", null)
+        .eq(VIA_FINDING_LINE_PATH, line)
         .not("status", "in", "(Completed,Verified,Cancelled)")
         .order("created_at", { ascending: false })
         .limit(60),
       supabase.from("profiles").select("id, full_name"),
     ]);
+
+    // Disjoint by construction — the second bucket only takes rows the first
+    // cannot match — so the merge cannot repeat an action.
+    const acts = [...(ownActs.data ?? []), ...(findingActs.data ?? [])]
+      .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+      .slice(0, 60);
 
     const recs = (rec.data ?? []) as Recipient[];
     setRecipients(recs);
@@ -299,13 +336,16 @@ export function DailyReportButton({ senderName }: { senderName: string }) {
     setData({
       completed: (comp.data ?? []) as unknown as CompletedRow[],
       findings: (finds.data ?? []) as unknown as FindingRow[],
-      actions: (acts.data ?? []) as unknown as ActionRow[],
+      actions: acts as unknown as ActionRow[],
       nameById: new Map((profs.data ?? []).map((p) => [p.id, p.full_name])),
     });
     setLoading(false);
   }
 
-  const subject = `Daily Inspection Report — ${todayISO}`;
+  // The line goes in the subject: the two lines send a report each on the same
+  // day to the same managers, and an inbox with two identical subjects is a
+  // report nobody can file.
+  const subject = `Daily Inspection Report — Line ${line} — ${todayISO}`;
 
   // English report data used for both the PDF and the email body
   const reportData: ReportData | null = useMemo(() => {

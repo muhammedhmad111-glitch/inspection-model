@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
 import type { Enums } from "@/lib/supabase/types";
+import { LINE_LABELS_AR, type ProductionLine } from "@/lib/production-line";
 import { cn } from "@/lib/utils";
 import {
   FREQUENCY_BADGE_CLASS,
@@ -69,10 +70,12 @@ const OPEN_STATUSES: Enums<"task_status">[] = [
 export function SchedulingClient({
   initialTasks,
   stats,
+  line,
   canGenerate,
 }: {
   initialTasks: TaskRow[];
   stats: { total: number; overdue: number; upcoming: number; completed: number };
+  line: ProductionLine;
   canGenerate: boolean;
 }) {
   const router = useRouter();
@@ -136,7 +139,7 @@ export function SchedulingClient({
         <div>
           <h1 className="text-2xl font-bold">جدولة الفحوصات</h1>
           <p className="text-sm text-muted-foreground">
-            محرك التوليد التلقائي للمهام الدورية — أفق سنة كاملة
+            محرك التوليد التلقائي للمهام الدورية — أفق سنة كاملة · {LINE_LABELS_AR[line]}
           </p>
         </div>
         {canGenerate ? (

@@ -213,6 +213,7 @@ export type Database = {
           area_name: string
           created_at: string
           description: string | null
+          production_line: number
           updated_at: string
         }
         Insert: {
@@ -222,6 +223,7 @@ export type Database = {
           area_name: string
           created_at?: string
           description?: string | null
+          production_line?: number
           updated_at?: string
         }
         Update: {
@@ -231,6 +233,7 @@ export type Database = {
           area_name?: string
           created_at?: string
           description?: string | null
+          production_line?: number
           updated_at?: string
         }
         Relationships: []
@@ -1017,6 +1020,7 @@ export type Database = {
           notes: string | null
           noted_at: string | null
           part_name: string | null
+          production_line: number | null
           result: Database["public"]["Enums"]["checklist_result"] | null
           section_name: string | null
           task_code: string | null
@@ -1057,8 +1061,8 @@ export type Database = {
         Args: { p_horizon_days?: number }
         Returns: number
       }
-      get_dashboard_data: { Args: never; Returns: Json }
-      get_analytics_data: { Args: never; Returns: Json }
+      get_dashboard_data: { Args: { p_line?: number }; Returns: Json }
+      get_analytics_data: { Args: { p_line?: number }; Returns: Json }
       get_report_recipients: {
         Args: never
         Returns: {
@@ -1070,11 +1074,11 @@ export type Database = {
         }[]
       }
       get_pm_report_data: {
-        Args: { p_week_start?: string }
+        Args: { p_week_start?: string; p_line?: number }
         Returns: Json
       }
       get_weekly_report_data: {
-        Args: { p_week_start?: string }
+        Args: { p_week_start?: string; p_line?: number }
         Returns: Json
       }
       has_maintenance_write: { Args: never; Returns: boolean }
