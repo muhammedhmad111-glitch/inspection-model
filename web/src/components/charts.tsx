@@ -46,6 +46,22 @@ export function RingGauge({
 
 export type DonutSegment = { label: string; value: number; color: string };
 
+/**
+ * Turn segment values into dash lengths laid end to end around a circumference.
+ * Module level on purpose: walking the running total inside the component body
+ * would be a variable reassignment during render.
+ */
+function layOutArcs(segments: DonutSegment[], circumference: number) {
+  const total = segments.reduce((s, x) => s + x.value, 0) || 1;
+  let walked = 0;
+  return segments.map((seg) => {
+    const len = (seg.value / total) * circumference;
+    const arc = { label: seg.label, color: seg.color, len, offset: walked };
+    walked += len;
+    return arc;
+  });
+}
+
 export function Donut({
   segments,
   size = 160,
@@ -57,31 +73,25 @@ export function Donut({
 }) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
-  const total = segments.reduce((s, x) => s + x.value, 0) || 1;
-  let acc = 0;
+  const arcs = layOutArcs(segments, c);
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-5">
       <svg width={size} height={size} className="-rotate-90 shrink-0">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--muted)" strokeWidth={stroke} />
-        {segments.map((seg) => {
-          const len = (seg.value / total) * c;
-          const el = (
-            <circle
-              key={seg.label}
-              cx={size / 2}
-              cy={size / 2}
-              r={r}
-              fill="none"
-              stroke={seg.color}
-              strokeWidth={stroke}
-              strokeDasharray={`${len} ${c - len}`}
-              strokeDashoffset={-acc}
-            />
-          );
-          acc += len;
-          return el;
-        })}
+        {arcs.map((arc) => (
+          <circle
+            key={arc.label}
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke={arc.color}
+            strokeWidth={stroke}
+            strokeDasharray={`${arc.len} ${c - arc.len}`}
+            strokeDashoffset={-arc.offset}
+          />
+        ))}
       </svg>
       <ul className="flex flex-col gap-1.5 text-sm">
         {segments.map((seg) => (

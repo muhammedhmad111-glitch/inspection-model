@@ -16,11 +16,14 @@ export function MobileNav({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [drawnFor, setDrawnFor] = useState(pathname);
 
-  // close the drawer whenever the route changes
-  useEffect(() => {
+  // Close the drawer whenever the route changes. Done while rendering rather
+  // than in an effect so the new page never shows through the old drawer.
+  if (drawnFor !== pathname) {
+    setDrawnFor(pathname);
     setOpen(false);
-  }, [pathname]);
+  }
 
   // lock body scroll while the drawer is open
   useEffect(() => {

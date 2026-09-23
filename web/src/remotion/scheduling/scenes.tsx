@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { C, body, display, s } from "../system-overview/theme";
+import { C, display, s } from "../system-overview/theme";
 import { ACMark, BrowserFrame, Headline, Kicker, Stage, enterAt, useEnter } from "../system-overview/ui";
 
 const PAD = 120;
@@ -569,28 +569,23 @@ export function Snap() {
 /* ─────────────────────────── 6. the trap ──────────────────────────── */
 
 export const DRIFT = s(11);
-export function Drift() {
+function DriftTimeline({
+  label,
+  days,
+  tone,
+  delay,
+  note,
+}: {
+  label: string;
+  days: number[];
+  tone: string;
+  delay: number;
+  note: string;
+}) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Wrong: each cycle measured from the corrected date, so the error compounds.
-  const wrong = [1, 31, 62, 94, 127];
-  const right = [1, 31, 61, 91, 121];
-  const reveal = enterAt(frame, fps, 150, 200);
-
-  const Timeline = ({
-    label,
-    days,
-    tone,
-    delay,
-    note,
-  }: {
-    label: string;
-    days: number[];
-    tone: string;
-    delay: number;
-    note: string;
-  }) => (
+  return (
     <div style={{ width: 1400 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 14 }}>
         <span style={{ fontFamily: display, fontSize: 26, fontWeight: 700, color: tone }}>{label}</span>
@@ -639,6 +634,16 @@ export function Drift() {
       </div>
     </div>
   );
+}
+
+export function Drift() {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // Wrong: each cycle measured from the corrected date, so the error compounds.
+  const wrong = [1, 31, 62, 94, 127];
+  const right = [1, 31, 61, 91, 121];
+  const reveal = enterAt(frame, fps, 150, 200);
 
   return (
     <Stage>
@@ -648,14 +653,14 @@ export function Drift() {
           headline={<>Snapping is where monthly quietly becomes something else.</>}
         />
         <div style={{ marginTop: 46, display: "flex", flexDirection: "column", gap: 34 }}>
-          <Timeline
+          <DriftTimeline
             label="Next cycle from the snapped date"
             note="every correction is carried forward"
             days={wrong}
             tone={C.red}
             delay={30}
           />
-          <Timeline
+          <DriftTimeline
             label="Next cycle from the untouched base date"
             note="corrections never accumulate"
             days={right}

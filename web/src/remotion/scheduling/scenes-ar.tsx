@@ -265,14 +265,10 @@ export function Hash() {
 /* ─────────────────────────── 5. snap vs roll ─────────────────────────── */
 
 export const SNAP = s(10);
-export function Snap() {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+function SnapCard({ title, children }: { title: string; children: React.ReactNode }) {
   const L = useLocale();
-  const arrow = enterAt(frame, fps, 60, 200);
-  const rule = enterAt(frame, fps, 110, 200);
 
-  const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  return (
     <div
       style={{
         background: C.panel,
@@ -292,6 +288,13 @@ export function Snap() {
       {children}
     </div>
   );
+}
+
+export function Snap() {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const L = useLocale();
+  const arrow = enterAt(frame, fps, 60, 200);
 
   return (
     <Stage tint={0.6}>
@@ -328,13 +331,13 @@ export function Snap() {
         </div>
 
         <div style={{ marginTop: 34, display: "flex", gap: 26 }}>
-          <Card title="التكرار 7 أيام أو أكتر">
+          <SnapCard title="التكرار 7 أيام أو أكتر">
             بيترحّل ليوم النشاط، في حدود 3 أيام في أي اتجاه. الأسبوعي بيفضل على يومه، والشهري والربع
             سنوي بيقعوا عليه كمان.
-          </Card>
-          <Card title="التكرار أقل من 7 أيام">
+          </SnapCard>
+          <SnapCard title="التكرار أقل من 7 أيام">
             الشغل اليومي مينفعش يتحرك 3 أيام. بيتزحلق بره الويك إند وبس: الجمعة والسبت يبقوا أحد.
-          </Card>
+          </SnapCard>
         </div>
       </AbsoluteFill>
     </Stage>
@@ -344,28 +347,25 @@ export function Snap() {
 /* ──────────────────────────────── 6. trap ────────────────────────────── */
 
 export const DRIFT = s(11);
-export function Drift() {
+
+function DriftTimeline({
+  label,
+  days,
+  tone,
+  delay,
+  note,
+}: {
+  label: string;
+  days: number[];
+  tone: string;
+  delay: number;
+  note: string;
+}) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const L = useLocale();
 
-  const wrong = [1, 31, 62, 94, 127];
-  const right = [1, 31, 61, 91, 121];
-  const reveal = enterAt(frame, fps, 150, 200);
-
-  const Timeline = ({
-    label,
-    days,
-    tone,
-    delay,
-    note,
-  }: {
-    label: string;
-    days: number[];
-    tone: string;
-    delay: number;
-    note: string;
-  }) => (
+  return (
     <div style={{ width: 1400 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 14 }}>
         <span style={{ fontFamily: L.display, fontSize: 26, fontWeight: 700, color: tone }}>{label}</span>
@@ -398,20 +398,30 @@ export function Drift() {
       </div>
     </div>
   );
+}
+
+export function Drift() {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const L = useLocale();
+
+  const wrong = [1, 31, 62, 94, 127];
+  const right = [1, 31, 61, 91, 121];
+  const reveal = enterAt(frame, fps, 150, 200);
 
   return (
     <Stage>
       <AbsoluteFill style={{ alignItems: "center", padding: PAD, paddingTop: 72 }}>
         <Head kicker="الفخ" headline={<>هنا «الشهري» بيبطّل يبقى شهري.</>} />
         <div style={{ marginTop: 42, display: "flex", flexDirection: "column", gap: 34 }}>
-          <Timeline
+          <DriftTimeline
             label="الدورة الجاية من التاريخ المرحّل"
             note="كل تصحيح بينتقل لقدام"
             days={wrong}
             tone={C.red}
             delay={30}
           />
-          <Timeline
+          <DriftTimeline
             label="الدورة الجاية من التاريخ الأصلي"
             note="التصحيحات مبتتراكمش"
             days={right}

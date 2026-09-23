@@ -42,7 +42,10 @@ let last = -1;
 const serveUrl = await bundle({
   entryPoint: path.join(ROOT, "src", "remotion", "index.ts"),
   onProgress: (p) => {
-    if (p - last >= 25) (last = p), console.log(`  bundle ${p}%`);
+    if (p - last >= 25) {
+      last = p;
+      console.log(`  bundle ${p}%`);
+    }
   },
 });
 
@@ -81,7 +84,10 @@ if (process.argv[2] === "stills") {
     frameRange,
     onProgress: ({ progress }) => {
       const pct = Math.floor(progress * 100);
-      if (pct - shown >= 10) (shown = pct), console.log(`  render ${pct}%`);
+      if (pct - shown >= 10) {
+        shown = pct;
+        console.log(`  render ${pct}%`);
+      }
     },
   });
   console.log("done ->", output);

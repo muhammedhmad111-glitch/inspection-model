@@ -61,7 +61,6 @@ function pdfSafe(text: string | null): string {
 
 // Amreyah Cement identity
 const NAVY: [number, number, number] = [37, 42, 94]; // #252A5E — brand navy
-const INDIGO: [number, number, number] = [79, 70, 229]; // #4F46E5 — accent
 const LIGHT: [number, number, number] = [237, 236, 251]; // #EDECFB — tint
 
 /** Build a professional English PDF for the daily inspection report. */

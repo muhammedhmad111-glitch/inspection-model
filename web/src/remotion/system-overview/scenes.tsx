@@ -54,13 +54,6 @@ function Split({
   );
 }
 
-/** Slow push-in applied to a whole scene — keeps static shots alive. */
-function KenBurns({ children, from = 1, to = 1.06 }: { children: React.ReactNode; from?: number; to?: number }) {
-  const frame = useCurrentFrame();
-  const scale = interpolate(frame, [0, 260], [from, to], { extrapolateRight: "clamp" });
-  return <AbsoluteFill style={{ transform: `scale(${scale})` }}>{children}</AbsoluteFill>;
-}
-
 /* ─────────────────────────── 01 · hook ─────────────────────────── */
 
 export const HOOK = s(5);

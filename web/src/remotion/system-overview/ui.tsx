@@ -9,6 +9,20 @@ import { C, body, display } from "./theme";
 export const enterAt = (frame: number, fps: number, delay = 0, damping = 200) =>
   spring({ frame: frame - delay, fps, config: { damping }, durationInFrames: 24 });
 
+/**
+ * Lay scenes end to end so each carries the frame it starts on. Module level on
+ * purpose: walking the cursor inside a composition's body would be a variable
+ * reassignment during render.
+ */
+export function layOutCues<T extends { d: number }>(scenes: T[]): (T & { from: number })[] {
+  let cursor = 0;
+  return scenes.map((sc) => {
+    const cue = { ...sc, from: cursor };
+    cursor += sc.d;
+    return cue;
+  });
+}
+
 /** Hook flavour of {@link enterAt} for use at the top level of a component. */
 export function useEnter(delay = 0, damping = 200) {
   const frame = useCurrentFrame();

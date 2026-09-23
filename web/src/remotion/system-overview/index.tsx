@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame } from "remotion";
-import { SceneFade } from "./ui";
+import { SceneFade, layOutCues } from "./ui";
 import * as S from "./scenes";
 import timing from "./timing.json";
 
@@ -73,21 +73,18 @@ function MusicBed({ src, volume }: { src: string; volume: number }) {
 }
 
 export function SystemOverview(props: SystemOverviewProps) {
-  let at = 0;
+  const cues = layOutCues(storyboard(props));
+
   return (
     <AbsoluteFill style={{ background: "#0b0d24" }}>
       {props.music ? <MusicBed src={props.music} volume={props.musicVolume} /> : null}
       {/* Narration is pre-timed to the cuts, so it plays flat from frame 0. */}
       {props.voiceover ? <Audio src={staticFile(props.voiceover)} /> : null}
-      {storyboard(props).map((sc) => {
-        const from = at;
-        at += sc.d;
-        return (
-          <Sequence key={sc.id} from={from} durationInFrames={sc.d} name={sc.id}>
-            <SceneFade durationInFrames={sc.d}>{sc.el}</SceneFade>
-          </Sequence>
-        );
-      })}
+      {cues.map((sc) => (
+        <Sequence key={sc.id} from={sc.from} durationInFrames={sc.d} name={sc.id}>
+          <SceneFade durationInFrames={sc.d}>{sc.el}</SceneFade>
+        </Sequence>
+      ))}
     </AbsoluteFill>
   );
 }
