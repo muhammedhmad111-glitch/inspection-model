@@ -1,0 +1,11 @@
+# Editors on Windows keep flipping files to CRLF, which turns a three-line
+# change into a whole-file rewrite in the diff. Store everything with LF.
+* text=auto eol=lf
+
+# Binary — never touch.
+*.ico binary
+*.png binary
+*.jpg binary
+*.mp4 binary
+*.wav binary
+*.zip binary

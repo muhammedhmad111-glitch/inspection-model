@@ -17,6 +17,9 @@ dist/
 *.tsbuildinfo
 next-env.d.ts
 
+# === Supabase CLI scratch ===
+supabase/.temp/
+
 # === Python ===
 __pycache__/
 *.py[cod]
