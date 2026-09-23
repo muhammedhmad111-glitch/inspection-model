@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
+  Network,
   Map,
   Boxes,
   Cog,
@@ -31,6 +32,7 @@ export type AdminNavItem = NavItem & { need: "super" | "audit" };
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "الرئيسية", icon: LayoutDashboard },
   { href: "/assistant", label: "المساعد الذكي", icon: Sparkles },
+  { href: "/master-data/structure", label: "هيكل الأصول", icon: Network },
   { href: "/master-data/areas", label: "المناطق", icon: Map },
   { href: "/master-data/sections", label: "الأقسام", icon: Boxes },
   { href: "/master-data/equipment", label: "المعدات", icon: Cog },
