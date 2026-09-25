@@ -1,0 +1,85 @@
+-- Batch four, and the first one that is mostly kiln: the tyre, its supporting
+-- rollers east and west, the splined fastening system, and the pneumatic double
+-- flap valves. 66.2% of all checklist items now carry Arabic.
+--
+-- East and west are kept apart rather than merged into one "supporting roller"
+-- line. They are two different rollers on two different concrete bases, and an
+-- inspector recording wear against the wrong one produces a trend that points at
+-- the wrong end of a kiln.
+
+insert into public.checklist_translations (label_norm, label_en, label_ar)
+select public.checklist_label_norm(v.en), v.en, v.ar
+from (values
+  ('Driven rim: Check the bearing housing seals and grease leakage.', 'الطوق المنقاد: افحص سيلات بيت البيرنج وتسريب الشحم'),
+  ('Driven sprocket: Check the conditions of sprocket wear or tooth crack or broken.', 'الترس المنقاد: افحص تآكل الترس أو شرخ أو كسر في السنون'),
+  ('Duct: Check the condtion of corrosion.', 'الدكت: افحص حالة الصدأ'),
+  ('Duct: Check the condtion of worn-out.', 'الدكت: افحص حالة التآكل'),
+  ('Flex-Joint outlet: Check the condition of flex-joint (cut, tear, material blockage in the joint).', 'الوصلة المرنة بالخروج: افحص حالتها (قطع، تهتك، انسداد بالمادة)'),
+  ('Main Gear Box.: Check colour and visual aspect of oil', 'الجير بوكس الرئيسي: افحص لون الزيت ومظهره'),
+  ('Main Gear Box.: Check condition of gear box breather', 'الجير بوكس الرئيسي: افحص حالة فتحة التنفس'),
+  ('Main Gear Box.: Check gear box condition and mounting', 'الجير بوكس الرئيسي: افحص حالة الجير بوكس وتثبيته'),
+  ('Measuring Procedure: Dismantel the cover of the Chain.', 'خطوات القياس: فك غطاء الجنزير'),
+  ('Safety: Reagrease the bearing and put the seals.', 'السلامة: أعد تشحيم البيرنج وركّب السيلات'),
+  ('Snub drum at drive side: Check the bearing housing seals and grease leakage.', 'درام التوجيه جهة القيادة: افحص سيلات بيت البيرنج وتسريب الشحم'),
+  ('Snub drum at drive side: Check the grease leakage', 'درام التوجيه جهة القيادة: افحص تسريب الشحم'),
+  ('Snub drum at driven side: Check the bearing housing seals and grease leakage.', 'درام التوجيه الجهة المنقادة: افحص سيلات بيت البيرنج وتسريب الشحم'),
+  ('Snub drum at driven side: Check the grease leakage', 'درام التوجيه الجهة المنقادة: افحص تسريب الشحم'),
+  ('Aux-Gear box: Check oil level.', 'الجير بوكس المساعد: افحص منسوب الزيت'),
+  ('Belt: Check condition of belt and joint.', 'السير: افحص حالة السير والوصلة'),
+  ('Casing: Check for any abnormal noise.', 'الجسم: افحص وجود أي صوت غير طبيعي'),
+  ('check impeller and cones', 'افحص الريشة والمخاريط'),
+  ('Fixed Bearing - DE: Check the bearing housing seals and oil leakage.', 'البيرنج الثابت جهة القيادة (DE): افحص سيلات بيت البيرنج وتسريب الزيت'),
+  ('Fixed Bearing - DE: Check the oil level in bearing housing.', 'البيرنج الثابت جهة القيادة (DE): افحص منسوب الزيت في بيت البيرنج'),
+  ('Flex-Joint: Check the material blockage in the joint.', 'الوصلة المرنة: افحص انسداد المادة في الوصلة'),
+  ('Gear Box.(Geard Motor).: Check the bearings and conditions of back stop system.', 'الجير بوكس (الموتور المدمج): افحص البيرنجات وحالة نظام منع الرجوع (الباك ستوب)'),
+  ('Gear Box.(Geard Motor).: Check the internal gears through Inspection door.', 'الجير بوكس (الموتور المدمج): افحص التروس الداخلية من باب التفتيش'),
+  ('Measuring Procedure: Erect the coupling cover again and fix it.', 'خطوات القياس: ركّب غطاء الكوبلينج تاني وثبّته'),
+  ('Measuring procedure: Remove the safety guard.', 'خطوات القياس: شيل واقي الأمان'),
+  ('Penumatic Double flap Valve: Check for any clinker leakage from the casing.', 'محبس الدبل فلاب الهوائي: افحص تسريب الكلنكر من الجسم'),
+  ('Penumatic Double flap Valve: Check the abnormal noise.', 'محبس الدبل فلاب الهوائي: افحص وجود صوت غير طبيعي'),
+  ('Penumatic Double flap Valve: Check the connection rod of the Penumatic cylinder (Drive lever).', 'محبس الدبل فلاب الهوائي: افحص ذراع توصيل السلندر الهوائي (ذراع القيادة)'),
+  ('Penumatic Double flap Valve: Check the connection rod of the Penumatic cylinder.', 'محبس الدبل فلاب الهوائي: افحص ذراع توصيل السلندر الهوائي'),
+  ('Penumatic Double flap Valve: Check the gate internally through the inspection door cover insert.', 'محبس الدبل فلاب الهوائي: افحص البوابة من جوه من باب التفتيش — حشوة الغطاء'),
+  ('Penumatic Double flap Valve: Check the gate internally through the inspection door Flap blade..', 'محبس الدبل فلاب الهوائي: افحص البوابة من جوه من باب التفتيش — ريشة الفلاب'),
+  ('Penumatic Double flap Valve: Check the gate internally through the inspection door Inner lever.', 'محبس الدبل فلاب الهوائي: افحص البوابة من جوه من باب التفتيش — الذراع الداخلي'),
+  ('Penumatic Double flap Valve: Check the operation of the gate (open and close).', 'محبس الدبل فلاب الهوائي: افحص تشغيل البوابة (فتح وقفل)'),
+  ('Rollers: Check the Lowe return rollers steel and rubber (noise, missing, blockage).', 'الرولات: افحص رولات الرجوع السفلية الحديد والكاوتش (صوت، مفقود، انسداد)'),
+  ('Rollers: Check the upper carrier roller steel and impact (noise, missing, blockage).', 'الرولات: افحص رولات الحمل العلوية الحديد ورولات الصدم (صوت، مفقود، انسداد)'),
+  ('Rotary Casing.: Check the condition of casing worn-out, cracks , false air entry.', 'جسم الروتاري: افحص حالة التآكل والشروخ ودخول الهواء الكاذب'),
+  ('Rotary Casing.: Check the condition of hot gas ducts of rotary feeder , Leakage, corrosion.', 'جسم الروتاري: افحص حالة دكتات الغاز الساخن للروتاري فيدر (تسريب، صدأ)'),
+  ('Casing: Check overall corrosion condition.', 'الجسم: افحص الحالة العامة للصدأ'),
+  ('Chain: Check the conditions of railways , wear and fastening.', 'الجنزير: افحص حالة السكك — التآكل والتثبيت'),
+  ('Check abnormal noise.', 'افحص وجود صوت غير طبيعي'),
+  ('Check the condtion of worn-out.', 'افحص حالة التآكل'),
+  ('Fixed Bearing - DE: Check the abnormal noise or sound.', 'البيرنج الثابت جهة القيادة (DE): افحص وجود صوت غير طبيعي'),
+  ('Gear Box.: Review the coupling cover fixation between motor and gear Box.', 'الجير بوكس: راجع تثبيت غطاء الكوبلينج بين الموتور والجير بوكس'),
+  ('Kiln tyre with splined fastening system.: Check the condition of Axial stopper (cracks, broken).', 'طوق الفرن بنظام التثبيت المشرشر: افحص حالة المصد المحوري (شروخ، كسر)'),
+  ('Kiln tyre with splined fastening system.: Check the condition of Clamping device (lossness, spring or nut lossness).', 'طوق الفرن بنظام التثبيت المشرشر: افحص حالة جهاز التكبيس (سيبان، سيبان السوستة أو الصامولة)'),
+  ('Kiln tyre with splined fastening system.: Check the condition of Floating bearing plates (cracks, broken).', 'طوق الفرن بنظام التثبيت المشرشر: افحص حالة ألواح الارتكاز المتحركة (شروخ، كسر)'),
+  ('Kiln tyre with splined fastening system.: Check the condition of welding joints.', 'طوق الفرن بنظام التثبيت المشرشر: افحص حالة وصلات اللحام'),
+  ('Kiln tyre with splined fastening system.: Check the condition of X- Shap (cracks, broken).', 'طوق الفرن بنظام التثبيت المشرشر: افحص حالة القطعة على شكل X (شروخ، كسر)'),
+  ('Measuring procedure: Clean very well impeller blades.', 'خطوات القياس: نظّف ريش الإمبلر كويس جدًا'),
+  ('Measuring procedure: Close the inspection door of the fan casing.', 'خطوات القياس: اقفل باب التفتيش بتاع جسم المروحة'),
+  ('Measuring Procedure: Identify and mark the various weak points of belt sections installed on the conveyor as 1,2, 3,4,……', 'خطوات القياس: حدّد وعلّم نقاط الضعف في أجزاء السير على الناقل بالأرقام 1، 2، 3، 4'),
+  ('Measuring Procedure: Measure the gap between the two half of coupling in 4 postion angular and radial', 'خطوات القياس: قِس الخلوص بين نصفي الكوبلينج في 4 مواضع، زاويًا وقطريًا'),
+  ('Measuring procedure: Measure the thickness of the blades and record it.', 'خطوات القياس: قِس سُمك الريش وسجّل القراءة'),
+  ('Measuring procedure: Open the inspection door of the fan casing.', 'خطوات القياس: افتح باب التفتيش بتاع جسم المروحة'),
+  ('Outlet chute: Check the condition of hot gas ducts of rotary feeder , Leakage, corrosion.', 'شوت الخروج: افحص حالة دكتات الغاز الساخن للروتاري فيدر (تسريب، صدأ)'),
+  ('Rollers: Check the conditions of roller rotations.', 'الرولات: افحص دوران الرولات'),
+  ('Supporting roller east side.: Check the Axial postion of the roller, shaft, roller marks.', 'رولة الارتكاز الجهة الشرقية: افحص الوضع المحوري للرولة والعمود وعلامات الرولة'),
+  ('Supporting roller east side.: Check the concrete bases ( cracks, Fixing, broken).', 'رولة الارتكاز الجهة الشرقية: افحص القواعد الخرسانية (شروخ، تثبيت، كسر)'),
+  ('Supporting roller east side.: Check the condition of Lubrication between the Roller and tyre.', 'رولة الارتكاز الجهة الشرقية: افحص حالة التزييت بين الرولة والطوق'),
+  ('Supporting roller east side.: Check the condition of roller side (crack,wear).', 'رولة الارتكاز الجهة الشرقية: افحص حالة جانب الرولة (شرخ، تآكل)'),
+  ('Supporting roller east side.: Check the graphite Fixation.', 'رولة الارتكاز الجهة الشرقية: افحص تثبيت الجرافيت'),
+  ('Supporting roller west side.: Check the Axial postion of the roller, shaft, roller marks.', 'رولة الارتكاز الجهة الغربية: افحص الوضع المحوري للرولة والعمود وعلامات الرولة'),
+  ('Supporting roller west side.: Check the concrete bases ( cracks, Fixing, broken).', 'رولة الارتكاز الجهة الغربية: افحص القواعد الخرسانية (شروخ، تثبيت، كسر)'),
+  ('Supporting roller west side.: Check the condition of Lubrication between the Roller and tyre.', 'رولة الارتكاز الجهة الغربية: افحص حالة التزييت بين الرولة والطوق'),
+  ('Supporting roller west side.: Check the condition of roller side (crack,wear).', 'رولة الارتكاز الجهة الغربية: افحص حالة جانب الرولة (شرخ، تآكل)'),
+  ('Supporting roller west side.: Check the graphite Fixation.', 'رولة الارتكاز الجهة الغربية: افحص تثبيت الجرافيت'),
+  ('Tyre: Check the condition of tyre side (crack,wear).', 'الطوق: افحص حالة جانب الطوق (شرخ، تآكل)'),
+  ('Tyre: Check the contact between the tyre and supporting roller at east side.', 'الطوق: افحص التلامس بين الطوق ورولة الارتكاز الجهة الشرقية'),
+  ('Tyre: Check the contact between the tyre and supporting roller at west side.', 'الطوق: افحص التلامس بين الطوق ورولة الارتكاز الجهة الغربية'),
+  ('Tyre: Check the rolling surface (crack, thermal cranck,graphitzation).', 'الطوق: افحص سطح الدوران (شرخ، شرخ حراري، ترسّب جرافيت)')
+) as v(en, ar)
+on conflict (label_norm) do update
+set label_en = excluded.label_en, label_ar = excluded.label_ar, updated_at = now();
