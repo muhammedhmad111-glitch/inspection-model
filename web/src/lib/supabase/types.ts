@@ -509,12 +509,40 @@ export type Database = {
         }
         Relationships: []
       }
+      checklist_translations: {
+        Row: {
+          created_at: string
+          label_ar: string
+          label_en: string
+          label_norm: string
+          updated_at: string
+          verified: boolean
+        }
+        Insert: {
+          created_at?: string
+          label_ar: string
+          label_en: string
+          label_norm: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Update: {
+          created_at?: string
+          label_ar?: string
+          label_en?: string
+          label_norm?: string
+          updated_at?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
       inspection_task_checklist_items: {
         Row: {
           created_at: string
           id: string
           inspection_task_id: string
           label: string
+          label_norm: string | null
           measured_value: number | null
           note_dismissed_at: string | null
           note_dismissed_by: string | null

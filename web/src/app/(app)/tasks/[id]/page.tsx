@@ -70,6 +70,18 @@ export default async function TaskExecutionPage({
         .order("created_at")
     : { data: [] };
 
+  // The Arabic wording for this round's items. Looked up rather than stored on
+  // the item, so that a translation written tomorrow reaches the rounds already
+  // on a fitter's phone — and so the English label, which decides whether he
+  // gets a measurement field, is never the thing being overwritten.
+  const norms = [...new Set((items ?? []).map((i) => i.label_norm).filter(Boolean))];
+  const { data: translations } = norms.length
+    ? await supabase
+        .from("checklist_translations")
+        .select("label_norm, label_ar")
+        .in("label_norm", norms as string[])
+    : { data: [] };
+
   return (
     <ExecutionClient
       task={task}
@@ -78,6 +90,9 @@ export default async function TaskExecutionPage({
       findings={findings ?? []}
       inspectorName={inspector?.full_name ?? null}
       backHref={safeBackHref(from)}
+      labelsAr={Object.fromEntries(
+        (translations ?? []).map((t) => [t.label_norm, t.label_ar])
+      )}
     />
   );
 }

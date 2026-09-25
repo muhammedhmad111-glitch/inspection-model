@@ -91,6 +91,7 @@ export function ExecutionClient({
   findings,
   inspectorName,
   backHref,
+  labelsAr,
 }: {
   task: Task;
   initialItems: Item[];
@@ -98,6 +99,9 @@ export function ExecutionClient({
   findings: ShareFinding[];
   inspectorName: string | null;
   backHref: string;
+  /** Arabic wording by normalised English label, for the items on this round.
+   *  Partial by design: an item with no entry yet simply reads in English. */
+  labelsAr: Record<string, string>;
 }) {
   const router = useRouter();
   const cameFromCalendar = backHref.startsWith("/calendar");
@@ -138,14 +142,17 @@ export function ExecutionClient({
   }, [photos]);
 
   // The checklist as the summary card and the WhatsApp report want it: each item
-  // carrying the public URLs of its own photos.
+  // carrying the public URLs of its own photos, and its Arabic wording if one
+  // has been written. `label` is left untouched — it is what tells the report
+  // which items carry a reading.
   const shareItems = useMemo(
     () =>
       items.map((i) => ({
         ...i,
+        label_ar: i.label_norm ? labelsAr[i.label_norm] ?? null : null,
         photos: (photosByItem.get(i.id) ?? []).map((p) => attachmentUrl(p.storage_path)),
       })),
-    [items, photosByItem]
+    [items, photosByItem, labelsAr]
   );
 
   // Everything the inspector flagged, wrote about or photographed, in one place —
@@ -389,7 +396,7 @@ export function ExecutionClient({
                   <div key={i.id} className="rounded-2xl bg-background/80 p-3">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <p className="text-sm font-medium" dir="auto">
-                        {i.label}
+                        {i.label_ar ?? i.label}
                       </p>
                       <div className="flex flex-wrap gap-1.5">
                         {i.measured_value != null ? (
@@ -454,6 +461,7 @@ export function ExecutionClient({
             <ItemCard
               key={item.id}
               item={item}
+              labelAr={item.label_norm ? labelsAr[item.label_norm] ?? null : null}
               idx={idx}
               isClosed={isClosed}
               photos={photosByItem.get(item.id) ?? []}
@@ -569,6 +577,7 @@ export function ExecutionClient({
 
 function ItemCard({
   item,
+  labelAr,
   idx,
   isClosed,
   photos,
@@ -580,6 +589,8 @@ function ItemCard({
   onSaveNotes,
 }: {
   item: Item;
+  /** Null until this sentence has been translated; the card then reads English. */
+  labelAr: string | null;
   idx: number;
   isClosed: boolean;
   photos: Attachment[];
@@ -603,9 +614,20 @@ function ItemCard({
   return (
     <Card className="rounded-3xl border-0 shadow-sm">
       <CardContent className="flex flex-col gap-3 pt-5">
-        <p className="font-medium" dir="ltr">
-          <span className="text-muted-foreground">{idx + 1}.</span> {item.label}
-        </p>
+        <div className="flex flex-col gap-1">
+          <p className="font-medium" dir={labelAr ? "rtl" : "ltr"}>
+            <span className="text-muted-foreground">{idx + 1}.</span>{" "}
+            {labelAr ?? item.label}
+          </p>
+          {/* The sheet's own wording, kept under the translation rather than
+              replaced by it: it is what is written in the IJP binder and on the
+              machine, and it is how a wrong translation gets spotted. */}
+          {labelAr ? (
+            <p className="text-xs leading-snug text-muted-foreground" dir="ltr">
+              {item.label}
+            </p>
+          ) : null}
+        </div>
 
         {spec.kind === "numeric" ? (
           <div className="flex flex-col gap-2 rounded-2xl bg-muted/60 p-3">

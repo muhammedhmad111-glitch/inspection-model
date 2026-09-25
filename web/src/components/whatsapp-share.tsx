@@ -28,7 +28,12 @@ import {
 } from "@/lib/constants";
 
 export type ShareItem = {
+  /** The English wording off the IJP sheet. Stays the key `inferMeasurement`
+   *  reads to decide whether this item carries a reading, and in what unit. */
   label: string;
+  /** The same instruction in Arabic, where someone has written one. Display
+   *  only, and still absent on most items while the dictionary fills up. */
+  label_ar?: string | null;
   result: Enums<"checklist_result"> | null;
   measured_value: number | null;
   notes: string | null;
@@ -145,7 +150,7 @@ export function buildWhatsappMessage(
           i.measured_value != null ? `: ${i.measured_value}${unit ? ` ${unit}` : ""}` : "";
         const verdict = i.result ? ` — ${CHECKLIST_RESULT_LABELS_AR[i.result]}` : "";
         const note = i.notes?.trim() ? ` (${i.notes.trim()})` : "";
-        L.push(`• ${i.label}${reading}${verdict}${note}`);
+        L.push(`• ${i.label_ar ?? i.label}${reading}${verdict}${note}`);
         // Each link on its own line, so WhatsApp keeps it clickable instead of
         // swallowing it into the sentence around it.
         const photos = i.photos ?? [];
