@@ -20,6 +20,7 @@ export function Topbar({
   return (
     <header className="flex h-16 shrink-0 items-center justify-between px-4 md:h-20 md:px-6">
       <MobileNav
+        activeLine={activeLine}
         isSuperAdmin={profile.isSuperAdmin}
         canViewAudit={profile.canViewAudit}
       />

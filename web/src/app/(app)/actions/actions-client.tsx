@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { EquipmentSelect, type EquipmentOption } from "@/components/equipment-select";
 import { EquipmentRefText } from "@/components/equipment-ref";
 import { equipmentLabel, type EquipmentRef } from "@/lib/equipment-ref";
+import { LINE_LABELS_AR, type ProductionLine } from "@/lib/production-line";
 import {
   ACTION_STATUS_BADGE_CLASS,
   ACTION_STATUS_LABELS_AR,
@@ -93,12 +94,14 @@ export function ActionsClient({
   equipment,
   openFindings,
   canManage,
+  line,
 }: {
   initialActions: ActionRow[];
   profiles: ProfileOption[];
   equipment: EquipmentOption[];
   openFindings: FindingOption[];
   canManage: boolean;
+  line: ProductionLine;
 }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -169,7 +172,8 @@ export function ActionsClient({
         <div>
           <h1 className="text-2xl font-bold">إجراءات الصيانة</h1>
           <p className="text-sm text-muted-foreground">
-            الإجراءات المتولدة من ملاحظات الفحص ومتابعة تنفيذها حتى التحقق
+            الإجراءات المتولدة من ملاحظات الفحص ومتابعة تنفيذها حتى التحقق ·{" "}
+            {LINE_LABELS_AR[line]}
           </p>
         </div>
         {canManage ? (

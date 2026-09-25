@@ -55,7 +55,11 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <Sidebar isSuperAdmin={profile.isSuperAdmin} canViewAudit={profile.canViewAudit} />
+      <Sidebar
+        activeLine={activeLine}
+        isSuperAdmin={profile.isSuperAdmin}
+        canViewAudit={profile.canViewAudit}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar
           profile={profile}

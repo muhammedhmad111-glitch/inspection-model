@@ -32,6 +32,7 @@ import { Attachments } from "@/components/attachments";
 import { EquipmentSelect, type EquipmentOption } from "@/components/equipment-select";
 import { EquipmentRefText } from "@/components/equipment-ref";
 import { equipmentLabel, flatEquipmentRef, type EquipmentRef } from "@/lib/equipment-ref";
+import { LINE_LABELS_AR, type ProductionLine } from "@/lib/production-line";
 import {
   ACTION_STATUS_LABELS_AR,
   ACTION_TYPE_LABELS_AR,
@@ -72,12 +73,14 @@ export function FindingsClient({
   equipment,
   pendingNotes,
   canManage,
+  line,
 }: {
   initialFindings: Finding[];
   profiles: ProfileOption[];
   equipment: EquipmentOption[];
   pendingNotes: PendingNote[];
   canManage: boolean;
+  line: ProductionLine;
 }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
@@ -125,7 +128,8 @@ export function FindingsClient({
         <div>
           <h1 className="text-2xl font-bold">ملاحظات الفحص</h1>
           <p className="text-sm text-muted-foreground">
-            النتائج غير المطابقة المسجلة أثناء الفحوصات وقرارات التعامل معها
+            النتائج غير المطابقة المسجلة أثناء الفحوصات وقرارات التعامل معها ·{" "}
+            {LINE_LABELS_AR[line]}
           </p>
         </div>
         {canManage ? (

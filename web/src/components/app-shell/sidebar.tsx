@@ -1,43 +1,15 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { ADMIN_NAV_ITEMS, NAV_ITEMS, type NavItem } from "./nav-items";
+import { NavTree } from "./nav-tree";
+import type { ProductionLine } from "@/lib/production-line";
 
 export function Sidebar({
+  activeLine,
   isSuperAdmin = false,
   canViewAudit = false,
 }: {
+  activeLine: ProductionLine;
   isSuperAdmin?: boolean;
   canViewAudit?: boolean;
 }) {
-  const pathname = usePathname();
-  const adminItems = ADMIN_NAV_ITEMS.filter((i) =>
-    i.need === "super" ? isSuperAdmin : canViewAudit
-  );
-
-  const renderItem = (item: NavItem) => {
-    const active =
-      item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-    const Icon = item.icon;
-    return (
-      <Link
-        key={item.href}
-        href={item.href}
-        className={cn(
-          "flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-semibold transition-colors",
-          active
-            ? "bg-white text-primary shadow-sm"
-            : "text-white/65 hover:bg-white/10 hover:text-white"
-        )}
-      >
-        <Icon className="size-4.5" />
-        {item.label}
-      </Link>
-    );
-  };
-
   return (
     <aside className="hidden w-64 shrink-0 p-3 md:block">
       <div className="sticky top-3 flex h-[calc(100vh-1.5rem)] flex-col rounded-3xl bg-gradient-to-b from-brand-purple to-brand-purple-strong p-4 text-white shadow-xl shadow-brand-navy/20">
@@ -52,17 +24,11 @@ export function Sidebar({
             <div className="text-[11px] text-white/55">نظام فحص المصنع</div>
           </div>
         </div>
-        <nav className="mt-4 flex-1 space-y-1.5 overflow-y-auto pl-1">
-          {NAV_ITEMS.map(renderItem)}
-          {adminItems.length > 0 ? (
-            <>
-              <div className="px-3.5 pt-4 pb-1 text-[11px] font-bold uppercase tracking-wide text-white/40">
-                الإدارة
-              </div>
-              {adminItems.map(renderItem)}
-            </>
-          ) : null}
-        </nav>
+        <NavTree
+          activeLine={activeLine}
+          isSuperAdmin={isSuperAdmin}
+          canViewAudit={canViewAudit}
+        />
       </div>
     </aside>
   );

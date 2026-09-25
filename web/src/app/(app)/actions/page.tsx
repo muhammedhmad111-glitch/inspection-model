@@ -132,6 +132,7 @@ export default async function ActionsPage() {
       equipment={equipment ?? []}
       openFindings={findings ?? []}
       canManage={profile?.canWriteMaintenance ?? false}
+      line={line}
     />
   );
 }

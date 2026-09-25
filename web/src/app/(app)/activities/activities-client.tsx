@@ -40,6 +40,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { Enums, Tables } from "@/lib/supabase/types";
 import { Constants } from "@/lib/supabase/types";
+import { LINE_LABELS_AR, type ProductionLine } from "@/lib/production-line";
 import {
   CATEGORY_LABELS_AR,
   FREQUENCY_BADGE_CLASS,
@@ -67,9 +68,11 @@ const ALL = "__all__";
 export function ActivitiesClient({
   initialActivities,
   canWrite,
+  line,
 }: {
   initialActivities: Activity[];
   canWrite: boolean;
+  line: ProductionLine;
 }) {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(ALL);
@@ -121,7 +124,8 @@ export function ActivitiesClient({
       <div>
         <h1 className="text-2xl font-bold">أنشطة الفحص الدورية</h1>
         <p className="text-sm text-muted-foreground">
-          {initialActivities.length} نشاط مرتبط بأجزاء المعدات — مصدر توليد المهام
+          {initialActivities.length} نشاط مرتبط بأجزاء المعدات — مصدر توليد المهام ·{" "}
+          {LINE_LABELS_AR[line]}
         </p>
       </div>
 

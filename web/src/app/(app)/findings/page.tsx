@@ -55,6 +55,7 @@ export default async function FindingsPage() {
       equipment={equipment ?? []}
       pendingNotes={notes ?? []}
       canManage={profile?.canManageFindings ?? false}
+      line={line}
     />
   );
 }

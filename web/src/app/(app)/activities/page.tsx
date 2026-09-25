@@ -29,6 +29,7 @@ export default async function ActivitiesPage() {
     <ActivitiesClient
       initialActivities={activities ?? []}
       canWrite={profile?.canWriteMasterData ?? false}
+      line={line}
     />
   );
 }
